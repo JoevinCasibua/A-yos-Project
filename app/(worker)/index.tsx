@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Bell, ChevronRight, Clock, CheckCircle2, TrendingUp, DollarSign } from 'lucide-react-native';
+import { Bell, Clock, CheckCircle2, TrendingUp, DollarSign } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, IconSize, AvatarSize, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { workerProfile } from '@/constants/workerData';
+import { workerBookings, statusConfig } from '@/constants/workerMockData';
 
 const todayStats = [
   { label: 'Active Jobs', value: '2', icon: Clock, color: Colors.cta, bg: Colors.primarySurface },
@@ -15,41 +16,7 @@ const todayStats = [
   { label: 'Earnings', value: '$180', icon: DollarSign, color: Colors.info, bg: Colors.infoBg },
 ];
 
-const activeBookings = [
-  {
-    id: '1',
-    customerName: 'Alex Johnson',
-    service: 'Pipe Repair',
-    time: '2:00 PM',
-    status: 'upcoming' as const,
-    address: '123 Oak Street',
-    avatarUri: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100',
-  },
-  {
-    id: '2',
-    customerName: 'Sarah Williams',
-    service: 'Drain Cleaning',
-    time: '4:30 PM',
-    status: 'in_progress' as const,
-    address: '456 Pine Avenue',
-    avatarUri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
-  },
-  {
-    id: '3',
-    customerName: 'Michael Brown',
-    service: 'Water Heater Install',
-    time: 'Tomorrow, 9:00 AM',
-    status: 'upcoming' as const,
-    address: '789 Elm Drive',
-    avatarUri: 'https://images.pexels.com/photos/220457/pexels-photo-220457.jpeg?auto=compress&cs=tinysrgb&w=100',
-  },
-];
-
-const statusConfig = {
-  upcoming: { label: 'Upcoming', variant: 'info' as const },
-  in_progress: { label: 'In Progress', variant: 'warning' as const },
-  completed: { label: 'Completed', variant: 'success' as const },
-};
+const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled');
 
 export default function WorkerDashboardScreen() {
   return (
@@ -67,7 +34,7 @@ export default function WorkerDashboardScreen() {
               </AppText>
             </View>
             <Pressable style={styles.bell} hitSlop={12}>
-              <Bell size={22} color={Colors.textPrimary} strokeWidth={2} />
+              <Bell size={IconSize.lg} color={Colors.textPrimary} strokeWidth={2} />
               <View style={styles.bellDot} />
             </Pressable>
           </View>
@@ -84,7 +51,7 @@ export default function WorkerDashboardScreen() {
             {todayStats.map((stat) => (
               <View key={stat.label} style={styles.statCard}>
                 <View style={[styles.statIcon, { backgroundColor: stat.bg }]}>
-                  <stat.icon size={20} color={stat.color} strokeWidth={2} />
+                  <stat.icon size={IconSize.md} color={stat.color} strokeWidth={2} />
                 </View>
                 <AppText variant="h3" weight="bold" color={stat.color}>{stat.value}</AppText>
                 <AppText variant="caption" color={Colors.textSecondary}>{stat.label}</AppText>
@@ -103,7 +70,7 @@ export default function WorkerDashboardScreen() {
               onPress={() => router.push('/(worker)/bookings')}
             >
               <View style={styles.bookingHeader}>
-                <Avatar uri={booking.avatarUri} size={44} />
+                <Avatar uri={booking.customerAvatar} size={AvatarSize.small} />
                 <View style={styles.bookingInfo}>
                   <AppText variant="body" weight="semiBold">{booking.customerName}</AppText>
                   <AppText variant="caption" color={Colors.textSecondary}>{booking.service}</AppText>
@@ -128,7 +95,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 100 },
   header: {
     backgroundColor: Colors.white,
-    paddingHorizontal: Spacing['4'],
+    paddingHorizontal: Layout.screenPadding,
     paddingTop: Spacing['16'],
     paddingBottom: Spacing['5'],
     borderBottomWidth: 1,
@@ -166,7 +133,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginTop: Spacing['6'],
-    paddingHorizontal: Spacing['4'],
+    paddingHorizontal: Layout.screenPadding,
   },
   statsGrid: {
     flexDirection: 'row',

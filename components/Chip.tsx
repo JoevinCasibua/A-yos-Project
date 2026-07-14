@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, Pressable, PressableProps, Text } from 'react-native';
+import { View, StyleSheet, ViewStyle, Pressable, PressableProps } from 'react-native';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { AppText } from '@/components/AppText';
 
 interface ChipProps extends Omit<PressableProps, 'children'> {
   label: string;
@@ -45,16 +46,16 @@ export const Chip = React.memo(function Chip({
       {...props}
     >
       {leftIcon}
-      <Text
+      <AppText
+        variant="caption"
+        weight="semiBold"
+        color={selected ? Colors.white : Colors.textPrimary}
         style={{
-          fontSize,
-          color: selected ? Colors.white : Colors.textPrimary,
-          fontWeight: '600',
           marginHorizontal: (leftIcon || rightIcon) ? Spacing['1'] : 0,
         }}
       >
         {label}
-      </Text>
+      </AppText>
       {rightIcon}
     </Pressable>
   );

@@ -1,82 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ListRenderItem, Pressable } from 'react-native';
-import { SlidersHorizontal, MapPin, Clock, DollarSign } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
+import { MapPin, DollarSign } from 'lucide-react-native';
+import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { SearchBar } from '@/components/SearchBar';
 import { Chip } from '@/components/Chip';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
-import { RatingStars } from '@/components/RatingStars';
-
-interface JobOpportunity {
-  id: string;
-  customerName: string;
-  customerAvatar: string;
-  service: string;
-  category: string;
-  description: string;
-  location: string;
-  distance: string;
-  offeredPrice: string;
-  urgency: 'normal' | 'urgent';
-  postedTime: string;
-}
-
-const mockJobs: JobOpportunity[] = [
-  {
-    id: '1',
-    customerName: 'Alex Johnson',
-    customerAvatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Emergency Pipe Repair',
-    category: 'Plumbing',
-    description: 'Burst pipe in kitchen causing flooding. Need immediate assistance.',
-    location: '123 Oak Street',
-    distance: '0.8 mi',
-    offeredPrice: '$60',
-    urgency: 'urgent',
-    postedTime: '5 min ago',
-  },
-  {
-    id: '2',
-    customerName: 'Sarah Williams',
-    customerAvatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Water Heater Installation',
-    category: 'Plumbing',
-    description: 'Need a new 40-gallon water heater installed. Old one removed.',
-    location: '456 Pine Avenue',
-    distance: '1.2 mi',
-    offeredPrice: '$450',
-    urgency: 'normal',
-    postedTime: '1 hour ago',
-  },
-  {
-    id: '3',
-    customerName: 'Michael Brown',
-    customerAvatar: 'https://images.pexels.com/photos/220457/pexels-photo-220457.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Faucet Replacement',
-    category: 'Plumbing',
-    description: 'Replace kitchen faucet with new model. Already have the faucet.',
-    location: '789 Elm Drive',
-    distance: '2.1 mi',
-    offeredPrice: '$85',
-    urgency: 'normal',
-    postedTime: '3 hours ago',
-  },
-  {
-    id: '4',
-    customerName: 'Emily Davis',
-    customerAvatar: 'https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Drain Cleaning',
-    category: 'Plumbing',
-    description: 'Clogged bathroom drain. Water backing up.',
-    location: '321 Maple Court',
-    distance: '1.5 mi',
-    offeredPrice: '$75',
-    urgency: 'urgent',
-    postedTime: '10 min ago',
-  },
-];
+import { workerJobs } from '@/constants/workerMockData';
+import type { JobOpportunity } from '@/constants/workerMockData';
 
 const filterOptions = ['All', 'Urgent', 'Nearby', 'High Pay'];
 const sortOptions = ['Nearest', 'Highest Pay', 'Most Recent'];
@@ -87,7 +19,7 @@ export default function WorkerBrowseScreen() {
   const [sortBy, setSortBy] = useState('Nearest');
 
   const filteredJobs = useMemo(() => {
-    let result = [...mockJobs];
+    let result = [...workerJobs];
 
     if (query) {
       const q = query.toLowerCase();
@@ -105,6 +37,13 @@ export default function WorkerBrowseScreen() {
 
     return result;
   }, [query, activeFilter, sortBy]);
+
+  const handleAcceptJob = useCallback((job: JobOpportunity) => {
+    Alert.alert('Accept Job', `Accept ${job.service} from ${job.customerName}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Accept', onPress: () => Alert.alert('Accepted', 'Job added to your bookings.') },
+    ]);
+  }, []);
 
   const renderItem: ListRenderItem<JobOpportunity> = useCallback(
     ({ item }) => (
@@ -135,12 +74,15 @@ export default function WorkerBrowseScreen() {
             <AppText variant="bodySm" weight="bold" color={Colors.cta}>{item.offeredPrice}</AppText>
           </View>
         </View>
-        <Pressable style={({ pressed }) => [styles.acceptBtn, { opacity: pressed ? 0.8 : 1 }]}>
+        <Pressable
+          style={({ pressed }) => [styles.acceptBtn, { opacity: pressed ? 0.8 : 1 }]}
+          onPress={() => handleAcceptJob(item)}
+        >
           <AppText variant="button" color={Colors.white}>Accept Job</AppText>
         </Pressable>
       </View>
     ),
-    [],
+    [handleAcceptJob],
   );
 
   const keyExtractor = useCallback((item: JobOpportunity) => item.id, []);
