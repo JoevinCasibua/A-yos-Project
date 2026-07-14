@@ -45,7 +45,7 @@ export default function ReviewRequestScreen() {
 
   const isASAP = request.urgency === 'ASAP';
   const getPrimaryButtonText = () => {
-    if (isASAP) return 'Confirm & Proceed';
+    if (isASAP) return 'Proceed to Payment';
     return 'Confirm & Post for Bidding';
   };
 
@@ -157,14 +157,19 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing['4'], paddingTop: Spacing['4'], paddingBottom: Spacing['4'],
-    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
   },
   headerTitle: {
-    color: Colors.textPrimary,
+    flex: 1,
+    textAlign: 'center',
   },
-  backBtn: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
   scrollContent: {
     padding: Layout.screenPadding,
     paddingBottom: 160,
