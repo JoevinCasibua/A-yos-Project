@@ -55,7 +55,7 @@ export default function HomeScreen() {
                 Welcome back
               </AppText>
               <AppText variant="h3" weight="bold" style={{ marginTop: 2 }}>
-                Hello, User
+                Alex
               </AppText>
             </View>
             <Pressable style={styles.bell} hitSlop={12}>
