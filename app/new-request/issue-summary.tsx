@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Bot, CheckCircle, AlertTriangle } from 'lucide-react-native';
+import { Bot, CheckCircle, AlertTriangle, ChevronLeft } from 'lucide-react-native';
 import { Colors, Layout, Spacing } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
@@ -45,7 +45,7 @@ export default function AISummaryScreen() {
       aiRecommendations: recommendations,
       confidenceScore: confidence,
     });
-    router.push('/request/urgency');
+    router.push('/new-request/urgency' as any);
   };
 
   if (isAnalyzing) {
@@ -64,6 +64,14 @@ export default function AISummaryScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        </Pressable>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Issue Summary</AppText>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <AppCard style={styles.card}>
@@ -119,6 +127,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,

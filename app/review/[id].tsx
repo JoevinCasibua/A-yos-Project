@@ -18,7 +18,8 @@ export default function ReviewScreen() {
 
   const handleClose = useCallback(() => router.back(), []);
   const handleSubmit = useCallback(() => {
-    router.back();
+    // Navigate forward to Payment Received/Confirmation
+    router.replace('/payment-received');
   }, []);
 
   const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];

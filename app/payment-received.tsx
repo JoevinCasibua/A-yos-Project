@@ -1,54 +1,42 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CheckCircle2, CalendarDays } from 'lucide-react-native';
+import { CheckCircle2, DollarSign } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { useRequest } from '@/context/RequestContext';
 
-export default function BookingConfirmationScreen() {
+export default function PaymentReceivedScreen() {
   const router = useRouter();
-  const { request, resetRequest } = useRequest();
-
-  const handleViewBookings = () => {
-    resetRequest();
-    // Navigate to the bookings tab and reset the stack
-    router.replace('/(tabs)/bookings');
-  };
+  const { resetRequest } = useRequest();
 
   const handleGoHome = () => {
     resetRequest();
-    router.replace('/');
+    router.replace('/(tabs)');
   };
-
-  const statusStr = request.urgency === 'ASAP' ? 'En Route (ASAP)' : 'Offer Accepted';
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <CheckCircle2 size={80} color={Colors.success} strokeWidth={1.5} />
+        <View style={styles.iconContainer}>
+          <CheckCircle2 size={80} color={Colors.success} strokeWidth={1.5} />
+          <View style={styles.badgeContainer}>
+            <DollarSign size={24} color={Colors.white} strokeWidth={2.5} />
+          </View>
+        </View>
         
-        <AppText variant="h2" style={styles.title}>Worker Assigned!</AppText>
+        <AppText variant="h2" style={styles.title}>Payment Released!</AppText>
         <AppText variant="body" style={styles.subtitle}>
-          {request.urgency === 'ASAP' 
-            ? 'We found an available worker for your emergency request.'
-            : 'You have successfully accepted the offer. The worker has been notified.'}
+          The funds have been successfully transferred to the worker for the completed job.
         </AppText>
 
         <View style={styles.card}>
           <View style={styles.cardRow}>
             <CheckCircle2 size={24} color={Colors.primary} />
             <View style={styles.cardInfo}>
-              <AppText style={{ fontWeight: '600' }}>{statusStr}</AppText>
-              <AppText variant="caption" style={{ color: Colors.textSecondary }}>Waiting for worker to arrive</AppText>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.cardRow}>
-            <View style={styles.cardInfo}>
-              <AppText variant="caption" style={{ color: Colors.textSecondary }}>Worker ID</AppText>
-              <AppText style={{ fontWeight: '600' }}>{request.selectedWorkerId}</AppText>
+              <AppText style={{ fontWeight: '600' }}>Job Completed</AppText>
+              <AppText variant="caption" style={{ color: Colors.textSecondary }}>Thank you for using A-yos!</AppText>
             </View>
           </View>
         </View>
@@ -56,14 +44,11 @@ export default function BookingConfirmationScreen() {
 
       <View style={styles.footer}>
         <AppButton 
-          label="View in My Bookings" 
-          onPress={handleViewBookings} 
-          style={{ marginBottom: Spacing[3] }}
-        />
-        <AppButton 
           label="Back to Home" 
-          variant="outline"
+          size="xl"
           onPress={handleGoHome} 
+          style={{ backgroundColor: Colors.primary }}
+          labelStyle={{ color: Colors.white }}
         />
       </View>
     </View>
@@ -81,9 +66,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  iconContainer: {
+    position: 'relative',
+    marginBottom: Spacing[6],
+  },
+  badgeContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: -10,
+    backgroundColor: Colors.cta,
+    borderRadius: Radius.full,
+    padding: Spacing[1],
+    borderWidth: 3,
+    borderColor: Colors.background,
+  },
   title: {
     fontWeight: '700',
-    marginTop: Spacing[6],
     marginBottom: Spacing[2],
   },
   subtitle: {
@@ -107,11 +105,6 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.divider,
-    marginVertical: Spacing[4],
   },
   footer: {
     padding: Layout.screenPadding,

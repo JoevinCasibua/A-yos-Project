@@ -2,18 +2,26 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { ChevronLeft, CreditCard, Wallet, Banknote, Check, Info, Calendar } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, Typography } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Typography, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { paymentMethods } from '@/constants/mockData';
+import { useRequest } from '@/context/RequestContext';
 
 export default function PaymentScreen() {
+  const { request } = useRequest();
   const [selectedMethod, setSelectedMethod] = useState('visa');
 
   const handleBack = useCallback(() => router.back(), []);
   const handlePay = useCallback(() => {
-    router.replace('/(tabs)/bookings');
-  }, []);
+    // Navigate forward to Live Tracking, using the selected worker or defaulting to p1
+    const workerId = request.selectedWorkerId || 'p1';
+    
+    // Dismiss any underlying modals from the previous flow (e.g. Open Bidding / Schedule)
+    // so they are fully unmounted before Live Tracking loads, exactly replicating ASAP's clean transition.
+    router.dismissAll();
+    router.replace(`/tracking/${workerId}`);
+  }, [request.selectedWorkerId]);
 
   // Using a more generalized icon getter that maps to the new visuals
   const getMethodIcon = (type: string) => {
@@ -175,14 +183,19 @@ export default function PaymentScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing['4'], paddingTop: Spacing['4'], paddingBottom: Spacing['4'],
-    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
   },
   headerTitle: {
-    color: Colors.textPrimary,
+    flex: 1,
+    textAlign: 'center',
   },
-  backBtn: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
   section: { paddingHorizontal: Spacing['4'], marginBottom: Spacing['6'] },
   
   bookingCard: {

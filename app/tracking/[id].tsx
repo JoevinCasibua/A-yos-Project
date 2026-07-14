@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import { ChevronLeft, Phone, MessageCircle, Navigation, Star, Clock, MapPin } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
@@ -40,7 +40,7 @@ export default function TrackingScreen() {
     return () => clearInterval(timer);
   }, [currentStep]);
 
-  const handleBack = useCallback(() => router.back(), []);
+  const handleBack = useCallback(() => router.replace('/order'), []);
   const handleComplete = useCallback(() => {
     router.push(`/review/${provider.id}`);
   }, [provider.id]);
@@ -54,17 +54,12 @@ export default function TrackingScreen() {
       />
       <View style={styles.mapOverlay} />
 
-      {/* Top Nav */}
-      <View style={styles.topNav}>
-        <Pressable style={styles.navBtn} onPress={handleBack}>
-          <ChevronLeft size={22} color={Colors.textPrimary} strokeWidth={2.5} />
+      {/* Top Nav (Standardized Header) */}
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
         </Pressable>
-        <View style={styles.etaPill}>
-          <Clock size={16} color={Colors.cta} strokeWidth={2} />
-          <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>
-            {currentStep >= 2 ? 'Arrived' : `ETA ${etaMinutes} min`}
-          </AppText>
-        </View>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Live Tracking</AppText>
         <View style={{ width: 40 }} />
       </View>
 
@@ -163,20 +158,21 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   mapImage: { width: '100%', height: '100%', resizeMode: 'cover', position: 'absolute' },
   mapOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(245,246,250,0.3)' },
-  topNav: {
-    position: 'absolute', top: 50, left: 0, right: 0,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing['4'],
+  header: {
+    position: 'absolute', top: 0, left: 0, right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing[4],
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
   },
-  navBtn: {
-    width: 40, height: 40, borderRadius: Radius.full, backgroundColor: Colors.white,
-    alignItems: 'center', justifyContent: 'center', ...Elevation.md,
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
   },
-  etaPill: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing['1'],
-    backgroundColor: Colors.white, paddingHorizontal: Spacing['4'], paddingVertical: Spacing['2'],
-    borderRadius: Radius.full, ...Elevation.md,
-  },
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
   pinContainer: {
     position: 'absolute', top: height * 0.35, left: 0, right: 0,
     alignItems: 'center',

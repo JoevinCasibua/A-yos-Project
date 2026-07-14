@@ -69,7 +69,7 @@ export default function TabLayout() {
         listeners={() => ({
           tabPress: (e) => {
             e.preventDefault();
-            router.push('/request/create');
+            router.push('/new-request/create');
           },
         })}
       />

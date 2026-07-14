@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 // Removed expo-image-picker to fix Expo Go crash
-import { Camera, Image as ImageIcon, X } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, X, ChevronLeft } from 'lucide-react-native';
 import { Colors, Spacing, Layout, Typography } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
@@ -37,13 +37,21 @@ export default function CreateRequestScreen() {
 
   const handleNext = () => {
     updateRequest({ photos, description, category });
-    router.push('/request/ai-summary');
+    router.push('/new-request/issue-summary' as any);
   };
 
   const isNextDisabled = description.trim().length === 0;
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        </Pressable>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>New Request</AppText>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Photo Section */}
@@ -121,6 +129,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60, // Safe area approx
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
   },
   scrollContent: {
     padding: Layout.screenPadding,

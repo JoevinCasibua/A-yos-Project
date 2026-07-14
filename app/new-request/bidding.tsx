@@ -7,7 +7,7 @@ import { AppButton } from '@/components/AppButton';
 import { RatingStars } from '@/components/RatingStars';
 import { Avatar } from '@/components/Avatar';
 import { useRequest } from '@/context/RequestContext';
-import { MessageSquare, Clock } from 'lucide-react-native';
+import { MessageSquare, Clock, ChevronLeft } from 'lucide-react-native';
 
 const MOCK_BIDS = [
   {
@@ -63,6 +63,14 @@ export default function OpenBidsScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        </Pressable>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Open Bidding</AppText>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Request Summary */}
@@ -156,6 +164,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
   scrollContent: {
     padding: Layout.screenPadding,
     paddingBottom: 40,

@@ -37,15 +37,15 @@ export default function ReviewRequestScreen() {
   const handlePostRequest = () => {
     if (request.urgency === 'ASAP') {
       updateRequest({ status: 'Searching' });
-      router.push('/request/live-matching');
+      router.push('/payment');
     } else {
-      router.push('/request/open-bids' as any);
+      router.push('/new-request/bidding' as any);
     }
   };
 
   const isASAP = request.urgency === 'ASAP';
   const getPrimaryButtonText = () => {
-    if (isASAP) return 'Confirm & Pay ₱1,750.00';
+    if (isASAP) return 'Confirm & Proceed';
     return 'Confirm & Post for Bidding';
   };
 
@@ -66,7 +66,7 @@ export default function ReviewRequestScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <AppText variant="h3" style={styles.sectionTitle}>Photos</AppText>
-            <Pressable onPress={() => router.push('/request/create')}>
+            <Pressable onPress={() => router.push('/new-request/create' as any)}>
               <Edit3 size={18} color={Colors.primary} />
             </Pressable>
           </View>
@@ -87,8 +87,8 @@ export default function ReviewRequestScreen() {
         {/* Details Summary */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <AppText variant="h3" style={styles.sectionTitle}>Issue Details</AppText>
-            <Pressable onPress={() => router.push('/request/ai-summary')}>
+            <AppText variant="h3" style={styles.sectionTitle}>Job Details</AppText>
+            <Pressable onPress={() => router.push('/new-request/issue-summary' as any)}>
               <Edit3 size={18} color={Colors.primary} />
             </Pressable>
           </View>
@@ -131,53 +131,12 @@ export default function ReviewRequestScreen() {
           </View>
         </View>
 
-        {/* Payment Method - Only show if ASAP (This Week) */}
-        {isASAP && (
-          <View style={styles.section}>
-            <AppText variant="h3" style={[styles.sectionTitle, { marginBottom: Spacing['3'] }]}>Payment Method</AppText>
-            <View style={styles.methodsList}>
-              {PAYMENT_METHODS.map((method) => {
-                const isSelected = paymentMethod === method.id;
-                return (
-                  <Pressable
-                    key={method.id}
-                    style={[
-                      styles.methodCard,
-                      { borderColor: isSelected ? Colors.textPrimary : Colors.border },
-                    ]}
-                    onPress={() => setPaymentMethod(method.id)}
-                  >
-                    <View style={styles.methodIcon}>{method.icon}</View>
-                    <View style={styles.methodInfo}>
-                      <AppText variant="body" weight="semiBold">{method.id}</AppText>
-                      <AppText variant="caption" color={Colors.textSecondary}>{method.subtitle}</AppText>
-                    </View>
-                    {isSelected ? (
-                      <View style={styles.selectedCircle}>
-                        <Check size={14} color={Colors.white} strokeWidth={3} />
-                      </View>
-                    ) : (
-                      <View style={styles.unselectedCircle} />
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
-        )}
 
       </ScrollView>
 
       {/* Bottom CTA */}
       <View style={styles.bottomContainer}>
-        {isASAP && (
-          <View style={styles.securityNote}>
-            <Info size={20} color={Colors.success} strokeWidth={2} />
-            <AppText variant="bodySm" color={Colors.success} style={{ flex: 1 }}>
-              Online payment will be held and only released after the job is completed.
-            </AppText>
-          </View>
-        )}
+
         
         <AppButton
           label={getPrimaryButtonText()}

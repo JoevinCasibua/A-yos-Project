@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Zap, Users, Calendar } from 'lucide-react-native';
+import { Zap, Users, Calendar, ChevronLeft } from 'lucide-react-native';
 import { Colors, Layout, Spacing } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -44,16 +44,25 @@ export default function UrgencyScreen() {
     if (!selected) return;
     updateRequest({ urgency: selected });
     
-    // If 'This Week' is selected, route to the scheduling flow
-    if (selected === 'This Week') {
-      router.push('/request/schedule');
+    if (selected === 'ASAP') {
+      router.push('/new-request/asap');
+    } else if (selected === 'This Week') {
+      router.push('/new-request/this-week');
     } else {
-      router.push('/request/review');
+      router.push('/new-request/bidding');
     }
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        </Pressable>
+        <AppText variant="h4" weight="bold" style={styles.navTitle}>Urgency</AppText>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <AppText variant="h2" style={styles.headerTitle}>How urgent is this?</AppText>
         <AppText variant="body" style={styles.headerSubtitle}>
@@ -107,6 +116,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
+  navTitle: {
+    flex: 1,
+    textAlign: 'center',
   },
   scrollContent: {
     padding: Layout.screenPadding,
