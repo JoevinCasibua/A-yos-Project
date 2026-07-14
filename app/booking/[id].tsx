@@ -197,9 +197,15 @@ export default function BookingScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing['4'], paddingTop: Spacing['3'], paddingBottom: Spacing['3'],
-    backgroundColor: Colors.white, borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing['4'],
+    paddingTop: Spacing['16'],
+    paddingBottom: Spacing['5'],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.full, backgroundColor: Colors.surfaceLight },
   providerSummary: {
