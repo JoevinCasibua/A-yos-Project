@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   bottomSheet: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: Colors.white, borderTopLeftRadius: Radius['2xl'], borderTopRightRadius: Radius['2xl'],
+    backgroundColor: Colors.white, borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl,
     paddingHorizontal: Spacing['4'], paddingTop: Spacing['3'], paddingBottom: Spacing['6'],
     ...Elevation.xl,
   },
