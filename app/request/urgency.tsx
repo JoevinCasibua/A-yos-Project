@@ -43,7 +43,13 @@ export default function UrgencyScreen() {
   const handleNext = () => {
     if (!selected) return;
     updateRequest({ urgency: selected });
-    router.push('/request/review');
+    
+    // If 'This Week' is selected, route to the scheduling flow
+    if (selected === 'This Week') {
+      router.push('/request/schedule');
+    } else {
+      router.push('/request/review');
+    }
   };
 
   return (

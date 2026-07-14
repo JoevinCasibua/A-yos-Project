@@ -57,7 +57,8 @@ export default function OpenBidsScreen() {
       status: 'Accepted',
       selectedWorkerId: selectedBidId,
     });
-    router.push('/request/booking-confirmation');
+    // The master prompt explicitly says both flows must end at the SAME payment screen
+    router.push('/payment');
   };
 
   return (

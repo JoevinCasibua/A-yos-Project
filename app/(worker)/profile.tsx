@@ -7,6 +7,7 @@ import { Star } from 'lucide-react-native';
 
 export default function WorkerProfileTabScreen() {
   const handleSwitchToUser = useCallback(() => router.replace('/(tabs)'), []);
+  const handleLogout = useCallback(() => router.replace('/'), []);
 
   const verification = verificationConfig[workerProfile.verificationStatus];
 
@@ -25,6 +26,7 @@ export default function WorkerProfileTabScreen() {
       menuItems={workerMenuItems}
       devLabel="For Development Testing"
       onSwitchAccount={handleSwitchToUser}
+      onLogout={handleLogout}
     />
   );
 }

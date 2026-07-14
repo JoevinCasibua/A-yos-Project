@@ -1,15 +1,15 @@
 export const Colors = {
   // Primary brand blues (applied system-wide)
-  primary: '#0B63D6',
-  primaryDark: '#0849A8',
-  primaryMedium: '#0E73E6',
-  primaryLight: '#4DA5FF',
+  primary: '#071022',
+  primaryDark: '#000000',
+  primaryMedium: '#1A2B4C',
+  primaryLight: '#2C4166',
   primarySurface: '#EAF4FF',
   primaryBorder: '#BDE1FF',
 
   // Accent / CTA
-  cta: '#0B63D6',
-  ctaPressed: '#0849A8',
+  cta: '#071022',
+  ctaPressed: '#1A2B4C',
 
   // Verified badge
   verified: '#0EA5A4',
@@ -30,7 +30,7 @@ export const Colors = {
 
   // Neutrals
   white: '#FFFFFF',
-  background: '#F7F9FC',
+  background: '#F8F9FB',
   surfaceCard: '#FFFFFF',
   surfaceLight: '#FBFDFF',
   border: '#E6EBF6',
@@ -45,7 +45,7 @@ export const Colors = {
   textLink: '#0E73E6',
 
   // Navigation
-  navActive: '#0B63D6',
+  navActive: '#071022',
   navInactive: '#9CA3AF',
   navBackground: '#FFFFFF',
 

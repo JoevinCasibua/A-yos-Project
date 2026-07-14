@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-// Removed react-native-maps and expo-location to fix Expo Go crash
-import { MapPin, Edit3, Image as ImageIcon, Map as MapIcon } from 'lucide-react-native';
+import { MapPin, Edit3, Image as ImageIcon, Map as MapIcon, Check, Wallet, Banknote, CreditCard, ChevronLeft, Info } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -15,13 +14,12 @@ export default function ReviewRequestScreen() {
   
   const [location, setLocation] = useState(request.location);
   const [isLoadingLocation, setIsLoadingLocation] = useState(!request.location);
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentMethod, setPaymentMethod] = useState('GCash');
 
   const PAYMENT_METHODS = [
-    { id: 'Cash', icon: '💵' },
-    { id: 'GCash', icon: '📱' },
-    { id: 'PayMaya', icon: '💳' },
-    { id: 'Credit Card', icon: '🏦' }
+    { id: 'GCash', icon: <Wallet size={24} color={Colors.textPrimary} strokeWidth={2} />, subtitle: '0917 •••• 1234' },
+    { id: 'Credit / Debit Card', icon: <CreditCard size={24} color={Colors.textPrimary} strokeWidth={2} />, subtitle: 'Visa ending in 4242' },
+    { id: 'Cash on Service', icon: <Banknote size={24} color={Colors.textPrimary} strokeWidth={2} />, subtitle: 'Pay directly to provider' }
   ];
 
   useEffect(() => {
@@ -34,6 +32,8 @@ export default function ReviewRequestScreen() {
     }
   }, []);
 
+  const handleBack = () => router.back();
+
   const handlePostRequest = () => {
     if (request.urgency === 'ASAP') {
       updateRequest({ status: 'Searching' });
@@ -43,14 +43,24 @@ export default function ReviewRequestScreen() {
     }
   };
 
+  const isASAP = request.urgency === 'ASAP';
   const getPrimaryButtonText = () => {
-    if (request.urgency === 'ASAP') return 'Post Request Now';
-    return 'Post for Bidding';
+    if (isASAP) return 'Confirm & Pay ₱1,750.00';
+    return 'Confirm & Post for Bidding';
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        </Pressable>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Review Request</AppText>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Photos Preview */}
         <View style={styles.section}>
@@ -60,7 +70,7 @@ export default function ReviewRequestScreen() {
               <Edit3 size={18} color={Colors.primary} />
             </Pressable>
           </View>
-          {request.photos.length > 0 ? (
+          {request.photos && request.photos.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoScroll}>
               {request.photos.map((uri, idx) => (
                 <Image key={idx} source={{ uri }} style={styles.photo} />
@@ -89,44 +99,11 @@ export default function ReviewRequestScreen() {
               <Chip 
                 label={request.urgency || 'Unspecified Urgency'} 
                 selected 
-                color={request.urgency === 'ASAP' ? Colors.error : Colors.cta}
+                color={Colors.primary}
                 style={styles.chip}
               />
             </View>
           </View>
-        </View>
-
-        {/* Payment Method */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <AppText variant="h3" style={styles.sectionTitle}>Payment Method</AppText>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.paymentScroll}>
-            {PAYMENT_METHODS.map((method) => {
-              const isSelected = paymentMethod === method.id;
-              return (
-                <Pressable
-                  key={method.id}
-                  style={[
-                    styles.paymentCard,
-                    isSelected && styles.paymentCardSelected
-                  ]}
-                  onPress={() => setPaymentMethod(method.id)}
-                >
-                  <AppText style={styles.paymentIcon}>{method.icon}</AppText>
-                  <AppText 
-                    variant="caption" 
-                    style={{ 
-                      fontWeight: isSelected ? '700' : '500',
-                      color: isSelected ? Colors.cta : Colors.textPrimary 
-                    }}
-                  >
-                    {method.id}
-                  </AppText>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
         </View>
 
         {/* Location */}
@@ -154,16 +131,61 @@ export default function ReviewRequestScreen() {
           </View>
         </View>
 
+        {/* Payment Method - Only show if ASAP (This Week) */}
+        {isASAP && (
+          <View style={styles.section}>
+            <AppText variant="h3" style={[styles.sectionTitle, { marginBottom: Spacing['3'] }]}>Payment Method</AppText>
+            <View style={styles.methodsList}>
+              {PAYMENT_METHODS.map((method) => {
+                const isSelected = paymentMethod === method.id;
+                return (
+                  <Pressable
+                    key={method.id}
+                    style={[
+                      styles.methodCard,
+                      { borderColor: isSelected ? Colors.textPrimary : Colors.border },
+                    ]}
+                    onPress={() => setPaymentMethod(method.id)}
+                  >
+                    <View style={styles.methodIcon}>{method.icon}</View>
+                    <View style={styles.methodInfo}>
+                      <AppText variant="body" weight="semiBold">{method.id}</AppText>
+                      <AppText variant="caption" color={Colors.textSecondary}>{method.subtitle}</AppText>
+                    </View>
+                    {isSelected ? (
+                      <View style={styles.selectedCircle}>
+                        <Check size={14} color={Colors.white} strokeWidth={3} />
+                      </View>
+                    ) : (
+                      <View style={styles.unselectedCircle} />
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
       </ScrollView>
 
-      <View style={styles.footer}>
-        <AppText variant="caption" style={styles.estimateText}>
-          Estimated Price: <AppText style={{ fontWeight: '700' }}>$50 - $120</AppText>
-        </AppText>
-        <AppButton 
-          label={getPrimaryButtonText()} 
-          onPress={handlePostRequest} 
-          variant={request.urgency === 'ASAP' ? 'danger' : 'primary'}
+      {/* Bottom CTA */}
+      <View style={styles.bottomContainer}>
+        {isASAP && (
+          <View style={styles.securityNote}>
+            <Info size={20} color={Colors.success} strokeWidth={2} />
+            <AppText variant="bodySm" color={Colors.success} style={{ flex: 1 }}>
+              Online payment will be held and only released after the job is completed.
+            </AppText>
+          </View>
+        )}
+        
+        <AppButton
+          label={getPrimaryButtonText()}
+          size="xl"
+          fullWidth
+          onPress={handlePostRequest}
+          style={{ backgroundColor: Colors.primary, borderRadius: Radius.lg }}
+          labelStyle={{ color: Colors.white }}
         />
       </View>
     </View>
@@ -175,9 +197,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: Spacing['4'], paddingTop: Spacing['4'], paddingBottom: Spacing['4'],
+    backgroundColor: 'transparent',
+  },
+  headerTitle: {
+    color: Colors.textPrimary,
+  },
+  backBtn: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
   scrollContent: {
     padding: Layout.screenPadding,
-    paddingBottom: 40,
+    paddingBottom: 160,
   },
   section: {
     marginBottom: Spacing[6],
@@ -231,28 +262,23 @@ const styles = StyleSheet.create({
   chip: {
     marginRight: Spacing[2],
   },
-  paymentScroll: {
-    gap: Spacing[3],
-    paddingRight: Spacing[4],
+  methodsList: { gap: Spacing['3'] },
+  methodCard: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.white, borderRadius: Radius.lg,
+    padding: Spacing['4'], borderWidth: 1, gap: Spacing['3'],
   },
-  paymentCard: {
-    backgroundColor: Colors.surfaceCard,
-    padding: Spacing[3],
-    paddingHorizontal: Spacing[4],
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 90,
+  methodIcon: {
+    width: 40, height: 40, borderRadius: Radius.sm,
+    backgroundColor: Colors.borderLight, alignItems: 'center', justifyContent: 'center',
   },
-  paymentCardSelected: {
-    borderColor: Colors.cta,
-    backgroundColor: Colors.surfaceLight,
+  methodInfo: { flex: 1 },
+  selectedCircle: {
+    width: 24, height: 24, borderRadius: 12, backgroundColor: Colors.textPrimary,
+    alignItems: 'center', justifyContent: 'center',
   },
-  paymentIcon: {
-    fontSize: 20,
-    marginBottom: Spacing[1],
+  unselectedCircle: {
+    width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.textTertiary,
   },
   mapCard: {
     borderRadius: Radius.lg,
@@ -260,10 +286,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     backgroundColor: Colors.surfaceCard,
-  },
-  map: {
-    height: 140,
-    width: '100%',
   },
   mapPlaceholder: {
     height: 140,
@@ -283,15 +305,17 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: '500',
   },
-  footer: {
-    padding: Layout.screenPadding,
-    backgroundColor: Colors.surfaceCard,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
+  bottomContainer: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    backgroundColor: 'transparent', 
+    paddingHorizontal: Spacing['4'], paddingBottom: Spacing['6'],
   },
-  estimateText: {
-    textAlign: 'center',
-    marginBottom: Spacing[3],
-    color: Colors.textSecondary,
+  securityNote: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.successBg,
+    padding: Spacing['3'],
+    borderRadius: Radius.md,
+    gap: Spacing['2'], 
+    marginBottom: Spacing['4'],
   },
 });

@@ -5,6 +5,7 @@ import { userMenuItems } from '@/constants/workerMockData';
 
 export default function ProfileScreenTab() {
   const handleSwitchToWorker = useCallback(() => router.replace('/(worker)'), []);
+  const handleLogout = useCallback(() => router.replace('/'), []);
 
   return (
     <ProfileScreen
@@ -20,6 +21,7 @@ export default function ProfileScreenTab() {
       menuItems={userMenuItems}
       devLabel="For Development Testing"
       onSwitchAccount={handleSwitchToWorker}
+      onLogout={handleLogout}
     />
   );
 }

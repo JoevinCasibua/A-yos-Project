@@ -13,6 +13,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <RequestProvider>
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="request" options={{ headerShown: false }} />
           <Stack.Screen name="(worker)" options={{ headerShown: false }} />
@@ -21,7 +24,6 @@ export default function RootLayout() {
           <Stack.Screen name="payment" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen name="tracking/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
           <Stack.Screen name="review/[id]" options={{ headerShown: false, presentation: 'modal' }} />
-          <Stack.Screen name="worker/index" options={{ headerShown: false, animation: 'slide_from_right' }} />
           <Stack.Screen name="+not-found" options={{ headerShown: false }} />
         </Stack>
       </RequestProvider>

@@ -10,6 +10,7 @@ import { Bell, ChevronRight, Wrench, Zap, Wind, Sparkles, Hammer, Paintbrush, Tr
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
+import { AppButton } from '@/components/AppButton';
 import { SearchBar } from '@/components/SearchBar';
 import { SectionHeader } from '@/components/SectionHeader';
 import { ProviderCard } from '@/components/ProviderCard';
