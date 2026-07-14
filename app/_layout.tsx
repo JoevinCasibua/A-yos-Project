@@ -11,6 +11,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
+<<<<<<< HEAD
       <RequestProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -25,6 +26,18 @@ export default function RootLayout() {
           <Stack.Screen name="+not-found" options={{ headerShown: false }} />
         </Stack>
       </RequestProvider>
+=======
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(worker)" options={{ headerShown: false }} />
+        <Stack.Screen name="provider/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="booking/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="payment" options={{ headerShown: false, presentation: 'modal' }} />
+        <Stack.Screen name="tracking/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="review/[id]" options={{ headerShown: false, presentation: 'modal' }} />
+        <Stack.Screen name="+not-found" options={{ headerShown: false }} />
+      </Stack>
+>>>>>>> 859f4810b7b7281cd964a56a0139c18db7c82e32
       <StatusBar style="dark" backgroundColor={Colors.white} />
     </SafeAreaProvider>
   );

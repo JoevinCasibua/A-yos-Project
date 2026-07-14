@@ -1,94 +1,19 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ListRenderItem, Pressable } from 'react-native';
+import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
 import { CalendarDays, Clock, MapPin, Phone } from 'lucide-react-native';
-import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Chip } from '@/components/Chip';
-
-interface WorkerBooking {
-  id: string;
-  customerName: string;
-  customerAvatar: string;
-  service: string;
-  date: string;
-  time: string;
-  address: string;
-  status: 'upcoming' | 'in_progress' | 'completed' | 'cancelled';
-  price: string;
-}
-
-const mockWorkerBookings: WorkerBooking[] = [
-  {
-    id: '1',
-    customerName: 'Alex Johnson',
-    customerAvatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Pipe Repair',
-    date: 'Today, Jul 14',
-    time: '2:00 PM',
-    address: '123 Oak Street',
-    status: 'upcoming',
-    price: '$60',
-  },
-  {
-    id: '2',
-    customerName: 'Sarah Williams',
-    customerAvatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Drain Cleaning',
-    date: 'Today, Jul 14',
-    time: '4:30 PM',
-    address: '456 Pine Avenue',
-    status: 'in_progress',
-    price: '$75',
-  },
-  {
-    id: '3',
-    customerName: 'Michael Brown',
-    customerAvatar: 'https://images.pexels.com/photos/220457/pexels-photo-220457.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Water Heater Install',
-    date: 'Tomorrow, Jul 15',
-    time: '9:00 AM',
-    address: '789 Elm Drive',
-    status: 'upcoming',
-    price: '$450',
-  },
-  {
-    id: '4',
-    customerName: 'Emily Davis',
-    customerAvatar: 'https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Faucet Replacement',
-    date: 'Jul 12, 2024',
-    time: '11:00 AM',
-    address: '321 Maple Court',
-    status: 'completed',
-    price: '$85',
-  },
-  {
-    id: '5',
-    customerName: 'Robert Wilson',
-    customerAvatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
-    service: 'Emergency Pipe Repair',
-    date: 'Jul 10, 2024',
-    time: '3:00 PM',
-    address: '654 Cedar Lane',
-    status: 'completed',
-    price: '$60',
-  },
-];
+import { workerBookings, statusConfig } from '@/constants/workerMockData';
+import type { WorkerBooking } from '@/constants/workerMockData';
 
 const filterTabs = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 
-const statusConfig = {
-  upcoming: { label: 'Upcoming', variant: 'info' as const },
-  in_progress: { label: 'In Progress', variant: 'warning' as const },
-  completed: { label: 'Completed', variant: 'success' as const },
-  cancelled: { label: 'Cancelled', variant: 'error' as const },
-};
-
 export default function WorkerBookingsScreen() {
   const [activeTab, setActiveTab] = useState('Upcoming');
+  const [bookings, setBookings] = useState<WorkerBooking[]>(workerBookings);
 
   const filteredBookings = useMemo(() => {
     const statusMap: Record<string, WorkerBooking['status']> = {
@@ -97,8 +22,32 @@ export default function WorkerBookingsScreen() {
       'Completed': 'completed',
       'Cancelled': 'cancelled',
     };
-    return mockWorkerBookings.filter((b) => b.status === statusMap[activeTab]);
-  }, [activeTab]);
+    return bookings.filter((b) => b.status === statusMap[activeTab]);
+  }, [activeTab, bookings]);
+
+  const handleStartJob = useCallback((bookingId: string) => {
+    Alert.alert('Start Job', 'Mark this job as in progress?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Start',
+        onPress: () => setBookings((prev) =>
+          prev.map((b) => b.id === bookingId ? { ...b, status: 'in_progress' as const } : b),
+        ),
+      },
+    ]);
+  }, []);
+
+  const handleCompleteJob = useCallback((bookingId: string) => {
+    Alert.alert('Complete Job', 'Mark this job as completed?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Complete',
+        onPress: () => setBookings((prev) =>
+          prev.map((b) => b.id === bookingId ? { ...b, status: 'completed' as const } : b),
+        ),
+      },
+    ]);
+  }, []);
 
   const renderItem: ListRenderItem<WorkerBooking> = useCallback(
     ({ item }) => (
@@ -134,13 +83,19 @@ export default function WorkerBookingsScreen() {
                   <Phone size={16} color={Colors.cta} />
                   <AppText variant="caption" weight="semiBold" color={Colors.cta}>Contact</AppText>
                 </Pressable>
-                <Pressable style={({ pressed }) => [styles.actionBtn, styles.primaryBtn, { opacity: pressed ? 0.8 : 1 }]}>
+                <Pressable
+                  style={({ pressed }) => [styles.actionBtn, styles.primaryBtn, { opacity: pressed ? 0.8 : 1 }]}
+                  onPress={() => handleStartJob(item.id)}
+                >
                   <AppText variant="caption" weight="semiBold" color={Colors.white}>Start Job</AppText>
                 </Pressable>
               </>
             )}
             {item.status === 'in_progress' && (
-              <Pressable style={({ pressed }) => [styles.actionBtn, styles.primaryBtn, { opacity: pressed ? 0.8 : 1 }]}>
+              <Pressable
+                style={({ pressed }) => [styles.actionBtn, styles.primaryBtn, { opacity: pressed ? 0.8 : 1 }]}
+                onPress={() => handleCompleteJob(item.id)}
+              >
                 <AppText variant="caption" weight="semiBold" color={Colors.white}>Complete</AppText>
               </Pressable>
             )}
@@ -151,7 +106,7 @@ export default function WorkerBookingsScreen() {
         </View>
       </View>
     ),
-    [],
+    [handleStartJob, handleCompleteJob],
   );
 
   const keyExtractor = useCallback((item: WorkerBooking) => item.id, []);
