@@ -33,7 +33,7 @@ const menuItems = [
 
 export default function ProfileScreen() {
   const handleItemPress = useCallback(() => {}, []);
-  const handleSwitchToWorker = useCallback(() => router.push('/worker'), []);
+  const handleSwitchToWorker = useCallback(() => router.replace('/(worker)'), []);
 
   return (
     <View style={styles.container}>
