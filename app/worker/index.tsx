@@ -1,39 +1,48 @@
-import React, { useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import {
   ChevronRight,
-  Settings,
+  Briefcase,
+  Wrench,
+  MapPin,
+  Image as ImageIcon,
   CreditCard,
   Bell,
-  Shield,
   HelpCircle,
-  LogOut,
-  MapPin,
-  Heart,
-  Award,
+  Settings,
   Edit3,
   ArrowLeftRight,
+  Star,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { workerProfile } from '@/constants/workerData';
 
 const menuItems = [
-  { id: 'payment', icon: CreditCard, label: 'Payment Methods', color: Colors.cta, bg: Colors.primarySurface },
+  { id: 'experience', icon: Briefcase, label: 'Work Experience', color: Colors.cta, bg: Colors.primarySurface },
+  { id: 'skills', icon: Wrench, label: 'My Skills', color: Colors.info, bg: Colors.infoBg },
+  { id: 'areas', icon: MapPin, label: 'Service Areas', color: Colors.warning, bg: Colors.warningBg },
+  { id: 'portfolio', icon: ImageIcon, label: 'Portfolio', color: Colors.error, bg: Colors.errorBg },
+  { id: 'payouts', icon: CreditCard, label: 'Payout Methods', color: Colors.cta, bg: Colors.primarySurface },
   { id: 'notifications', icon: Bell, label: 'Notifications', color: Colors.warning, bg: Colors.warningBg },
-  { id: 'addresses', icon: MapPin, label: 'Saved Addresses', color: Colors.info, bg: Colors.infoBg },
-  { id: 'favorites', icon: Heart, label: 'Favorites', color: Colors.error, bg: Colors.errorBg },
-  { id: 'rewards', icon: Award, label: 'Rewards & Points', color: Colors.cta, bg: Colors.primarySurface },
-  { id: 'privacy', icon: Shield, label: 'Privacy & Security', color: Colors.info, bg: Colors.infoBg },
   { id: 'help', icon: HelpCircle, label: 'Help & Support', color: Colors.textSecondary, bg: Colors.surfaceLight },
   { id: 'settings', icon: Settings, label: 'Settings', color: Colors.textSecondary, bg: Colors.surfaceLight },
 ];
 
-export default function ProfileScreen() {
-  const handleItemPress = useCallback(() => {}, []);
-  const handleSwitchToWorker = useCallback(() => router.push('/worker'), []);
+const verificationConfig = {
+  verified: { label: 'Verified', variant: 'verified' as const },
+  pending: { label: 'Pending Review', variant: 'warning' as const },
+  rejected: { label: 'Rejected', variant: 'error' as const },
+};
+
+export default function WorkerProfileScreen() {
+  const handleItemPress = React.useCallback(() => {}, []);
+  const handleSwitchToUser = React.useCallback(() => router.replace('/(tabs)/profile'), []);
+
+  const verification = verificationConfig[workerProfile.verificationStatus];
 
   return (
     <View style={styles.container}>
@@ -41,53 +50,47 @@ export default function ProfileScreen() {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarRow}>
-            <Avatar
-              uri="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
-              size={80}
-            />
+            <Avatar uri={workerProfile.avatarUri} size={80} />
             <Pressable style={styles.editBtn}>
               <Edit3 size={16} color={Colors.white} strokeWidth={2} />
             </Pressable>
           </View>
           <AppText variant="h3" weight="bold" style={{ marginTop: Spacing['3'] }}>
-            Alex Johnson
+            {workerProfile.name}
           </AppText>
           <AppText variant="bodySm" color={Colors.textSecondary}>
-            alex.johnson@email.com
+            {workerProfile.email}
           </AppText>
-          <View style={styles.memberBadge}>
-            <Badge label="Gold Member" variant="verified" size="md" />
+          <View style={styles.badgeRow}>
+            <Badge label={verification.label} variant={verification.variant} size="md" />
           </View>
+          <AppText variant="caption" color={Colors.cta} weight="semiBold" style={{ marginTop: Spacing['2'] }}>
+            {workerProfile.category} · {workerProfile.yearsExperience} yrs exp
+          </AppText>
         </View>
 
-        {/* Stats */}
+        {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <AppText variant="h3" weight="bold" color={Colors.cta}>12</AppText>
-            <AppText variant="caption" color={Colors.textSecondary}>Bookings</AppText>
+            <AppText variant="h3" weight="bold" color={Colors.cta}>{workerProfile.completedJobs}</AppText>
+            <AppText variant="caption" color={Colors.textSecondary}>Jobs Done</AppText>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <AppText variant="h3" weight="bold" color={Colors.cta}>5</AppText>
-            <AppText variant="caption" color={Colors.textSecondary}>Reviews</AppText>
+            <View style={styles.ratingStat}>
+              <Star size={14} color={Colors.star} fill={Colors.star} strokeWidth={0} />
+              <AppText variant="h3" weight="bold" color={Colors.cta}>{workerProfile.rating}</AppText>
+            </View>
+            <AppText variant="caption" color={Colors.textSecondary}>Rating</AppText>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <AppText variant="h3" weight="bold" color={Colors.cta}>340</AppText>
-            <AppText variant="caption" color={Colors.textSecondary}>Points</AppText>
+            <AppText variant="h3" weight="bold" color={Colors.cta}>{workerProfile.earnings}</AppText>
+            <AppText variant="caption" color={Colors.textSecondary}>Earnings</AppText>
           </View>
         </View>
 
-        {/* Switch to Worker */}
-        <Pressable
-          onPress={handleSwitchToWorker}
-          style={({ pressed }) => [styles.switchBtn, { opacity: pressed ? 0.7 : 1 }]}
-        >
-          <ArrowLeftRight size={20} color={Colors.cta} strokeWidth={2} />
-          <AppText variant="body" weight="semiBold" color={Colors.cta}>Switch to Worker</AppText>
-        </Pressable>
-
-        {/* Menu */}
+        {/* Menu Section */}
         <View style={styles.menuSection}>
           {menuItems.map((item, idx) => (
             <Pressable
@@ -112,14 +115,16 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        {/* Logout */}
+        {/* Switch to User */}
         <Pressable
-          style={({ pressed }) => [styles.logoutBtn, { opacity: pressed ? 0.7 : 1 }]}
+          onPress={handleSwitchToUser}
+          style={({ pressed }) => [styles.switchBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <LogOut size={20} color={Colors.error} strokeWidth={2} />
-          <AppText variant="body" weight="semiBold" color={Colors.error}>Log Out</AppText>
+          <ArrowLeftRight size={20} color={Colors.cta} strokeWidth={2} />
+          <AppText variant="body" weight="semiBold" color={Colors.cta}>Switch to User</AppText>
         </Pressable>
 
+        {/* Version */}
         <AppText variant="caption" color={Colors.textTertiary} align="center" style={{ marginTop: Spacing['6'] }}>
           Version 1.0.0
         </AppText>
@@ -138,10 +143,11 @@ const styles = StyleSheet.create({
   avatarRow: { position: 'relative' },
   editBtn: {
     position: 'absolute', bottom: 0, right: -4,
-    width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.cta,
-    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.white,
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: Colors.cta, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: Colors.white,
   },
-  memberBadge: { marginTop: Spacing['3'] },
+  badgeRow: { marginTop: Spacing['3'] },
   statsRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around',
     marginHorizontal: Spacing['4'], marginTop: -Spacing['2'],
@@ -150,6 +156,7 @@ const styles = StyleSheet.create({
   },
   statItem: { alignItems: 'center', gap: 4 },
   statDivider: { width: 1, height: 32, backgroundColor: Colors.border },
+  ratingStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   menuSection: {
     marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
     backgroundColor: Colors.white, borderRadius: Radius.xl, overflow: 'hidden',
@@ -164,18 +171,11 @@ const styles = StyleSheet.create({
     width: 40, height: 40, borderRadius: Radius.lg,
     alignItems: 'center', justifyContent: 'center',
   },
-  logoutBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing['2'],
-    marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
-    backgroundColor: Colors.white, borderRadius: Radius.lg,
-    paddingVertical: Spacing['4'], borderWidth: 1.5, borderColor: Colors.error,
-    ...Elevation.sm,
-  },
   switchBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing['2'],
     marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
-    backgroundColor: Colors.white, borderRadius: Radius.lg,
-    paddingVertical: Spacing['4'], borderWidth: 1.5, borderColor: Colors.primaryBorder,
+    backgroundColor: Colors.white, borderRadius: Radius.lg, paddingVertical: Spacing['4'],
+    borderWidth: 1.5, borderColor: Colors.primaryBorder,
     ...Elevation.sm,
   },
 });
