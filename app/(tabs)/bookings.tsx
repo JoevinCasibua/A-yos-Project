@@ -8,20 +8,47 @@ import { Chip } from '@/components/Chip';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { AppButton } from '@/components/AppButton';
-import { bookings } from '@/constants/mockData';
+import { bookings, providers } from '@/constants/mockData';
+import { useRequest } from '@/context/RequestContext';
 
 type Booking = typeof bookings[0];
 
 const tabs = ['Upcoming', 'Completed', 'Cancelled'];
 
 export default function BookingsScreen() {
+  const { request } = useRequest();
   const [activeTab, setActiveTab] = useState('Upcoming');
 
   const filteredBookings = useMemo(() => {
-    if (activeTab === 'Upcoming') return bookings.filter((b) => b.status === 'upcoming');
-    if (activeTab === 'Completed') return bookings.filter((b) => b.status === 'completed');
-    return [];
-  }, [activeTab]);
+    let mockList: any[] = [];
+    if (activeTab === 'Upcoming') {
+      mockList = bookings.filter((b) => b.status === 'upcoming');
+      
+      // Inject context request if active
+      if (request.status !== 'Draft' && request.selectedWorkerId) {
+        const workerInfo = providers.find(p => p.id === request.selectedWorkerId) || providers[0];
+        
+        const isScheduled = request.status === 'Scheduled' && request.scheduledDate;
+        
+        mockList.unshift({
+          id: 'temp-req-1',
+          providerId: workerInfo.id,
+          providerName: workerInfo.name,
+          category: request.category || workerInfo.category,
+          date: (isScheduled && request.scheduledDate) ? request.scheduledDate.toLocaleDateString() : 'ASAP',
+          time: (isScheduled && request.scheduledDate) ? request.scheduledDate.toLocaleTimeString() : 'Right now',
+          address: request.location?.address || 'Current Location',
+          price: request.estimatedPriceRange || '$50 - $120',
+          status: 'upcoming',
+          reviewed: false,
+          avatarUri: workerInfo.avatarUri
+        });
+      }
+    } else if (activeTab === 'Completed') {
+      mockList = bookings.filter((b) => b.status === 'completed');
+    }
+    return mockList;
+  }, [activeTab, request]);
 
   const renderItem: ListRenderItem<Booking> = useCallback(
     ({ item }) => (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Home, Search, CalendarDays, User } from 'lucide-react-native';
+import { Home, Search, CalendarDays, User, Plus } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
 const tabIcons: Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>> = {
@@ -19,6 +19,7 @@ const tabLabels: Record<string, string> = {
 };
 
 export default function TabLayout() {
+  const router = require('expo-router').useRouter();
   return (
     <Tabs
       screenOptions={{
@@ -60,16 +61,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="request-action"
+        options={{
+          title: 'New',
+          tabBarIcon: ({ color, size }) => <Plus size={size} color={color} strokeWidth={2.5} />,
+        }}
+        listeners={() => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/request/create');
+          },
+        })}
+      />
+      <Tabs.Screen
         name="bookings"
         options={{
           title: tabLabels.bookings,
           tabBarIcon: ({ color, size }) => <CalendarDays size={size} color={color} strokeWidth={2} />,
-        }}
-      />
-      <Tabs.Screen
-        name="reviews"
-        options={{
-          href: null,
         }}
       />
       <Tabs.Screen
@@ -79,6 +87,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
         }}
       />
+      <Tabs.Screen
+        name="reviews"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({});

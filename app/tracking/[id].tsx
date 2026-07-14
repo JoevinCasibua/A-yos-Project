@@ -147,24 +147,13 @@ export default function TrackingScreen() {
         </View>
 
         {/* CTA */}
-        {currentStep >= 4 ? (
-          <AppButton
-            label="Rate & Review"
-            size="lg"
-            fullWidth
-            onPress={handleComplete}
-            leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
-          />
-        ) : (
-          <AppButton
-            label="Track Live on Map"
-            size="lg"
-            fullWidth
-            variant="outline"
-            onPress={() => {}}
-            leftIcon={<Navigation size={18} color={Colors.cta} strokeWidth={2} />}
-          />
-        )}
+        <AppButton
+          label="Evaluate Worker"
+          size="lg"
+          fullWidth
+          onPress={handleComplete}
+          leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
+        />
       </View>
     </View>
   );
