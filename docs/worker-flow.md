@@ -1,0 +1,218 @@
+# A-yos — Worker Flow
+
+This file contains a high-level worker-flow diagram for the A-yos **service-provider** app. For the user/customer flow, see [user-flow.md](./user-flow.md).
+
+Design target: iPhone 15 / 393×852 dp. Colors and tokens are defined in `constants/theme.ts`.
+
+Palette (key tokens):
+
+- Primary / CTA: `#0B63D6`
+- Primary Light: `#4DA5FF`
+- Success: `#117A5C`
+- Warning: `#F59E0B`
+- Error: `#C53030`
+- Background: `#F7F9FC`
+
+## Architecture
+
+The app has two modes — **User** and **Worker** — switchable via the "Switch Account" button on each Profile screen. Each mode has its own bottom tab navigator.
+
+| Mode | Tab Navigator | Tabs |
+|------|---------------|------|
+| User | `(tabs)` | Home, Browse, Bookings, Profile |
+| Worker | `(worker)` | Dashboard, Browse, Bookings, Reviews, Profile |
+
+Shared screens (accessible from both modes): Provider Detail, Booking, Payment, Tracking, Review Modal.
+
+## Screen Inventory
+
+| # | Screen | Route | Parent | Presentation | Shared with User? |
+|---|--------|-------|--------|--------------|-------------------|
+| 1 | Dashboard | `/(worker)/` | Tab | tab | No |
+| 2 | Browse Jobs | `/(worker)/search` | Tab | tab | Yes (search) |
+| 3 | My Bookings | `/(worker)/bookings` | Tab | tab | Yes (bookings) |
+| 4 | My Reviews | `/(worker)/reviews` | Tab | tab | No (hidden from user nav) |
+| 5 | Profile | `/(worker)/profile` | Tab | tab | No |
+| 6 | Provider Detail | `/provider/:id` | Stack | slide_from_right | Yes |
+| 7 | Schedule Booking | `/booking/:id` | Stack | slide_from_right | Yes |
+| 8 | Payment | `/payment` | Stack | modal | Yes |
+| 9 | Live Tracking | `/tracking/:id` | Stack | slide_from_right | Yes |
+| 10 | Rate & Review | `/review/:id` | Stack | modal | Yes |
+| 11 | 404 | `+not-found` | Stack | default | Yes |
+
+## Mermaid Diagram
+
+```mermaid
+flowchart LR
+  %% Nodes
+  Start((Start))
+  Onboarding[Onboarding Screen]
+  WorkerDashboard[Dashboard]
+  Tabs[[Tabs: Dashboard, Browse, Bookings, Reviews, Profile]]
+  BrowseJobs[Browse Jobs]
+  BookingsList[My Bookings]
+  ReviewsTab[My Reviews]
+  ProfileTab[Profile]
+  ProviderDetail[Provider Detail]
+  Payment[Payment Modal]
+  Tracking[Live Tracking]
+  ReviewModal[Rate & Review Modal]
+  SwitchAccount{{Switch to User?}}
+  UserTabs[[User Tabs: Home, Browse, Bookings, Profile]]
+  NotFound[404 / Not Found]
+
+  %% Flow
+  Start --> Onboarding
+  Onboarding --> WorkerDashboard
+  WorkerDashboard --> Tabs
+  Tabs --> BrowseJobs
+  Tabs --> BookingsList
+  Tabs --> ReviewsTab
+  Tabs --> ProfileTab
+
+  BrowseJobs -->|Accept Job| WorkerDashboard
+  BookingsList -->|Start Job| WorkerDashboard
+  BookingsList -->|Complete| Payment
+  BookingsList -->|Contact Customer| ProviderDetail
+  ReviewsTab -->|View details| ProviderDetail
+  ProfileTab --> SwitchAccount
+  SwitchAccount -->|Yes| UserTabs
+
+  NotFound -.-> WorkerDashboard
+
+  %% Decisions
+  hasAuth{Authenticated?}
+  WorkerDashboard --> hasAuth
+  hasAuth -->|No| Onboarding
+  hasAuth -->|Yes| Tabs
+
+  classDef screen fill:#f8f9fa,stroke:#333,stroke-width:1px;
+  classDef modal fill:#fff8c4,stroke:#b58900;
+  classDef decision fill:#e0f7fa,stroke:#00796b,stroke-width:1px;
+  classDef tabgroup fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+  class Start,Onboarding,WorkerDashboard,BrowseJobs,BookingsList,ReviewsTab,ProfileTab,ProviderDetail,NotFound screen;
+  class Payment,ReviewModal modal;
+  class hasAuth,SwitchAccount decision;
+  class Tabs,UserTabs tabgroup;
+```
+
+## Tab Details
+
+### Dashboard (`/(worker)/index.tsx`)
+
+Header shows worker greeting, notification bell, category badge, and experience badge.
+
+| Section | Content | Details |
+|---------|---------|---------|
+| Today's Overview | 2×2 stat grid | Active Jobs (2), Pending (3), Completed (5), Earnings ($180) |
+| Active Bookings | 3 booking cards | Customer avatar, name, service, time, address, status badge |
+
+**Actions:** Tapping a booking card navigates to the Bookings tab (`router.push('/(worker)/bookings')`).
+
+---
+
+### Browse Jobs (`/(worker)/search.tsx`)
+
+| Section | Content | Details |
+|---------|---------|---------|
+| Search bar | Text input | Filters by customer name, service, and description |
+| Filter chips | All, Urgent, Nearby, High Pay | Urgent: `urgency === 'urgent'`; Nearby: `distance <= 1.5 mi`; High Pay: `price >= $100` |
+| Sort chips | Nearest, Highest Pay, Most Recent | Default: Nearest |
+| Job cards | FlatList of 4 jobs | Customer avatar, name, posted time, urgency badge, service title, description, location/distance, price |
+
+**Actions:** "Accept Job" button on each card (visual only — no handler wired yet).
+
+---
+
+### My Bookings (`/(worker)/bookings.tsx`)
+
+| Section | Content | Details |
+|---------|---------|---------|
+| Filter tabs | Upcoming, In Progress, Completed, Cancelled | Horizontal chip row |
+| Booking cards | FlatList of 5 bookings | Customer avatar, name, service, status badge, date, time, address, price |
+
+**Actions by status:**
+
+| Status | Buttons |
+|--------|---------|
+| Upcoming | "Contact" (phone icon) + "Start Job" (CTA) |
+| In Progress | "Complete" (CTA) |
+| Completed | "Paid · {price}" text (no button) |
+| Cancelled | Status badge only (no buttons) |
+
+All buttons are visual placeholders — handlers not yet implemented.
+
+---
+
+### My Reviews (`/(worker)/reviews.tsx`)
+
+| Section | Content | Details |
+|---------|---------|---------|
+| Rating Summary | Large average rating + star display + total count | Computed from mock data (avg: 4.8) |
+| Star Distribution | 5-to-1 bar chart | Visual distribution of ratings |
+| Filter chips | All, 5 Stars, 4 Stars, 3 Stars, Recent | Toggle by rating or sort by date |
+| Review cards | FlatList of 4 reviews | Customer avatar, author name, star rating, date, service tag, comment text |
+
+**Actions:** "Helpful" thumb toggle per review (local state only — not persisted).
+
+---
+
+### Profile (`/(worker)/profile.tsx`)
+
+| Section | Content | Details |
+|---------|---------|---------|
+| Profile Header | Avatar + edit overlay, name, email, verification badge, category, experience | Uses `workerProfile` from `workerData.ts` |
+| Stats Row | 3-column card | Jobs Done (47), Rating (4.9), Earnings ($2,340) |
+| Menu Section | 8 tappable rows | Work Experience, My Skills, Service Areas, Portfolio, Payout Methods, Notifications, Help & Support, Settings |
+| Log Out | Red outlined button | Visual only |
+| Dev Section | "For Development Testing" + "Switch Account" button + version | Navigates to User app |
+
+**Actions:** "Switch Account" calls `router.replace('/(tabs)')` — switches to User mode landing on Home tab.
+
+## Worker Profile Data
+
+Source: `constants/workerData.ts`
+
+| Field | Value |
+|-------|-------|
+| Name | Carlos Mendez |
+| Email | carlos.mendez@email.com |
+| Category | Master Plumber |
+| Experience | 12 years |
+| Rating | 4.9 |
+| Total Reviews | 127 |
+| Completed Jobs | 47 |
+| Total Earnings | $2,340 |
+
+## User Journey
+
+1. **Launch** → Onboarding (not yet implemented) → Dashboard tab
+2. **View stats** → Dashboard shows today's overview (active, pending, completed, earnings)
+3. **Find work** → Browse tab → Filter by urgency/distance/pay → Sort → Accept Job → Job appears in Dashboard
+4. **Manage bookings** → Bookings tab → Filter by status → Start Job / Complete / Contact Customer
+5. **Read reviews** → Reviews tab → Filter by stars → Toggle helpful
+6. **View profile** → Profile tab → Stats, menu items, edit avatar
+7. **Switch to user** → Profile tab → "Switch Account" → User app (Home tab)
+
+## Shared Screens Between Roles
+
+These screens are accessible from both User and Worker tabs via stack navigation:
+
+| Screen | Route | Used by Worker |
+|--------|-------|----------------|
+| Provider Detail | `/provider/:id` | View from Reviews tab |
+| Payment | `/payment` | Complete booking flow |
+| Live Tracking | `/tracking/:id` | View active job progress |
+| Rate & Review | `/review/:id` | Leave review for customer |
+
+---
+
+## Mock Data Locations
+
+| Screen | Data | Source |
+|--------|------|--------|
+| Dashboard | `todayStats`, `activeBookings`, `workerProfile` | Inline in `app/(worker)/index.tsx` + `constants/workerData.ts` |
+| Browse | `mockJobs`, `filterOptions`, `sortOptions` | Inline in `app/(worker)/search.tsx` |
+| Bookings | `mockWorkerBookings`, `filterTabs`, `statusConfig` | Inline in `app/(worker)/bookings.tsx` |
+| Reviews | `mockWorkerReviews`, `filterOptions` | Inline in `app/(worker)/reviews.tsx` |
+| Profile | `workerProfile`, `menuItems`, `verificationConfig` | `constants/workerData.ts` + inline in `app/(worker)/profile.tsx` |
