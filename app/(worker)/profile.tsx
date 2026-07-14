@@ -40,7 +40,7 @@ const verificationConfig = {
 
 export default function WorkerProfileTabScreen() {
   const handleItemPress = React.useCallback(() => {}, []);
-  const handleSwitchToUser = React.useCallback(() => router.replace('/(tabs)/profile'), []);
+  const handleSwitchToUser = React.useCallback(() => router.replace('/(tabs)'), []);
 
   const verification = verificationConfig[workerProfile.verificationStatus];
 
