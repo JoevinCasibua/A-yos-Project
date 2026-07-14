@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
     backgroundColor: Colors.white, paddingHorizontal: Spacing['4'],
-    paddingTop: Spacing['2'], paddingBottom: Spacing['3'],
+    paddingTop: Spacing['16'], paddingBottom: Spacing['3'],
     borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
   },
   listContent: { padding: Spacing['4'], paddingBottom: 100 },

@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   profileHeader: {
     backgroundColor: Colors.white, alignItems: 'center',
-    paddingHorizontal: Spacing['4'], paddingTop: Spacing['4'], paddingBottom: Spacing['5'],
+    paddingHorizontal: Spacing['4'], paddingTop: Spacing['16'], paddingBottom: Spacing['5'],
     borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
   },
   avatarRow: { position: 'relative' },

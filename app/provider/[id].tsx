@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Award,
   CheckCircle2,
+  Star,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
@@ -134,7 +135,7 @@ export default function ProviderProfileScreen() {
 
         {/* Reviews */}
         <View style={styles.section}>
-          <SectionHeader title="Reviews" actionLabel="See all" onActionPress={() => router.push(`/review/${provider.id}`)} />
+          <SectionHeader title="Reviews" actionLabel="See all" onActionPress={() => router.push({ pathname: '/reviews', params: { providerId: provider.id } })} />
           {reviews.slice(0, 2).map((r) => (
             <View key={r.id} style={styles.reviewCard}>
               <View style={styles.reviewHeader}>
@@ -150,6 +151,15 @@ export default function ProviderProfileScreen() {
               </AppText>
             </View>
           ))}
+          <AppButton
+            label="Write a Review"
+            variant="primary"
+            size="sm"
+            fullWidth
+            leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
+            onPress={() => router.push(`/review/${provider.id}`)}
+            style={{ marginTop: Spacing['3'] }}
+          />
         </View>
 
         {/* Contact */}

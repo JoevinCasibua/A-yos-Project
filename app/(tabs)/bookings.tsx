@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
     backgroundColor: Colors.white, paddingHorizontal: Spacing['4'],
-    paddingTop: Spacing['2'], paddingBottom: Spacing['4'],
+    paddingTop: Spacing['16'], paddingBottom: Spacing['4'],
     borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
   },
   tabRow: { flexDirection: 'row', gap: Spacing['2'], marginTop: Spacing['4'] },
