@@ -1,24 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Home, Search, CalendarDays, User } from 'lucide-react-native';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LayoutDashboard, Search, CalendarDays, Star, User } from 'lucide-react-native';
+import { Colors, Typography } from '@/constants/theme';
 
-const tabIcons: Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>> = {
-  index: Home,
-  search: Search,
-  bookings: CalendarDays,
-  profile: User,
-};
-
-const tabLabels: Record<string, string> = {
-  index: 'Home',
-  search: 'Browse',
-  bookings: 'Bookings',
-  profile: 'Profile',
-};
-
-export default function TabLayout() {
+export default function WorkerTabLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -48,34 +34,35 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: tabLabels.index,
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} strokeWidth={2} />,
+          title: 'Dashboard',
+          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: tabLabels.search,
+          title: 'Browse',
           tabBarIcon: ({ color, size }) => <Search size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="bookings"
         options={{
-          title: tabLabels.bookings,
+          title: 'Bookings',
           tabBarIcon: ({ color, size }) => <CalendarDays size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="reviews"
         options={{
-          href: null,
+          title: 'Reviews',
+          tabBarIcon: ({ color, size }) => <Star size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: tabLabels.profile,
+          title: 'Profile',
           tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
         }}
       />

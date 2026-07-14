@@ -11,6 +11,7 @@ export default function RootLayout() {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(worker)" options={{ headerShown: false }} />
         <Stack.Screen name="provider/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="booking/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="payment" options={{ headerShown: false, presentation: 'modal' }} />

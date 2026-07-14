@@ -13,6 +13,7 @@ import {
   Edit3,
   ArrowLeftRight,
   Star,
+  LogOut,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
@@ -115,13 +116,24 @@ export default function WorkerProfileScreen() {
           ))}
         </View>
 
-        {/* Switch to User */}
+        {/* Logout */}
+        <Pressable
+          style={({ pressed }) => [styles.logoutBtn, { opacity: pressed ? 0.7 : 1 }]}
+        >
+          <LogOut size={20} color={Colors.error} strokeWidth={2} />
+          <AppText variant="body" weight="semiBold" color={Colors.error}>Log Out</AppText>
+        </Pressable>
+
+        {/* Development Switch */}
+        <AppText variant="caption" color={Colors.textTertiary} align="center" style={{ marginTop: Spacing['5'] }}>
+          For Development Testing
+        </AppText>
         <Pressable
           onPress={handleSwitchToUser}
           style={({ pressed }) => [styles.switchBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
           <ArrowLeftRight size={20} color={Colors.cta} strokeWidth={2} />
-          <AppText variant="body" weight="semiBold" color={Colors.cta}>Switch to User</AppText>
+          <AppText variant="body" weight="semiBold" color={Colors.cta}>Switch Account</AppText>
         </Pressable>
 
         {/* Version */}
@@ -170,6 +182,13 @@ const styles = StyleSheet.create({
   menuIcon: {
     width: 40, height: 40, borderRadius: Radius.lg,
     alignItems: 'center', justifyContent: 'center',
+  },
+  logoutBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing['2'],
+    marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
+    backgroundColor: Colors.white, borderRadius: Radius.lg,
+    paddingVertical: Spacing['4'], borderWidth: 1.5, borderColor: Colors.error,
+    ...Elevation.sm,
   },
   switchBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing['2'],
