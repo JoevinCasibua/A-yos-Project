@@ -74,6 +74,8 @@ export interface JobOpportunity {
   offeredPrice: string;
   urgency: 'normal' | 'urgent';
   postedTime: string;
+  imageUrl?: string;
+  commentCount: number;
 }
 
 export const workerJobs: JobOpportunity[] = [
@@ -89,6 +91,8 @@ export const workerJobs: JobOpportunity[] = [
     offeredPrice: '$60',
     urgency: 'urgent',
     postedTime: '5 min ago',
+    imageUrl: 'https://images.pexels.com/photos/5691622/pexels-photo-5691622.jpeg?auto=compress&cs=tinysrgb&w=800',
+    commentCount: 3,
   },
   {
     id: '2',
@@ -102,6 +106,8 @@ export const workerJobs: JobOpportunity[] = [
     offeredPrice: '$450',
     urgency: 'normal',
     postedTime: '1 hour ago',
+    imageUrl: 'https://images.pexels.com/photos/5691608/pexels-photo-5691608.jpeg?auto=compress&cs=tinysrgb&w=800',
+    commentCount: 2,
   },
   {
     id: '3',
@@ -115,6 +121,8 @@ export const workerJobs: JobOpportunity[] = [
     offeredPrice: '$85',
     urgency: 'normal',
     postedTime: '3 hours ago',
+    imageUrl: 'https://images.pexels.com/photos/5691621/pexels-photo-5691621.jpeg?auto=compress&cs=tinysrgb&w=800',
+    commentCount: 1,
   },
   {
     id: '4',
@@ -128,6 +136,102 @@ export const workerJobs: JobOpportunity[] = [
     offeredPrice: '$75',
     urgency: 'urgent',
     postedTime: '10 min ago',
+    imageUrl: 'https://images.pexels.com/photos/5691634/pexels-photo-5691634.jpeg?auto=compress&cs=tinysrgb&w=800',
+    commentCount: 2,
+  },
+];
+
+export interface JobComment {
+  id: string;
+  jobId: string;
+  author: string;
+  avatarUri: string;
+  text: string;
+  offerMin?: string;
+  offerMax?: string;
+  postedTime: string;
+}
+
+export const jobComments: JobComment[] = [
+  {
+    id: 'c1',
+    jobId: '1',
+    author: 'Juan Dela Cruz',
+    avatarUri: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'I can handle this repair. Licensed plumber with 8 years experience. Available right now.',
+    offerMin: '$50',
+    offerMax: '$70',
+    postedTime: '2 min ago',
+  },
+  {
+    id: 'c2',
+    jobId: '1',
+    author: 'Mark Santos',
+    avatarUri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'Burst pipes are my specialty. I can be there in 15 minutes.',
+    offerMin: '$55',
+    offerMax: '$65',
+    postedTime: '1 hr ago',
+  },
+  {
+    id: 'c3',
+    jobId: '1',
+    author: 'Carlos Reyes',
+    avatarUri: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'I have done many emergency pipe repairs. Can start immediately.',
+    offerMin: '$45',
+    offerMax: '$60',
+    postedTime: '3 hrs ago',
+  },
+  {
+    id: 'c4',
+    jobId: '2',
+    author: 'Juan Dela Cruz',
+    avatarUri: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'I can install the water heater. I am certified for gas and electric units.',
+    offerMin: '$400',
+    offerMax: '$430',
+    postedTime: '30 min ago',
+  },
+  {
+    id: 'c5',
+    jobId: '2',
+    author: 'Robert Wilson',
+    avatarUri: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'Water heater installation is one of my core services. Same-day available.',
+    offerMin: '$380',
+    offerMax: '$420',
+    postedTime: '45 min ago',
+  },
+  {
+    id: 'c6',
+    jobId: '3',
+    author: 'Mark Santos',
+    avatarUri: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'Faucet replacement is straightforward. I can do it today.',
+    offerMin: '$70',
+    offerMax: '$85',
+    postedTime: '2 hrs ago',
+  },
+  {
+    id: 'c7',
+    jobId: '4',
+    author: 'Carlos Reyes',
+    avatarUri: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'Drain cleaning with professional equipment. Can clear it same day.',
+    offerMin: '$60',
+    offerMax: '$75',
+    postedTime: '5 min ago',
+  },
+  {
+    id: 'c8',
+    jobId: '4',
+    author: 'Juan Dela Cruz',
+    avatarUri: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
+    text: 'I specialize in drain cleaning. Available now.',
+    offerMin: '$55',
+    offerMax: '$70',
+    postedTime: '8 min ago',
   },
 ];
 

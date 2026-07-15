@@ -1,15 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
-import { MapPin, DollarSign } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
+import { View, StyleSheet, FlatList, ListRenderItem, Alert } from 'react-native';
+import { Colors, Spacing } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { SearchBar } from '@/components/SearchBar';
 import { Chip } from '@/components/Chip';
-import { Badge } from '@/components/Badge';
-import { Avatar } from '@/components/Avatar';
+import { JobPostCard } from '@/components/JobPostCard';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { workerJobs } from '@/constants/workerMockData';
-import type { JobOpportunity } from '@/constants/workerMockData';
+import { workerJobs, jobComments as initialJobComments } from '@/constants/workerMockData';
+import type { JobOpportunity, JobComment } from '@/constants/workerMockData';
 
 const filterOptions = ['All', 'Urgent', 'Nearby', 'High Pay'];
 const sortOptions = ['Nearest', 'Highest Pay', 'Most Recent'];
@@ -18,6 +16,15 @@ export default function WorkerBrowseScreen() {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Nearest');
+  const [commentSortNewest, setCommentSortNewest] = useState(true);
+  const [allComments, setAllComments] = useState<Record<string, JobComment[]>>(() => {
+    const grouped: Record<string, JobComment[]> = {};
+    initialJobComments.forEach((c) => {
+      if (!grouped[c.jobId]) grouped[c.jobId] = [];
+      grouped[c.jobId].push(c);
+    });
+    return grouped;
+  });
 
   const filteredJobs = useMemo(() => {
     let result = [...workerJobs];
@@ -39,58 +46,46 @@ export default function WorkerBrowseScreen() {
     return result;
   }, [query, activeFilter, sortBy]);
 
-  const handleAcceptJob = useCallback((job: JobOpportunity) => {
-    Alert.alert('Accept Job', `Accept ${job.service} from ${job.customerName}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Accept', onPress: () => Alert.alert('Accepted', 'Job added to your bookings.') },
-    ]);
+  const handleComment = useCallback((jobId: string, text: string, offerMin: string, offerMax: string) => {
+    const newComment: JobComment = {
+      id: `c${Date.now()}`,
+      jobId,
+      author: 'You',
+      avatarUri: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
+      text,
+      offerMin: offerMin ? `$${offerMin}` : undefined,
+      offerMax: offerMax ? `$${offerMax}` : undefined,
+      postedTime: 'Just now',
+    };
+    setAllComments((prev) => ({
+      ...prev,
+      [jobId]: [newComment, ...(prev[jobId] || [])],
+    }));
+  }, []);
+
+  const handleShare = useCallback((jobId: string) => {
+    Alert.alert('Coming Soon', 'Share functionality will be available soon.');
   }, []);
 
   const renderItem: ListRenderItem<JobOpportunity> = useCallback(
     ({ item }) => (
-      <View style={styles.jobCard}>
-        <View style={styles.jobHeader}>
-          <Avatar uri={item.customerAvatar} size={44} />
-          <View style={styles.jobInfo}>
-            <View style={styles.nameRow}>
-              <AppText variant="body" weight="semiBold">{item.customerName}</AppText>
-              {item.urgency === 'urgent' && <Badge label="Urgent" variant="error" />}
-            </View>
-            <AppText variant="caption" color={Colors.textSecondary}>{item.postedTime}</AppText>
-          </View>
-        </View>
-        <AppText variant="body" weight="semiBold" color={Colors.cta} style={{ marginTop: Spacing['3'] }}>
-          {item.service}
-        </AppText>
-        <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginTop: Spacing['2'], lineHeight: 20 }}>
-          {item.description}
-        </AppText>
-        <View style={styles.jobMeta}>
-          <View style={styles.metaItem}>
-            <MapPin size={14} color={Colors.textSecondary} />
-            <AppText variant="caption" color={Colors.textSecondary}>{item.distance} · {item.location}</AppText>
-          </View>
-          <View style={styles.metaItem}>
-            <DollarSign size={14} color={Colors.cta} />
-            <AppText variant="bodySm" weight="bold" color={Colors.cta}>{item.offeredPrice}</AppText>
-          </View>
-        </View>
-        <Pressable
-          style={({ pressed }) => [styles.acceptBtn, { opacity: pressed ? 0.8 : 1 }]}
-          onPress={() => handleAcceptJob(item)}
-        >
-          <AppText variant="button" color={Colors.white}>Accept Job</AppText>
-        </Pressable>
-      </View>
+      <JobPostCard
+        job={item}
+        comments={allComments[item.id] || []}
+        sortNewest={commentSortNewest}
+        onToggleSort={() => setCommentSortNewest(!commentSortNewest)}
+        onComment={handleComment}
+        onShare={handleShare}
+      />
     ),
-    [handleAcceptJob],
+    [allComments, commentSortNewest, handleComment, handleShare],
   );
 
   const keyExtractor = useCallback((item: JobOpportunity) => item.id, []);
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Browse Jobs" />
+      <ScreenHeader title="Job Posts" />
       <FlatList
         data={filteredJobs}
         renderItem={renderItem}
@@ -138,7 +133,7 @@ export default function WorkerBrowseScreen() {
               keyExtractor={(item) => item}
             />
             <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginTop: Spacing['3'] }}>
-              {filteredJobs.length} jobs available
+              {filteredJobs.length} posts available
             </AppText>
           </View>
         }
@@ -151,21 +146,4 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   listContent: { padding: Spacing['4'], paddingBottom: 100 },
   chipRow: { gap: Spacing['2'], marginTop: Spacing['3'] },
-  jobCard: {
-    backgroundColor: Colors.white, borderRadius: Radius.xl, padding: Spacing['4'],
-    ...Elevation.sm,
-  },
-  jobHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
-  jobInfo: { flex: 1 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['2'] },
-  jobMeta: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginTop: Spacing['3'], paddingTop: Spacing['3'],
-    borderTopWidth: 1, borderTopColor: Colors.borderLight,
-  },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  acceptBtn: {
-    backgroundColor: Colors.cta, borderRadius: Radius.lg,
-    paddingVertical: Spacing['3'], alignItems: 'center', marginTop: Spacing['3'],
-  },
 });

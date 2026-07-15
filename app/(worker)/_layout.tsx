@@ -41,7 +41,7 @@ export default function WorkerTabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Browse',
+          title: 'Job Posts',
           tabBarIcon: ({ color, size }) => <Search size={size} color={color} strokeWidth={2} />,
         }}
       />
