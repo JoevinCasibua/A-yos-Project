@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Pressable,
-  FlatList,
   ViewStyle,
 } from 'react-native';
 import { Check, Plus } from 'lucide-react-native';
@@ -134,13 +133,11 @@ export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
 
       {showSuggestions && (
         <View style={styles.suggestionsContainer}>
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.value}
-            renderItem={renderSuggestion}
-            scrollEnabled={filtered.length > 2}
-            nestedScrollEnabled
-          />
+          {filtered.map((item) => (
+            <React.Fragment key={item.value}>
+              {renderSuggestion({ item })}
+            </React.Fragment>
+          ))}
           {multiSelect && value.trim().length > 0 && !exactMatch && (
             <Pressable style={styles.customRow} onPress={handleAddCustom}>
               <AppText variant="bodySm" weight="semiBold" color={Colors.primary}>
