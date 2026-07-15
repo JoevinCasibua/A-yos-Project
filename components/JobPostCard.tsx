@@ -98,7 +98,6 @@ export const JobPostCard: React.FC<JobPostCardProps> = ({
             {job.distance} away
           </AppText>
         </View>
-        <View style={styles.metaDivider} />
         <View style={styles.metaItem}>
           <DollarSign size={14} color={Colors.textTertiary} />
           <AppText variant="caption" weight="semiBold" color={Colors.textPrimary}>
@@ -268,28 +267,23 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: Spacing['3'],
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
-    gap: Spacing['3'],
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing['1'],
   },
-  metaDivider: {
-    width: 1,
-    height: 14,
-    backgroundColor: Colors.border,
-  },
   actionBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: Spacing['3'],
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
-    gap: Spacing['6'],
   },
   actionButton: {
     flexDirection: 'row',
