@@ -34,7 +34,7 @@ import { providers, reviews } from '@/constants/mockData';
 const { width } = Dimensions.get('window');
 
 export default function ProviderProfileScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, isApplicant } = useLocalSearchParams<{ id: string, isApplicant?: string }>();
   const provider = providers.find((p) => p.id === id) || providers[0];
   const [isFav, setIsFav] = React.useState(false);
 
@@ -188,7 +188,26 @@ export default function ProviderProfileScreen() {
           <AppText variant="caption" color={Colors.textSecondary}>Starting from</AppText>
           <AppText variant="h3" weight="bold" color={Colors.cta}>{provider.price}</AppText>
         </View>
-        <AppButton label="Book Now" size="lg" onPress={handleBook} style={{ flex: 1, marginLeft: Spacing['4'] }} />
+        
+        {isApplicant === 'true' ? (
+          <View style={{ flex: 1, flexDirection: 'row', marginLeft: Spacing['4'], gap: Spacing['2'] }}>
+            <AppButton 
+              label="Message" 
+              variant="outline" 
+              size="lg" 
+              style={{ flex: 1 }} 
+              onPress={() => router.push(`/chat/${provider.id}` as any)}
+            />
+            <AppButton 
+              label="Hire Worker" 
+              size="lg" 
+              style={{ flex: 1 }} 
+              onPress={() => router.push(`/accept-worker/${provider.id}` as any)}
+            />
+          </View>
+        ) : (
+          <AppButton label="Book Now" size="lg" onPress={handleBook} style={{ flex: 1, marginLeft: Spacing['4'] }} />
+        )}
       </View>
     </View>
   );

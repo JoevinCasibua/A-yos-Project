@@ -25,23 +25,24 @@ export default function BookingsScreen() {
       mockList = bookings.filter((b) => b.status === 'upcoming');
       
       // Inject context request if active
-      if (request.status !== 'Draft' && request.selectedWorkerId) {
+      if (request.status !== 'Draft') {
+        const isPosted = request.status === 'Posted';
         const workerInfo = providers.find(p => p.id === request.selectedWorkerId) || providers[0];
         
         const isScheduled = request.status === 'Scheduled' && request.scheduledDate;
         
         mockList.unshift({
           id: 'temp-req-1',
-          providerId: workerInfo.id,
-          providerName: workerInfo.name,
-          category: request.category || workerInfo.category,
+          providerId: isPosted ? '' : workerInfo.id,
+          providerName: isPosted ? 'Looking for workers...' : workerInfo.name,
+          category: request.category || (isPosted ? 'Service Request' : workerInfo.category),
           date: (isScheduled && request.scheduledDate) ? request.scheduledDate.toLocaleDateString() : 'ASAP',
           time: (isScheduled && request.scheduledDate) ? request.scheduledDate.toLocaleTimeString() : 'Right now',
           address: request.location?.address || 'Current Location',
           price: request.estimatedPriceRange || '$50 - $120',
-          status: 'upcoming',
+          status: isPosted ? 'posted' as any : 'upcoming',
           reviewed: false,
-          avatarUri: workerInfo.avatarUri,
+          avatarUri: isPosted ? 'https://images.pexels.com/photos/17694086/pexels-photo-17694086.jpeg?auto=compress&cs=tinysrgb&w=200' : workerInfo.avatarUri,
           hasParts: request.hasParts !== undefined ? request.hasParts : undefined
         });
       }
@@ -63,7 +64,9 @@ export default function BookingsScreen() {
               <AppText variant="caption" color={Colors.textSecondary}>{item.category}</AppText>
             </View>
           </View>
-          {item.status === 'upcoming' ? (
+          {item.status === ('posted' as any) ? (
+            <Badge label="Searching..." variant="warning" />
+          ) : item.status === 'upcoming' ? (
             <Badge label="Upcoming" variant="info" />
           ) : item.reviewed ? (
             <Badge label="Reviewed" variant="success" />
@@ -101,15 +104,17 @@ export default function BookingsScreen() {
         {/* Actions */}
         <View style={styles.cardActions}>
           <AppText variant="h4" weight="bold" color={Colors.cta}>{item.price}</AppText>
-          {item.status === 'upcoming' ? (
+          {item.status === ('posted' as any) ? (
+            <AppButton label="View Applicants" size="sm" onPress={() => router.push(`/request/${item.id}` as any)} />
+          ) : item.status === 'upcoming' ? (
             <View style={styles.actionBtns}>
-              <AppButton label="Track" variant="outline" size="sm" onPress={() => router.push(`/tracking/${item.providerId}`)} leftIcon={<Navigation size={14} color={Colors.cta} strokeWidth={2} />} />
-              <AppButton label="View" size="sm" style={{ marginLeft: Spacing['2'] }} onPress={() => router.push(`/provider/${item.providerId}`)} />
+              <AppButton label="Track" variant="outline" size="sm" onPress={() => router.push(`/tracking/${item.providerId}` as any)} leftIcon={<Navigation size={14} color={Colors.cta} strokeWidth={2} />} />
+              <AppButton label="View" size="sm" style={{ marginLeft: Spacing['2'] }} onPress={() => router.push(`/provider/${item.providerId}` as any)} />
             </View>
           ) : !item.reviewed ? (
-            <AppButton label="Leave Review" size="sm" onPress={() => router.push(`/review/${item.providerId}`)} />
+            <AppButton label="Leave Review" size="sm" onPress={() => router.push(`/review/${item.providerId}` as any)} />
           ) : (
-            <AppButton label="Book Again" variant="outline" size="sm" onPress={() => router.push(`/provider/${item.providerId}`)} />
+            <AppButton label="Book Again" variant="outline" size="sm" onPress={() => router.push(`/provider/${item.providerId}` as any)} />
           )}
         </View>
       </View>

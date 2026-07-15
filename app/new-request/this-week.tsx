@@ -6,6 +6,7 @@ import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { AppInput } from '@/components/AppInput';
+import { JobSummary } from '@/components/JobSummary';
 import { useRequest } from '@/context/RequestContext';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -21,12 +22,19 @@ export default function ScheduleScreen() {
   const handleBack = () => router.back();
 
   const handleConfirm = () => {
+    // Generate a mock Date based on selection for demo purposes
+    const scheduledDate = new Date();
+    scheduledDate.setDate(scheduledDate.getDate() + (DAYS.indexOf(selectedDay || 'Mon') + 1));
+    if (selectedTime?.includes('8am')) scheduledDate.setHours(9, 0, 0);
+    else if (selectedTime?.includes('12pm')) scheduledDate.setHours(14, 0, 0);
+    else scheduledDate.setHours(18, 0, 0);
+
     updateRequest({
       description,
-      // You could also save selectedDay/Time to context if needed
+      scheduledDate,
+      status: 'Posted',
     });
-    // Navigate directly to the existing payment screen as the single source of truth
-    router.push('/payment');
+    router.push('/new-request/success' as any);
   };
 
   const isFormValid = selectedDay && selectedTime && description.trim().length > 0;
@@ -123,12 +131,18 @@ export default function ScheduleScreen() {
           />
         </View>
 
+        {/* Job Summary Review */}
+        <View style={styles.section}>
+          <AppText variant="h3" style={[styles.sectionTitle, { marginLeft: 0, marginBottom: Spacing['3'] }]}>Review Request</AppText>
+          <JobSummary request={{...request, description}} />
+        </View>
+
       </ScrollView>
 
       {/* Footer */}
       <View style={styles.footer}>
         <AppButton 
-          label="Confirm and Proceed" 
+          label="Post Request" 
           onPress={handleConfirm} 
           disabled={!isFormValid}
           style={{ backgroundColor: Colors.primary }}

@@ -7,6 +7,7 @@ import {
   PressableProps,
   TextStyle,
   ViewStyle,
+  StyleProp,
 } from 'react-native';
 import { Colors, Radius, Spacing, Typography, TouchTarget } from '@/constants/theme';
 import { AppText } from './AppText';
@@ -24,7 +25,7 @@ interface AppButtonProps extends Omit<PressableProps, 'children'> {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   labelStyle?: TextStyle;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 const sizeStyles: Record<ButtonSize, { height: number; paddingHorizontal: number; fontSize: number }> = {

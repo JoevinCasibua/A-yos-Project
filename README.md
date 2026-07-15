@@ -43,6 +43,7 @@ app/
 │   ├── reviews.tsx          # Reviews feed
 │   └── profile.tsx          # User profile
 ├── provider/[id].tsx        # Provider profile detail
+├── new-request/             # New request creation (issue summary, parts selection)
 ├── booking/[id].tsx         # Schedule booking flow
 ├── payment.tsx              # Payment screen (modal)
 ├── tracking/[id].tsx        # Live tracking screen
@@ -115,6 +116,7 @@ Use these tokens rather than hard-coded colors to maintain consistency and ensur
 6. **Live Tracking** — Map background, provider pin, ETA, 5-step tracking timeline, call/message actions
 7. **My Bookings** — Tab-filtered list (upcoming/completed/cancelled) with contextual actions
 8. **Reviews** — Rating summary with distribution chart, filterable review list, review submission modal
+9. **New Request** — Service request creation with photo upload, issue description, replacement parts availability, and ASAP/bidding preferences
 
 ## Platform
 

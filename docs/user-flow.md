@@ -39,6 +39,7 @@ Shared screens (accessible from both modes): Provider Detail, Booking, Payment, 
 | 9 | Live Tracking | `/tracking/:id` | Stack | slide_from_right |
 | 10 | Rate & Review | `/review/:id` | Stack | modal |
 | 11 | 404 | `+not-found` | Stack | default |
+| 12 | New Request | `/new-request/create` | Stack | slide_from_right |
 
 ## Mermaid Diagram
 
@@ -50,6 +51,7 @@ flowchart LR
   Home[Home / Dashboard]
   Tabs[[Tabs: Home, Browse, Bookings, Profile]]
   Search[Browse / Search]
+  NewRequest[New Request / Parts Selection]
   Provider[Provider Profile]
   Booking[Schedule Booking]
   Payment[Payment Modal]
@@ -69,6 +71,9 @@ flowchart LR
   Tabs --> BookingsList
   Tabs --> ProfileScreen
   Tabs --> ReviewModal
+
+  Tabs --> NewRequest
+  NewRequest --> Provider
 
   Search --> Provider
   Provider --> Booking
@@ -96,7 +101,7 @@ flowchart LR
   classDef modal fill:#fff8c4,stroke:#b58900;
   classDef decision fill:#e0f7fa,stroke:#00796b,stroke-width:1px;
   classDef tabgroup fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-  class Start,Onboarding,Home,Search,Provider,Booking,Tracking,BookingsList,ProfileScreen,NotFound screen;
+  class Start,Onboarding,Home,Search,NewRequest,Provider,Booking,Tracking,BookingsList,ProfileScreen,NotFound screen;
   class Payment,ReviewModal modal;
   class hasAuth,SwitchAccount decision;
   class Tabs,WorkerTabs tabgroup;
@@ -110,3 +115,4 @@ flowchart LR
 4. **View provider reviews** → Provider Detail → "See all" → Reviews list (filtered by provider)
 5. **Write a review** → Provider Detail → "Write a Review" → Rate & Review modal
 6. **Switch to worker** → Profile tab → "Switch Account" → Worker app
+7. **Create a new request** → Home tab → New Request (photo, issue summary, replacement parts, ASAP/Bidding) → Select Provider
