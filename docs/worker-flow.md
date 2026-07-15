@@ -128,9 +128,8 @@ Header shows worker greeting, notification bell, category badge, and experience 
 |---------|---------|
 | Author header | Avatar, customer name, posted time, urgency badge |
 | Content | Service title, description, image preview (16:9) |
-| Meta row | Distance, offered price |
-| Comment button | Expands comment section with count |
-| Share button | Placeholder (Coming Soon alert) |
+| Meta row | Location (left), price (right) — space-between |
+| Action bar | Comment button with count (left), Share button (right) — space-between |
 | Comment section | Newest/Oldest sort toggle, comment input with description + min/max price range |
 | Offer badge | Green pill showing `$min - $max` offer range |
 
