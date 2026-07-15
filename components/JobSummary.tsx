@@ -81,11 +81,6 @@ export function JobSummary({ request, showEditButtons = false, compact = false }
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <AppText variant="h3" style={styles.sectionTitle}>Photos</AppText>
-          {showEditButtons && (
-            <Pressable onPress={() => router.push('/new-request/create' as any)}>
-              <Edit3 size={18} color={Colors.primary} />
-            </Pressable>
-          )}
         </View>
         {request.photos && request.photos.length > 0 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoScroll}>
@@ -139,11 +134,6 @@ export function JobSummary({ request, showEditButtons = false, compact = false }
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <AppText variant="h3" style={styles.sectionTitle}>Replacement Parts</AppText>
-          {showEditButtons && (
-            <Pressable onPress={() => router.push('/new-request/create' as any)}>
-              <Edit3 size={18} color={Colors.primary} />
-            </Pressable>
-          )}
         </View>
         <View style={styles.card}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: request.partsDescription ? Spacing[2] : 0 }}>

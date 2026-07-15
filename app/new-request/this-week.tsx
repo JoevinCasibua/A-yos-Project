@@ -17,9 +17,12 @@ export default function ScheduleScreen() {
   const { request, updateRequest } = useRequest();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [description, setDescription] = useState(request.description || '');
 
   const handleBack = () => router.back();
+
+  const handleEditRequest = () => {
+    router.push('/new-request/create' as any);
+  };
 
   const handleConfirm = () => {
     // Generate a mock Date based on selection for demo purposes
@@ -30,14 +33,13 @@ export default function ScheduleScreen() {
     else scheduledDate.setHours(18, 0, 0);
 
     updateRequest({
-      description,
       scheduledDate,
       status: 'Posted',
     });
     router.push('/new-request/success' as any);
   };
 
-  const isFormValid = selectedDay && selectedTime && description.trim().length > 0;
+  const isFormValid = selectedDay && selectedTime;
 
   return (
     <View style={styles.container}>
@@ -115,32 +117,24 @@ export default function ScheduleScreen() {
           </View>
         </View>
 
-        {/* Description Section */}
-        <View style={styles.section}>
-          <AppText variant="h3" style={[styles.sectionTitle, { marginLeft: 0 }]}>Job Description</AppText>
-          <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginBottom: Spacing['3'] }}>
-            Describe what needs fixing in detail so the worker arrives prepared.
-          </AppText>
-          <AppInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="E.g., The sink in the guest bathroom is leaking from the U-bend..."
-            multiline
-            numberOfLines={5}
-            style={styles.textArea}
-          />
-        </View>
-
         {/* Job Summary Review */}
         <View style={styles.section}>
           <AppText variant="h3" style={[styles.sectionTitle, { marginLeft: 0, marginBottom: Spacing['3'] }]}>Review Request</AppText>
-          <JobSummary request={{...request, description}} />
+          <JobSummary request={request} showEditButtons={true} />
         </View>
 
       </ScrollView>
 
       {/* Footer */}
       <View style={styles.footer}>
+        <AppButton 
+          label="Edit Request Details" 
+          variant="outline"
+          onPress={handleEditRequest} 
+          fullWidth
+          size="xl"
+          style={{ marginBottom: Spacing['3'] }}
+        />
         <AppButton 
           label="Post Request" 
           onPress={handleConfirm} 
@@ -218,10 +212,6 @@ const styles = StyleSheet.create({
   timeCardSelected: {
     backgroundColor: Colors.primarySurface,
     borderColor: Colors.primary,
-  },
-  textArea: {
-    height: 120,
-    textAlignVertical: 'top',
   },
   footer: {
     padding: Layout.screenPadding,

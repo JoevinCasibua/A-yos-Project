@@ -33,6 +33,14 @@ export default function OpenBiddingReviewScreen() {
 
       <View style={styles.bottomContainer}>
         <AppButton
+          label="Edit Request Details"
+          variant="outline"
+          size="xl"
+          fullWidth
+          onPress={() => router.push('/new-request/create' as any)}
+          style={{ marginBottom: Spacing['3'] }}
+        />
+        <AppButton
           label="Post Request for Bidding"
           size="xl"
           fullWidth

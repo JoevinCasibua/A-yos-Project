@@ -63,8 +63,14 @@ export default function ReviewRequestScreen() {
 
       {/* Bottom CTA */}
       <View style={styles.bottomContainer}>
-
-        
+        <AppButton
+          label="Edit Request Details"
+          variant="outline"
+          size="xl"
+          fullWidth
+          onPress={() => router.push('/new-request/create' as any)}
+          style={{ marginBottom: Spacing['3'] }}
+        />
         <AppButton
           label={getPrimaryButtonText()}
           size="xl"
