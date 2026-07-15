@@ -8,7 +8,6 @@ import {
   Platform,
   Modal,
 } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import {
   ChevronLeft,
@@ -27,7 +26,6 @@ import {
   Check,
   ShieldCheck,
   Edit3,
-  Calendar,
 } from 'lucide-react-native';
 import { Colors, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -65,8 +63,6 @@ export default function RegisterWorkerScreen() {
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [birthdayDate, setBirthdayDate] = useState<Date | null>(null);
 
   // Step 1: Account for Ayos
   const [firstName, setFirstName] = useState('');
@@ -120,15 +116,16 @@ export default function RegisterWorkerScreen() {
     }
   };
 
-  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setBirthdayDate(selectedDate);
-      const m = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
-      const d = selectedDate.getDate().toString().padStart(2, '0');
-      const y = selectedDate.getFullYear();
-      setBirthday(`${m}/${d}/${y}`);
+  const handleBirthdayChange = (text: string) => {
+    const digits = text.replace(/\D/g, '').slice(0, 8);
+    let formatted = digits;
+    if (digits.length > 2) {
+      formatted = digits.slice(0, 2) + '/' + digits.slice(2);
     }
+    if (digits.length > 4) {
+      formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+    }
+    setBirthday(formatted);
   };
 
   const validateStep1 = () => {
@@ -291,37 +288,15 @@ export default function RegisterWorkerScreen() {
         error={errors.phone}
         keyboardType="phone-pad"
       />
-      <View>
-        <AppText variant="label" weight="medium" color={Colors.textPrimary} style={{ marginBottom: Spacing['2'] }}>
-          Birthday
-        </AppText>
-        <Pressable
-          style={[styles.dateButton, errors.birthday ? { borderColor: Colors.error, borderWidth: 1.5 } : null]}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <AppText variant="body" color={birthday ? Colors.textPrimary : Colors.textTertiary}>
-            {birthday || 'MM/DD/YYYY'}
-          </AppText>
-          <Calendar size={20} color={Colors.textTertiary} />
-        </Pressable>
-        {errors.birthday && (
-          <AppText variant="caption" color={Colors.error} style={{ marginTop: Spacing['1'] }}>
-            {errors.birthday}
-          </AppText>
-        )}
-        {showDatePicker && (
-          <View style={{ height: 200, marginTop: Spacing['2'] }}>
-            <DateTimePicker
-              value={birthdayDate || new Date(2000, 0, 1)}
-              mode="date"
-              display="spinner"
-              maximumDate={new Date()}
-              minimumDate={new Date(1920, 0, 1)}
-              onChange={handleDateChange}
-            />
-          </View>
-        )}
-      </View>
+      <AppInput
+        label="Birthday"
+        placeholder="MM/DD/YYYY"
+        value={birthday}
+        onChangeText={handleBirthdayChange}
+        error={errors.birthday}
+        keyboardType="number-pad"
+        maxLength={10}
+      />
       <AppSelect
         label="Gender (Optional)"
         options={GENDERS}
@@ -869,17 +844,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing['3'],
-  },
-  dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderRadius: Radius.lg,
-    paddingHorizontal: Spacing['4'],
-    minHeight: 52,
-    backgroundColor: Colors.white,
-    borderColor: Colors.border,
   },
   footer: {
     padding: Spacing['4'],
