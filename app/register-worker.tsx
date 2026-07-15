@@ -310,14 +310,16 @@ export default function RegisterWorkerScreen() {
           </AppText>
         )}
         {showDatePicker && (
-          <DateTimePicker
-            value={birthdayDate || new Date(2000, 0, 1)}
-            mode="date"
-            display="spinner"
-            maximumDate={new Date()}
-            minimumDate={new Date(1920, 0, 1)}
-            onChange={handleDateChange}
-          />
+          <View style={{ height: 200, marginTop: Spacing['2'] }}>
+            <DateTimePicker
+              value={birthdayDate || new Date(2000, 0, 1)}
+              mode="date"
+              display="spinner"
+              maximumDate={new Date()}
+              minimumDate={new Date(1920, 0, 1)}
+              onChange={handleDateChange}
+            />
+          </View>
         )}
       </View>
       <AppSelect
