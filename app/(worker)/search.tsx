@@ -7,6 +7,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { Chip } from '@/components/Chip';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { workerJobs } from '@/constants/workerMockData';
 import type { JobOpportunity } from '@/constants/workerMockData';
 
@@ -89,9 +90,7 @@ export default function WorkerBrowseScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <AppText variant="h2" weight="bold">Browse Jobs</AppText>
-      </View>
+      <ScreenHeader title="Browse Jobs" />
       <FlatList
         data={filteredJobs}
         renderItem={renderItem}
@@ -150,11 +149,6 @@ export default function WorkerBrowseScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    backgroundColor: Colors.white, paddingHorizontal: Spacing['4'],
-    paddingTop: Spacing['16'], paddingBottom: Spacing['3'],
-    borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
-  },
   listContent: { padding: Spacing['4'], paddingBottom: 100 },
   chipRow: { gap: Spacing['2'], marginTop: Spacing['3'] },
   jobCard: {
