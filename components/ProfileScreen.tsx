@@ -1,15 +1,14 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import {
-  ChevronRight,
   Edit3,
   LogOut,
-  Star,
 } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { MenuItemRow } from '@/components/MenuItemRow';
 
 interface MenuItem {
   id: string;
@@ -53,8 +52,6 @@ export function ProfileScreen({
   onLogout,
   onMenuItemPress,
 }: ProfileScreenProps) {
-  const handleItemPress = React.useCallback(() => {}, []);
-
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -112,25 +109,15 @@ export function ProfileScreen({
         {/* Menu Section */}
         <View style={styles.menuSection}>
           {menuItems.map((item, idx) => (
-            <Pressable
+            <MenuItemRow
               key={item.id}
-              onPress={() => onMenuItemPress?.(item.id) ?? handleItemPress()}
-              style={({ pressed }) => [
-                styles.menuItem,
-                {
-                  opacity: pressed ? 0.7 : 1,
-                  borderBottomWidth: idx === menuItems.length - 1 ? 0 : 1,
-                },
-              ]}
-            >
-              <View style={[styles.menuIcon, { backgroundColor: item.bg }]}>
-                <item.icon size={20} color={item.color} strokeWidth={2} />
-              </View>
-              <AppText variant="body" weight="medium" style={{ flex: 1 }}>
-                {item.label}
-              </AppText>
-              <ChevronRight size={20} color={Colors.textTertiary} strokeWidth={2} />
-            </Pressable>
+              icon={item.icon}
+              label={item.label}
+              color={item.color}
+              bg={item.bg}
+              onPress={() => onMenuItemPress?.(item.id)}
+              isLast={idx === menuItems.length - 1}
+            />
           ))}
         </View>
 
@@ -195,15 +182,6 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
     backgroundColor: Colors.white, borderRadius: Radius.xl, overflow: 'hidden',
     ...Elevation.sm,
-  },
-  menuItem: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing['3'],
-    paddingHorizontal: Spacing['4'], paddingVertical: Spacing['4'],
-    borderBottomColor: Colors.borderLight,
-  },
-  menuIcon: {
-    width: 40, height: 40, borderRadius: Radius.lg,
-    alignItems: 'center', justifyContent: 'center',
   },
   logoutBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing['2'],

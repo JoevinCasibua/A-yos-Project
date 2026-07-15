@@ -6,6 +6,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Chip } from '@/components/Chip';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { workerBookings, statusConfig } from '@/constants/workerMockData';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
@@ -121,9 +122,7 @@ export default function WorkerBookingsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <AppText variant="h2" weight="bold">My Bookings</AppText>
-      </View>
+      <ScreenHeader title="My Bookings" />
       <FlatList
         data={filteredBookings}
         renderItem={renderItem}
@@ -158,11 +157,6 @@ export default function WorkerBookingsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    backgroundColor: Colors.white, paddingHorizontal: Spacing['4'],
-    paddingTop: Spacing['16'], paddingBottom: Spacing['3'],
-    borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
-  },
   tabRow: { flexDirection: 'row', gap: Spacing['2'], marginTop: Spacing['3'], marginBottom: Spacing['3'] },
   listContent: { padding: Spacing['4'], paddingBottom: 100 },
   bookingCard: {
