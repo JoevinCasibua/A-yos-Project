@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { 
   Home, User, Mail, Phone, Lock, EyeOff, Eye, Square, Check, 
-  ChevronRight, ChevronLeft, CircleCheck, ShieldCheck, MapPin
+  ChevronRight, ChevronLeft, CircleCheck, ShieldCheck, MapPin, Calendar
 } from 'lucide-react-native';
 import { Colors, Spacing, Radius, Typography } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -51,6 +52,8 @@ export default function SignUpScreen() {
   const [birthday, setBirthday] = useState('');
   const [gender, setGender] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [birthdayDate, setBirthdayDate] = useState<Date | null>(null);
 
   // Step 2: Verification
   const [idType, setIdType] = useState('');
@@ -135,6 +138,17 @@ export default function SignUpScreen() {
     }
   };
 
+  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setBirthdayDate(selectedDate);
+      const m = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+      const d = selectedDate.getDate().toString().padStart(2, '0');
+      const y = selectedDate.getFullYear();
+      setBirthday(`${m}/${d}/${y}`);
+    }
+  };
+
   // Location detection temporarily disabled
 
   const renderProgressBar = () => (
@@ -191,13 +205,35 @@ export default function SignUpScreen() {
         error={errors.phone}
         keyboardType="phone-pad"
       />
-      <AppInput
-        label="Birthday"
-        placeholder="MM/DD/YYYY"
-        value={birthday}
-        onChangeText={setBirthday}
-        error={errors.birthday}
-      />
+      <View>
+        <AppText variant="label" weight="medium" color={Colors.textPrimary} style={{ marginBottom: Spacing['2'] }}>
+          Birthday
+        </AppText>
+        <Pressable
+          style={[styles.dateButton, errors.birthday ? { borderColor: Colors.error, borderWidth: 1.5 } : null]}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <AppText variant="body" color={birthday ? Colors.textPrimary : Colors.textTertiary}>
+            {birthday || 'MM/DD/YYYY'}
+          </AppText>
+          <Calendar size={20} color={Colors.textTertiary} />
+        </Pressable>
+        {errors.birthday && (
+          <AppText variant="caption" color={Colors.error} style={{ marginTop: Spacing['1'] }}>
+            {errors.birthday}
+          </AppText>
+        )}
+        {showDatePicker && (
+          <DateTimePicker
+            value={birthdayDate || new Date(2000, 0, 1)}
+            mode="date"
+            display="spinner"
+            maximumDate={new Date()}
+            minimumDate={new Date(1920, 0, 1)}
+            onChange={handleDateChange}
+          />
+        )}
+      </View>
       <AppSelect
         label="Gender (Optional)"
         options={GENDERS}
@@ -516,6 +552,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing['3'],
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1.5,
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing['4'],
+    minHeight: 52,
+    backgroundColor: Colors.white,
+    borderColor: Colors.border,
   },
   footer: {
     padding: Spacing['4'],

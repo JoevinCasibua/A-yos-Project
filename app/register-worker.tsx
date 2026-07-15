@@ -8,6 +8,7 @@ import {
   Platform,
   Modal,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import {
   ChevronLeft,
@@ -26,6 +27,7 @@ import {
   Check,
   ShieldCheck,
   Edit3,
+  Calendar,
 } from 'lucide-react-native';
 import { Colors, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -63,6 +65,8 @@ export default function RegisterWorkerScreen() {
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [birthdayDate, setBirthdayDate] = useState<Date | null>(null);
 
   // Step 1: Account for Ayos
   const [firstName, setFirstName] = useState('');
@@ -116,6 +120,17 @@ export default function RegisterWorkerScreen() {
     }
   };
 
+  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setBirthdayDate(selectedDate);
+      const m = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+      const d = selectedDate.getDate().toString().padStart(2, '0');
+      const y = selectedDate.getFullYear();
+      setBirthday(`${m}/${d}/${y}`);
+    }
+  };
+
   const validateStep1 = () => {
     const e: Record<string, string> = {};
     if (!firstName) e.firstName = 'First name is required';
@@ -123,10 +138,6 @@ export default function RegisterWorkerScreen() {
     if (!emailRegex.test(email)) e.email = 'Valid email is required';
     if (!phoneRegex.test(phone)) e.phone = 'Valid Philippine number required (e.g. 09123456789)';
     if (!birthday) e.birthday = 'Birthday is required';
-    if (!passwordRegex.test(password)) {
-      e.password = 'Must be 8+ chars, with 1 number, 1 special char, and 1 uppercase letter';
-    }
-    if (password !== confirmPassword) e.confirmPassword = 'Passwords do not match';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -280,13 +291,35 @@ export default function RegisterWorkerScreen() {
         error={errors.phone}
         keyboardType="phone-pad"
       />
-      <AppInput
-        label="Birthday"
-        placeholder="MM/DD/YYYY"
-        value={birthday}
-        onChangeText={setBirthday}
-        error={errors.birthday}
-      />
+      <View>
+        <AppText variant="label" weight="medium" color={Colors.textPrimary} style={{ marginBottom: Spacing['2'] }}>
+          Birthday
+        </AppText>
+        <Pressable
+          style={[styles.dateButton, errors.birthday ? { borderColor: Colors.error, borderWidth: 1.5 } : null]}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <AppText variant="body" color={birthday ? Colors.textPrimary : Colors.textTertiary}>
+            {birthday || 'MM/DD/YYYY'}
+          </AppText>
+          <Calendar size={20} color={Colors.textTertiary} />
+        </Pressable>
+        {errors.birthday && (
+          <AppText variant="caption" color={Colors.error} style={{ marginTop: Spacing['1'] }}>
+            {errors.birthday}
+          </AppText>
+        )}
+        {showDatePicker && (
+          <DateTimePicker
+            value={birthdayDate || new Date(2000, 0, 1)}
+            mode="date"
+            display="spinner"
+            maximumDate={new Date()}
+            minimumDate={new Date(1920, 0, 1)}
+            onChange={handleDateChange}
+          />
+        )}
+      </View>
       <AppSelect
         label="Gender (Optional)"
         options={GENDERS}
@@ -834,6 +867,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing['3'],
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1.5,
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing['4'],
+    minHeight: 52,
+    backgroundColor: Colors.white,
+    borderColor: Colors.border,
   },
   footer: {
     padding: Spacing['4'],
