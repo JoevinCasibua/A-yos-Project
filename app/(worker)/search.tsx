@@ -99,7 +99,7 @@ export default function WorkerBrowseScreen() {
               value={query}
               onChangeText={setQuery}
               placeholder="Search jobs..."
-              style={{ marginTop: Spacing['3'] }}
+              //style={{ marginTop: Spacing['0'] }}
             />
             <FlatList
               data={filterOptions}
@@ -131,7 +131,7 @@ export default function WorkerBrowseScreen() {
               )}
               keyExtractor={(item) => item}
             />
-            <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginTop: Spacing['3'] }}>
+            <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginTop: Spacing['3'], marginBottom: Spacing['4'] }}>
               {filteredJobs.length} posts available
             </AppText>
           </View>
