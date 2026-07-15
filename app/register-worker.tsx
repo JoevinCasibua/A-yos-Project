@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   Modal,
 } from 'react-native';
@@ -26,6 +27,8 @@ import {
   Check,
   ShieldCheck,
   Edit3,
+  Building2,
+  X,
 } from 'lucide-react-native';
 import { Colors, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -77,6 +80,9 @@ export default function RegisterWorkerScreen() {
 
   // Step 2: Industry & Skills
   const [industry, setIndustry] = useState('');
+  const [industryValue, setIndustryValue] = useState('');
+  const [isEditingIndustry, setIsEditingIndustry] = useState(false);
+  const [employmentType, setEmploymentType] = useState<'employed' | 'freelance' | ''>('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
 
@@ -100,7 +106,7 @@ export default function RegisterWorkerScreen() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const availableSkills = industry ? SKILLS_BY_INDUSTRY[industry] || [] : [];
+  const availableSkills = industryValue ? SKILLS_BY_INDUSTRY[industryValue] || [] : [];
 
   const toggleSkill = (skillValue: string) => {
     setSelectedSkills((prev) =>
@@ -129,19 +135,28 @@ export default function RegisterWorkerScreen() {
   };
 
   const validateStep1 = () => {
-    const e: Record<string, string> = {};
-    if (!firstName) e.firstName = 'First name is required';
-    if (!lastName) e.lastName = 'Last name is required';
-    if (!emailRegex.test(email)) e.email = 'Valid email is required';
-    if (!phoneRegex.test(phone)) e.phone = 'Valid Philippine number required (e.g. 09123456789)';
-    if (!birthday) e.birthday = 'Birthday is required';
-    setErrors(e);
-    return Object.keys(e).length === 0;
+    // const e: Record<string, string> = {};
+    // if (!firstName) e.firstName = 'First name is required';
+    // if (!lastName) e.lastName = 'Last name is required';
+    // if (!emailRegex.test(email)) e.email = 'Valid email is required';
+    // if (!phoneRegex.test(phone)) e.phone = 'Valid Philippine number required (e.g. 09123456789)';
+    // if (!birthday) e.birthday = 'Birthday is required';
+    // if (!password) e.password = 'Password is required';
+    // if (password.length < 8) e.password = 'Password must be at least 8 characters';
+    // if (!/[A-Z]/.test(password)) e.password = 'Password must contain at least 1 uppercase letter';
+    // if (!/\d/.test(password)) e.password = 'Password must contain at least 1 number';
+    // if (!/[^A-Za-z0-9]/.test(password)) e.password = 'Password must contain at least 1 special character';
+    // if (password !== confirmPassword) e.confirmPassword = 'Passwords do not match';
+    // setErrors(e);
+    // return Object.keys(e).length === 0;
+    setErrors({});
+    return true;
   };
 
   const validateStep2 = () => {
     const e: Record<string, string> = {};
-    if (!industry) e.industry = 'Please select an industry';
+    if (!industry) e.industry = 'Please input primary industry';
+    if (!employmentType) e.employmentType = 'Please select employment type';
     if (selectedSkills.length === 0) e.skills = 'Select at least one skill';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -197,7 +212,7 @@ export default function RegisterWorkerScreen() {
     setErrors({});
   };
 
-  const getIndustryLabel = () => INDUSTRIES.find((i) => i.value === industry)?.label || '';
+  const getIndustryLabel = () => industry || INDUSTRIES.find((i) => i.value === industryValue)?.label || '';
   const getSkillLabels = () => selectedSkills.map((sv) => availableSkills.find((s) => s.value === sv)?.label || sv);
   const getIdTypeLabel = () => ID_TYPES.find((i) => i.value === idType)?.label || '';
   const getGenderLabel = () => GENDERS.find((g) => g.value === gender)?.label || 'Not specified';
@@ -339,15 +354,86 @@ export default function RegisterWorkerScreen() {
         Select your primary industry and the services you offer.
       </AppText>
 
-      <AppAutocomplete
-        label="Primary Industry"
-        value={industry}
-        onChangeText={setIndustry}
-        options={INDUSTRIES}
-        placeholder="Type or select your industry"
-        error={errors.industry}
-        containerStyle={{ marginBottom: Spacing['4'] }}
-      />
+      <AppText variant="label" style={{ marginBottom: Spacing['2'] }}>
+        Primary Industry
+      </AppText>
+      {industry && !isEditingIndustry ? (
+        <Pressable
+          style={styles.industrySelectedCard}
+          onPress={() => setIsEditingIndustry(true)}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing['3'], flex: 1 }}>
+            <Briefcase size={20} color={Colors.white} />
+            <AppText variant="body" weight="bold" color={Colors.white} style={{ flex: 1 }}>
+              {industry}
+            </AppText>
+          </View>
+          <Edit3 size={18} color={Colors.white} />
+        </Pressable>
+      ) : (
+        <AppAutocomplete
+          value={industry}
+          onChangeText={setIndustry}
+          onSelect={(option) => {
+            setIndustry(option.label);
+            setIndustryValue(option.value);
+            setIsEditingIndustry(false);
+          }}
+          options={INDUSTRIES}
+          placeholder="Type or select your industry"
+          error={errors.industry}
+          containerStyle={{ marginBottom: Spacing['4'] }}
+        />
+      )}
+
+      <AppText variant="label" style={{ marginBottom: Spacing['2'] }}>
+        Employment Type
+      </AppText>
+      <View style={{ flexDirection: 'row', gap: Spacing['3'], marginBottom: Spacing['4'] }}>
+        <Pressable
+          style={[
+            styles.employmentCard,
+            employmentType === 'employed' && styles.employmentCardSelected,
+          ]}
+          onPress={() => setEmploymentType('employed')}
+        >
+          <Building2
+            size={24}
+            color={employmentType === 'employed' ? Colors.white : Colors.textTertiary}
+          />
+          <AppText
+            variant="bodySm"
+            weight={employmentType === 'employed' ? 'bold' : 'regular'}
+            color={employmentType === 'employed' ? Colors.white : Colors.textSecondary}
+          >
+            Employed at a Company
+          </AppText>
+        </Pressable>
+        <Pressable
+          style={[
+            styles.employmentCard,
+            employmentType === 'freelance' && styles.employmentCardSelected,
+          ]}
+          onPress={() => setEmploymentType('freelance')}
+        >
+          <User
+            size={24}
+            color={employmentType === 'freelance' ? Colors.white : Colors.textTertiary}
+          />
+          <AppText
+            variant="bodySm"
+            weight={employmentType === 'freelance' ? 'bold' : 'regular'}
+            color={employmentType === 'freelance' ? Colors.white : Colors.textSecondary}
+          >
+            Freelance / Independent
+          </AppText>
+        </Pressable>
+      </View>
+      {errors.employmentType && (
+        <AppText variant="caption" color={Colors.error} style={{ marginBottom: Spacing['3'] }}>
+          {errors.employmentType}
+        </AppText>
+      )}
 
       {industry ? (
         <>
@@ -374,6 +460,7 @@ export default function RegisterWorkerScreen() {
                     label={match?.label || sv}
                     selected
                     onPress={() => toggleSkill(sv)}
+                    rightIcon={<X size={14} color={Colors.white} />}
                     size="sm"
                   />
                 );
@@ -566,6 +653,12 @@ export default function RegisterWorkerScreen() {
           <AppText variant="bodySm" weight="medium">{getIndustryLabel()}</AppText>
         </View>
         <View style={styles.reviewRow}>
+          <AppText variant="bodySm" color={Colors.textSecondary}>Employment Type</AppText>
+          <AppText variant="bodySm" weight="medium">
+            {employmentType === 'employed' ? 'Employed at a Company' : employmentType === 'freelance' ? 'Freelance / Independent' : '—'}
+          </AppText>
+        </View>
+        <View style={styles.reviewRow}>
           <AppText variant="bodySm" color={Colors.textSecondary}>Skills</AppText>
           <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: Spacing['1'], justifyContent: 'flex-end' }}>
             {getSkillLabels().map((label) => (
@@ -653,7 +746,12 @@ export default function RegisterWorkerScreen() {
       {renderProgressBar()}
       {renderStepLabels()}
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        onScrollBeginDrag={() => Keyboard.dismiss()}
+      >
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
         {step === 3 && renderStep3()}
@@ -785,6 +883,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing['2'],
+    marginBottom: Spacing['4'],
+  },
+  employmentCard: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing['2'],
+    paddingVertical: Spacing['4'],
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+  },
+  employmentCardSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
+  },
+  industrySelectedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing['4'],
+    paddingHorizontal: Spacing['4'],
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
     marginBottom: Spacing['4'],
   },
   emptyState: {

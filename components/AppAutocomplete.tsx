@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import {
   View,
   StyleSheet,
   Pressable,
+  Keyboard,
   ViewStyle,
 } from 'react-native';
 import { Check, Plus } from 'lucide-react-native';
@@ -27,6 +28,8 @@ interface AppAutocompleteProps {
   onToggle?: (value: string) => void;
   /** Called when user submits custom text via Enter or Add button (multiSelect) */
   onAddCustom?: (text: string) => void;
+  /** Single-select mode: fires when user taps a suggestion, passes the full option */
+  onSelect?: (option: SelectOption) => void;
 }
 
 export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
@@ -41,50 +44,89 @@ export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
   selectedValues = [],
   onToggle,
   onAddCustom,
+  onSelect,
 }) => {
   const [focused, setFocused] = useState(false);
+  const [blurredOnce, setBlurredOnce] = useState(false);
+  const pressingRef = useRef(false);
 
   const filtered = useMemo(() => {
-    if (!value.trim()) return options.slice(0, 4);
+    const source = multiSelect
+      ? options.filter(o => !selectedValues.includes(o.value))
+      : options;
+    if (!value.trim()) return source.slice(0, 5);
     const query = value.toLowerCase();
-    return options
+    return source
       .filter((o) => o.label.toLowerCase().includes(query))
-      .slice(0, 4);
-  }, [value, options]);
+      .slice(0, 5);
+  }, [value, options, selectedValues, multiSelect]);
 
   const exactMatch = useMemo(
     () => options.find((o) => o.label.toLowerCase() === value.toLowerCase()),
     [value, options],
   );
 
-  const showSuggestions = focused && (filtered.length > 0 || (multiSelect && value.trim().length > 0));
+  const showSuggestions = focused && (filtered.length > 0 || (value.trim().length > 0 && !exactMatch));
 
-  const handleSelect = (option: SelectOption) => {
+  const handleSelect = useCallback((option: SelectOption) => {
+    pressingRef.current = true;
     if (multiSelect && onToggle) {
       onToggle(option.value);
       onChangeText('');
+      setTimeout(() => { pressingRef.current = false; }, 100);
     } else {
       onChangeText(option.label);
+      onSelect?.(option);
       setFocused(false);
+      setBlurredOnce(false);
+      pressingRef.current = false;
     }
-  };
+  }, [multiSelect, onToggle, onChangeText, onSelect]);
 
-  const handleAddCustom = () => {
+  const handleAddCustom = useCallback(() => {
     const trimmed = value.trim();
-    if (!trimmed || !onAddCustom) return;
-    if (exactMatch) {
-      onToggle?.(exactMatch.value);
+    if (!trimmed) return;
+    pressingRef.current = true;
+    if (multiSelect) {
+      if (!onAddCustom) return;
+      if (exactMatch) {
+        onToggle?.(exactMatch.value);
+      } else {
+        onAddCustom(trimmed);
+      }
+      onChangeText('');
+      pressingRef.current = false;
     } else {
-      onAddCustom(trimmed);
+      const customOption: SelectOption = { label: trimmed, value: trimmed.toLowerCase().replace(/\s+/g, '_') };
+      onSelect?.(customOption);
+      onChangeText(trimmed);
+      setFocused(false);
+      setBlurredOnce(false);
+      pressingRef.current = false;
     }
-    onChangeText('');
-  };
+  }, [value, multiSelect, onAddCustom, exactMatch, onToggle, onSelect, onChangeText]);
+
+  const handleFocus = useCallback(() => {
+    setBlurredOnce(false);
+    setFocused(true);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setBlurredOnce(true);
+    Keyboard.dismiss();
+  }, []);
 
   const handleSubmitEditing = () => {
     if (multiSelect) {
       handleAddCustom();
+    } else if (filtered.length === 1) {
+      setFocused(false);
+      setBlurredOnce(false);
+    } else if (value.trim().length > 0 && !exactMatch) {
+      handleAddCustom();
     } else {
       setFocused(false);
+      setBlurredOnce(false);
     }
   };
 
@@ -92,8 +134,10 @@ export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
     const isSelected = multiSelect && selectedValues.includes(item.value);
     return (
       <Pressable
+        key={item.value}
         style={styles.suggestionRow}
         onPress={() => handleSelect(item)}
+        onPressIn={() => { pressingRef.current = true; }}
       >
         <AppText
           variant="body"
@@ -118,10 +162,10 @@ export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
             onChangeText={onChangeText}
             placeholder={placeholder}
             error={error}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setTimeout(() => setFocused(false), 150)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             onSubmitEditing={handleSubmitEditing}
-            returnKeyType={multiSelect ? 'done' : 'done'}
+            returnKeyType="done"
           />
         </View>
         {multiSelect && value.trim().length > 0 && (
@@ -132,27 +176,43 @@ export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
       </View>
 
       {showSuggestions && (
-        <View style={styles.suggestionsContainer}>
-          {filtered.map((item) => (
-            <React.Fragment key={item.value}>
-              {renderSuggestion({ item })}
-            </React.Fragment>
-          ))}
-          {multiSelect && value.trim().length > 0 && !exactMatch && (
-            <Pressable style={styles.customRow} onPress={handleAddCustom}>
-              <AppText variant="bodySm" weight="semiBold" color={Colors.primary}>
-                Add "{value.trim()}" as custom
-              </AppText>
-            </Pressable>
+        <>
+          {blurredOnce && (
+            <Pressable
+              style={styles.dismissOverlay}
+              onPress={() => {
+                setFocused(false);
+                setBlurredOnce(false);
+              }}
+            />
           )}
-        </View>
+          <View style={styles.suggestionsDropdown} pointerEvents="box-none">
+            <View style={styles.suggestionsInner}>
+              {filtered.map((item) => renderSuggestion({ item }))}
+              {value.trim().length > 0 && !exactMatch && (
+                <Pressable
+                  style={styles.customRow}
+                  onPress={handleAddCustom}
+                  onPressIn={() => { pressingRef.current = true; }}
+                >
+                  <AppText variant="bodySm" weight="semiBold" color={Colors.primary}>
+                    {multiSelect ? `Add "${value.trim()}" as custom` : `Use "${value.trim()}" as custom`}
+                  </AppText>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        </>
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    position: 'relative',
+    zIndex: 100,
+  },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -170,15 +230,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 22,
   },
-  suggestionsContainer: {
+  dismissOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 999,
+  },
+  suggestionsDropdown: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    elevation: 5,
+  },
+  suggestionsInner: {
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderTopWidth: 0,
-    borderBottomLeftRadius: Radius.lg,
-    borderBottomRightRadius: Radius.lg,
-    maxHeight: 180,
-    overflow: 'hidden',
+    borderRadius: Radius.lg,
+    marginTop: 4,
+    maxHeight: 220,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
   },
   suggestionRow: {
     flexDirection: 'row',
