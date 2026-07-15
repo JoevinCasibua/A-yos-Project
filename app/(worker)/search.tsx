@@ -127,7 +127,6 @@ export default function WorkerBrowseScreen() {
                   selected={sortBy === item}
                   onPress={() => setSortBy(item)}
                   size="sm"
-                  color={Colors.info}
                 />
               )}
               keyExtractor={(item) => item}

@@ -6,12 +6,13 @@ Design target: iPhone 15 / 393×852 dp. Colors and tokens are defined in `consta
 
 Palette (key tokens):
 
-- Primary / CTA: `#0B63D6`
-- Primary Light: `#4DA5FF`
+- Primary / CTA: `#071022`
+- Primary Light: `#1A2B4C`
 - Success: `#117A5C`
 - Warning: `#F59E0B`
 - Error: `#C53030`
-- Background: `#F7F9FC`
+- Info: `#0B63D6`
+- Background: `#F8F9FB`
 
 ## Architecture
 
@@ -20,7 +21,7 @@ The app has two modes — **User** and **Worker** — switchable via the "Switch
 | Mode | Tab Navigator | Tabs |
 |------|---------------|------|
 | User | `(tabs)` | Home, Browse, Bookings, Profile |
-| Worker | `(worker)` | Dashboard, Browse, Bookings, Reviews, Profile |
+| Worker | `(worker)` | Dashboard, Job Posts, Bookings, Reviews, Profile |
 
 Shared screens (accessible from both modes): Provider Detail, Booking, Payment, Tracking, Review Modal.
 
@@ -29,7 +30,7 @@ Shared screens (accessible from both modes): Provider Detail, Booking, Payment, 
 | # | Screen | Route | Parent | Presentation | Shared with User? |
 |---|--------|-------|--------|--------------|-------------------|
 | 1 | Dashboard | `/(worker)/` | Tab | tab | No |
-| 2 | Browse Jobs | `/(worker)/search` | Tab | tab | Yes (search) |
+| 2 | Job Posts | `/(worker)/search` | Tab | tab | Yes (search) |
 | 3 | My Bookings | `/(worker)/bookings` | Tab | tab | Yes (bookings) |
 | 4 | My Reviews | `/(worker)/reviews` | Tab | tab | No (hidden from user nav) |
 | 5 | Profile | `/(worker)/profile` | Tab | tab | No |
@@ -48,8 +49,8 @@ flowchart LR
   Start((Start))
   Onboarding[Onboarding Screen]
   WorkerDashboard[Dashboard]
-  Tabs[[Tabs: Dashboard, Browse, Bookings, Reviews, Profile]]
-  BrowseJobs[Browse Jobs]
+  Tabs[[Tabs: Dashboard, Job Posts, Bookings, Reviews, Profile]]
+  JobPosts[Job Posts]
   BookingsList[My Bookings]
   ReviewsTab[My Reviews]
   ProfileTab[Profile]
@@ -65,12 +66,13 @@ flowchart LR
   Start --> Onboarding
   Onboarding --> WorkerDashboard
   WorkerDashboard --> Tabs
-  Tabs --> BrowseJobs
+  Tabs --> JobPosts
   Tabs --> BookingsList
   Tabs --> ReviewsTab
   Tabs --> ProfileTab
 
-  BrowseJobs -->|Accept Job| WorkerDashboard
+  JobPosts -->|Comment / Offer| JobPosts
+  JobPosts -->|Share| JobPosts
   BookingsList -->|Start Job| WorkerDashboard
   BookingsList -->|Complete| Payment
   BookingsList -->|Contact Customer| ProviderDetail
@@ -90,7 +92,7 @@ flowchart LR
   classDef modal fill:#fff8c4,stroke:#b58900;
   classDef decision fill:#e0f7fa,stroke:#00796b,stroke-width:1px;
   classDef tabgroup fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-  class Start,Onboarding,WorkerDashboard,BrowseJobs,BookingsList,ReviewsTab,ProfileTab,ProviderDetail,NotFound screen;
+  class Start,Onboarding,WorkerDashboard,JobPosts,BookingsList,ReviewsTab,ProfileTab,ProviderDetail,NotFound screen;
   class Payment,ReviewModal modal;
   class hasAuth,SwitchAccount decision;
   class Tabs,UserTabs tabgroup;
@@ -111,16 +113,28 @@ Header shows worker greeting, notification bell, category badge, and experience 
 
 ---
 
-### Browse Jobs (`/(worker)/search.tsx`)
+### Job Posts (`/(worker)/search.tsx`)
 
 | Section | Content | Details |
 |---------|---------|---------|
 | Search bar | Text input | Filters by customer name, service, and description |
 | Filter chips | All, Urgent, Nearby, High Pay | Urgent: `urgency === 'urgent'`; Nearby: `distance <= 1.5 mi`; High Pay: `price >= $100` |
 | Sort chips | Nearest, Highest Pay, Most Recent | Default: Nearest |
-| Job cards | FlatList of 4 jobs | Customer avatar, name, posted time, urgency badge, service title, description, location/distance, price |
+| Job post cards | FlatList of 4 posts | LinkedIn-style cards with image preview, comments, and share |
 
-**Actions:** "Accept Job" button on each card (visual only — no handler wired yet).
+**Job Post Card Features:**
+
+| Feature | Details |
+|---------|---------|
+| Author header | Avatar, customer name, posted time, urgency badge |
+| Content | Service title, description, image preview (16:9) |
+| Meta row | Distance, offered price |
+| Comment button | Expands comment section with count |
+| Share button | Placeholder (Coming Soon alert) |
+| Comment section | Newest/Oldest sort toggle, comment input with description + min/max price range |
+| Offer badge | Green pill showing `$min - $max` offer range |
+
+**Actions:** Workers can comment on posts with an offer (description + price range). New comments appear at top immediately.
 
 ---
 
@@ -188,7 +202,7 @@ Source: `constants/workerData.ts`
 
 1. **Launch** → Onboarding (not yet implemented) → Dashboard tab
 2. **View stats** → Dashboard shows today's overview (active, pending, completed, earnings)
-3. **Find work** → Browse tab → Filter by urgency/distance/pay → Sort → Accept Job → Job appears in Dashboard
+3. **Find work** → Job Posts tab → Filter by urgency/distance/pay → Sort → View posts with images → Comment with offer → Share
 4. **Manage bookings** → Bookings tab → Filter by status → Start Job / Complete / Contact Customer
 5. **Read reviews** → Reviews tab → Filter by stars → Toggle helpful
 6. **View profile** → Profile tab → Stats, menu items, edit avatar
@@ -212,7 +226,7 @@ These screens are accessible from both User and Worker tabs via stack navigation
 | Screen | Data | Source |
 |--------|------|--------|
 | Dashboard | `todayStats`, `activeBookings`, `workerProfile` | Inline in `app/(worker)/index.tsx` + `constants/workerData.ts` |
-| Browse | `mockJobs`, `filterOptions`, `sortOptions` | Inline in `app/(worker)/search.tsx` |
+| Job Posts | `workerJobs`, `jobComments`, `filterOptions`, `sortOptions` | `constants/workerMockData.ts` + inline in `app/(worker)/search.tsx` |
 | Bookings | `mockWorkerBookings`, `filterTabs`, `statusConfig` | Inline in `app/(worker)/bookings.tsx` |
 | Reviews | `mockWorkerReviews`, `filterOptions` | Inline in `app/(worker)/reviews.tsx` |
 | Profile | `workerProfile`, `menuItems`, `verificationConfig` | `constants/workerData.ts` + inline in `app/(worker)/profile.tsx` |
