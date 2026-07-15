@@ -6,6 +6,7 @@ import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { AppInput } from '@/components/AppInput';
+import { JobSummary } from '@/components/JobSummary';
 import { useRequest } from '@/context/RequestContext';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -16,20 +17,29 @@ export default function ScheduleScreen() {
   const { request, updateRequest } = useRequest();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [description, setDescription] = useState(request.description || '');
 
   const handleBack = () => router.back();
 
-  const handleConfirm = () => {
-    updateRequest({
-      description,
-      // You could also save selectedDay/Time to context if needed
-    });
-    // Navigate directly to the existing payment screen as the single source of truth
-    router.push('/payment');
+  const handleEditRequest = () => {
+    router.push('/new-request/create' as any);
   };
 
-  const isFormValid = selectedDay && selectedTime && description.trim().length > 0;
+  const handleConfirm = () => {
+    // Generate a mock Date based on selection for demo purposes
+    const scheduledDate = new Date();
+    scheduledDate.setDate(scheduledDate.getDate() + (DAYS.indexOf(selectedDay || 'Mon') + 1));
+    if (selectedTime?.includes('8am')) scheduledDate.setHours(9, 0, 0);
+    else if (selectedTime?.includes('12pm')) scheduledDate.setHours(14, 0, 0);
+    else scheduledDate.setHours(18, 0, 0);
+
+    updateRequest({
+      scheduledDate,
+      status: 'Posted',
+    });
+    router.push('/new-request/success' as any);
+  };
+
+  const isFormValid = selectedDay && selectedTime;
 
   return (
     <View style={styles.container}>
@@ -107,20 +117,10 @@ export default function ScheduleScreen() {
           </View>
         </View>
 
-        {/* Description Section */}
+        {/* Job Summary Review */}
         <View style={styles.section}>
-          <AppText variant="h3" style={[styles.sectionTitle, { marginLeft: 0 }]}>Job Description</AppText>
-          <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginBottom: Spacing['3'] }}>
-            Describe what needs fixing in detail so the worker arrives prepared.
-          </AppText>
-          <AppInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="E.g., The sink in the guest bathroom is leaking from the U-bend..."
-            multiline
-            numberOfLines={5}
-            style={styles.textArea}
-          />
+          <AppText variant="h3" style={[styles.sectionTitle, { marginLeft: 0, marginBottom: Spacing['3'] }]}>Review Request</AppText>
+          <JobSummary request={request} showEditButtons={true} />
         </View>
 
       </ScrollView>
@@ -128,7 +128,15 @@ export default function ScheduleScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         <AppButton 
-          label="Confirm and Proceed" 
+          label="Edit Request Details" 
+          variant="outline"
+          onPress={handleEditRequest} 
+          fullWidth
+          size="xl"
+          style={{ marginBottom: Spacing['3'] }}
+        />
+        <AppButton 
+          label="Post Request" 
           onPress={handleConfirm} 
           disabled={!isFormValid}
           style={{ backgroundColor: Colors.primary }}
@@ -204,10 +212,6 @@ const styles = StyleSheet.create({
   timeCardSelected: {
     backgroundColor: Colors.primarySurface,
     borderColor: Colors.primary,
-  },
-  textArea: {
-    height: 120,
-    textAlignVertical: 'top',
   },
   footer: {
     padding: Layout.screenPadding,

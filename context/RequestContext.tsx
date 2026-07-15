@@ -18,7 +18,7 @@ export type RequestState = {
     address: string;
   } | null;
   selectedWorkerId: string | null;
-  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled';
+  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled' | 'Posted';
   estimatedPriceRange?: string;
   scheduledDate?: Date;
 };

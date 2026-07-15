@@ -5,7 +5,7 @@ import { MapPin, Edit3, Image as ImageIcon, Map as MapIcon, Check, Wallet, Bankn
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
-import { Chip } from '@/components/Chip';
+import { JobSummary } from '@/components/JobSummary';
 import { useRequest } from '@/context/RequestContext';
 
 export default function ReviewRequestScreen() {
@@ -35,18 +35,15 @@ export default function ReviewRequestScreen() {
   const handleBack = () => router.back();
 
   const handlePostRequest = () => {
-    if (request.urgency === 'ASAP') {
-      updateRequest({ status: 'Searching' });
-      router.push('/payment');
-    } else {
-      router.push('/new-request/bidding' as any);
-    }
+    updateRequest({ status: 'Posted' });
+    // Go directly to the new radar matching screen
+    router.push('/match/temp-req-1' as any);
   };
 
   const isASAP = request.urgency === 'ASAP';
   const getPrimaryButtonText = () => {
-    if (isASAP) return 'Proceed to Payment';
-    return 'Confirm & Post for Bidding';
+    if (isASAP) return 'Broadcast Request';
+    return 'Post Request for Bidding';
   };
 
   return (
@@ -61,107 +58,19 @@ export default function ReviewRequestScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Photos Preview */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <AppText variant="h3" style={styles.sectionTitle}>Photos</AppText>
-            <Pressable onPress={() => router.push('/new-request/create' as any)}>
-              <Edit3 size={18} color={Colors.primary} />
-            </Pressable>
-          </View>
-          {request.photos && request.photos.length > 0 ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoScroll}>
-              {request.photos.map((uri, idx) => (
-                <Image key={idx} source={{ uri }} style={styles.photo} />
-              ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.noPhoto}>
-              <ImageIcon size={24} color={Colors.textTertiary} />
-              <AppText variant="caption" style={{ color: Colors.textTertiary }}>No photos provided</AppText>
-            </View>
-          )}
-        </View>
-
-        {/* Details Summary */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <AppText variant="h3" style={styles.sectionTitle}>Job Details</AppText>
-            <Pressable onPress={() => router.push('/new-request/issue-summary' as any)}>
-              <Edit3 size={18} color={Colors.primary} />
-            </Pressable>
-          </View>
-          <View style={styles.card}>
-            <AppText variant="body" style={styles.summaryText}>{request.aiSummary}</AppText>
-            <View style={styles.chipRow}>
-              {request.category && <Chip label={request.category} style={styles.chip} />}
-              <Chip 
-                label={request.urgency || 'Unspecified Urgency'} 
-                selected 
-                color={Colors.primary}
-                style={styles.chip}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Replacement Parts Summary */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <AppText variant="h3" style={styles.sectionTitle}>Replacement Parts</AppText>
-            <Pressable onPress={() => router.push('/new-request/create' as any)}>
-              <Edit3 size={18} color={Colors.primary} />
-            </Pressable>
-          </View>
-          <View style={styles.card}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: request.partsDescription ? Spacing[2] : 0 }}>
-              <Check size={16} color={Colors.success} style={{ marginRight: Spacing[2] }} />
-              <AppText variant="body" weight="semiBold">
-                {request.hasParts ? 'Customer Has Parts' : 'Provider Will Bring Parts'}
-              </AppText>
-            </View>
-            {request.hasParts && request.partsDescription ? (
-              <View style={{ marginTop: Spacing[2] }}>
-                <AppText variant="caption" color={Colors.textSecondary}>Parts Description</AppText>
-                <AppText variant="body">{request.partsDescription}</AppText>
-              </View>
-            ) : null}
-          </View>
-        </View>
-
-        {/* Location */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <AppText variant="h3" style={styles.sectionTitle}>Location</AppText>
-          </View>
-          <View style={styles.mapCard}>
-            {isLoadingLocation || !location ? (
-              <View style={styles.mapPlaceholder}>
-                <AppText>Locating...</AppText>
-              </View>
-            ) : (
-              <View style={[styles.mapPlaceholder, { backgroundColor: Colors.primarySurface }]}>
-                <MapIcon size={32} color={Colors.primary} />
-                <AppText style={{ marginTop: 8, color: Colors.primary, fontWeight: '600' }}>Location Pinned</AppText>
-              </View>
-            )}
-            <View style={styles.addressBar}>
-              <MapPin size={18} color={Colors.primary} />
-              <AppText variant="body" style={styles.addressText} numberOfLines={1}>
-                {location?.address || 'Detecting address...'}
-              </AppText>
-            </View>
-          </View>
-        </View>
-
-
+        <JobSummary request={request} showEditButtons={true} />
       </ScrollView>
 
       {/* Bottom CTA */}
       <View style={styles.bottomContainer}>
-
-        
+        <AppButton
+          label="Edit Request Details"
+          variant="outline"
+          size="xl"
+          fullWidth
+          onPress={() => router.push('/new-request/create' as any)}
+          style={{ marginBottom: Spacing['3'] }}
+        />
         <AppButton
           label={getPrimaryButtonText()}
           size="xl"

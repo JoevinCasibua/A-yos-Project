@@ -18,6 +18,7 @@ export interface ProviderData {
   eta: string;
   verified: boolean;
   price?: string;
+  estimatedPrice?: string;
 }
 
 interface ProviderCardProps {

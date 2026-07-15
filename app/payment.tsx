@@ -5,12 +5,14 @@ import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Typography, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
-import { paymentMethods } from '@/constants/mockData';
+import { Avatar } from '@/components/Avatar';
+import { paymentMethods, providers } from '@/constants/mockData';
 import { useRequest } from '@/context/RequestContext';
 
 export default function PaymentScreen() {
   const { request } = useRequest();
   const [selectedMethod, setSelectedMethod] = useState('visa');
+  const selectedWorker = providers.find((p) => p.id === request.selectedWorkerId) || providers[0];
 
   const handleBack = useCallback(() => router.back(), []);
   const handlePay = useCallback(() => {
@@ -47,11 +49,11 @@ export default function PaymentScreen() {
           <View style={styles.bookingCard}>
             <View style={styles.bookingCardHeader}>
               <View style={styles.bookingCardInfo}>
-                <AppText variant="h4" weight="bold" style={{ marginBottom: 4 }}>Deep Cleaning Service</AppText>
+                <AppText variant="h4" weight="bold" style={{ marginBottom: 4 }}>{request.category || 'Service Booking'}</AppText>
                 <View style={styles.dateRow}>
-                  <Calendar size={14} color={Colors.textSecondary} />
-                  <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginLeft: 4 }}>
-                    Oct 24, 2023 • 9:00 AM
+                  <Avatar uri={selectedWorker.avatarUri} size={24} />
+                  <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginLeft: 8 }}>
+                    {selectedWorker.name}
                   </AppText>
                 </View>
               </View>
@@ -74,7 +76,7 @@ export default function PaymentScreen() {
             
             <View style={styles.summaryRow}>
               <AppText variant="h4" weight="bold">Total</AppText>
-              <AppText variant="h3" weight="bold" color={Colors.textPrimary}>₱1,750.00</AppText>
+              <AppText variant="h3" weight="bold" color={Colors.textPrimary}>{selectedWorker.estimatedPrice || selectedWorker.price}</AppText>
             </View>
           </View>
         </View>

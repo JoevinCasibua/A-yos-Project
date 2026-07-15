@@ -43,7 +43,15 @@ app/
 │   ├── reviews.tsx          # Reviews feed
 │   └── profile.tsx          # User profile
 ├── provider/[id].tsx        # Provider profile detail
-├── booking/[id].tsx         # Schedule booking flow
+├── new-request/             # New request creation flow
+│   ├── create.tsx           # Input category, photos, parts, description
+│   ├── issue-summary.tsx    # AI summary and Urgency selection
+│   ├── asap.tsx             # ASAP request review
+│   ├── this-week.tsx        # Scheduled (This Week) review and time picker
+│   └── bidding.tsx          # Open Bidding review
+├── match/[id].tsx           # ASAP radar matching screen
+├── request/[id].tsx         # Live request details (bids/applicants list)
+├── booking/[id].tsx         # Traditional schedule booking flow
 ├── payment.tsx              # Payment screen (modal)
 ├── tracking/[id].tsx        # Live tracking screen
 └── review/[id].tsx          # Rate & review (modal)
@@ -115,6 +123,14 @@ Use these tokens rather than hard-coded colors to maintain consistency and ensur
 6. **Live Tracking** — Map background, provider pin, ETA, 5-step tracking timeline, call/message actions
 7. **My Bookings** — Tab-filtered list (upcoming/completed/cancelled) with contextual actions
 8. **Reviews** — Rating summary with distribution chart, filterable review list, review submission modal
+9. **New Request Flow**:
+    - **Creation**: Upload photos, select category, write description, choose parts preference.
+    - **AI Summary**: AI analyzes issue and recommends urgency.
+    - **Urgency Paths**:
+      - **ASAP**: Direct review, posts directly to **Match Radar** screen with live cascading worker discovery.
+      - **This Week**: Select Day/Time, then review and post.
+      - **Open Bidding**: Direct review, post to receive bids.
+10. **Request Details**: Compact Job Summary display with a list of incoming worker applications/bids for the user to review and hire.
 
 ## Platform
 
