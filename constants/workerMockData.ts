@@ -141,6 +141,8 @@ export interface WorkerBooking {
   address: string;
   status: 'upcoming' | 'in_progress' | 'completed' | 'cancelled';
   price: string;
+  hasParts?: boolean;
+  partsDescription?: string;
 }
 
 export const workerBookings: WorkerBooking[] = [
@@ -154,6 +156,8 @@ export const workerBookings: WorkerBooking[] = [
     address: '123 Oak Street',
     status: 'upcoming',
     price: '$60',
+    hasParts: true,
+    partsDescription: 'PVC pipe and fittings',
   },
   {
     id: '2',
@@ -165,6 +169,7 @@ export const workerBookings: WorkerBooking[] = [
     address: '456 Pine Avenue',
     status: 'in_progress',
     price: '$75',
+    hasParts: false,
   },
   {
     id: '3',

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
-import { CalendarDays, Clock, MapPin, Phone } from 'lucide-react-native';
+import { CalendarDays, Clock, MapPin, Phone, Wrench } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
@@ -73,6 +73,14 @@ export default function WorkerBookingsScreen() {
             <MapPin size={14} color={Colors.textSecondary} />
             <AppText variant="caption" color={Colors.textSecondary}>{item.address}</AppText>
           </View>
+          {item.hasParts !== undefined && (
+            <View style={styles.detailRow}>
+              <Wrench size={14} color={item.hasParts ? Colors.success : Colors.warning} />
+              <AppText variant="caption" style={{ color: item.hasParts ? Colors.success : Colors.warning }}>
+                {item.hasParts ? 'Customer Has Parts' : 'Needs Parts'}
+              </AppText>
+            </View>
+          )}
         </View>
         <View style={styles.bookingFooter}>
           <AppText variant="body" weight="bold" color={Colors.cta}>{item.price}</AppText>

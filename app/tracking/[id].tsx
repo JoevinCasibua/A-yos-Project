@@ -8,6 +8,7 @@ import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
+import { useRequest } from '@/context/RequestContext';
 import { providers } from '@/constants/mockData';
 
 const { width, height } = Dimensions.get('window');
@@ -21,6 +22,7 @@ const trackingSteps = [
 ];
 
 export default function TrackingScreen() {
+  const { request } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
   const provider = providers.find((p) => p.id === id) || providers[0];
   const [currentStep, setCurrentStep] = useState(1);
@@ -96,6 +98,22 @@ export default function TrackingScreen() {
             </Pressable>
           </View>
         </View>
+
+        {/* Replacement Parts Status */}
+        {request.hasParts !== null && request.hasParts !== undefined && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: Spacing['4'] }}>
+            <View style={{ 
+              backgroundColor: request.hasParts ? `${Colors.success}15` : `${Colors.warning}15`, 
+              paddingHorizontal: Spacing['3'], 
+              paddingVertical: Spacing['1'], 
+              borderRadius: Radius.full 
+            }}>
+              <AppText variant="caption" weight="semiBold" style={{ color: request.hasParts ? Colors.success : Colors.warning }}>
+                {request.hasParts ? '🟢 Customer Has Parts' : '🟠 Needs Parts'}
+              </AppText>
+            </View>
+          </View>
+        )}
 
         {/* Tracking Steps */}
         <View style={styles.stepsContainer}>

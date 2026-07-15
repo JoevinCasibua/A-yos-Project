@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Image } from 'react-native';
-import { ChevronRight, Calendar, Clock, MapPin, Navigation } from 'lucide-react-native';
+import { ChevronRight, Calendar, Clock, MapPin, Navigation, Wrench } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -41,7 +41,8 @@ export default function BookingsScreen() {
           price: request.estimatedPriceRange || '$50 - $120',
           status: 'upcoming',
           reviewed: false,
-          avatarUri: workerInfo.avatarUri
+          avatarUri: workerInfo.avatarUri,
+          hasParts: request.hasParts !== undefined ? request.hasParts : undefined
         });
       }
     } else if (activeTab === 'Completed') {
@@ -86,6 +87,16 @@ export default function BookingsScreen() {
           <MapPin size={15} color={Colors.textSecondary} strokeWidth={2} />
           <AppText variant="caption" color={Colors.textSecondary}>{item.address}</AppText>
         </View>
+        
+        {/* Replacement Parts Badge */}
+        {(item as any).hasParts !== undefined && (
+          <View style={[styles.detailItem, { marginTop: 4 }]}>
+            <Wrench size={15} color={(item as any).hasParts ? Colors.success : Colors.warning} strokeWidth={2} />
+            <AppText variant="caption" style={{ color: (item as any).hasParts ? Colors.success : Colors.warning }}>
+              {(item as any).hasParts ? 'Customer Has Parts' : 'Needs Parts'}
+            </AppText>
+          </View>
+        )}
 
         {/* Actions */}
         <View style={styles.cardActions}>

@@ -9,6 +9,8 @@ export type RequestState = {
   aiSummary: string;
   aiRecommendations: string[];
   confidenceScore: number;
+  hasParts?: boolean | null;
+  partsDescription?: string;
   urgency: UrgencyLevel | null;
   location: {
     latitude: number;
@@ -28,6 +30,8 @@ const initialState: RequestState = {
   aiSummary: '',
   aiRecommendations: [],
   confidenceScore: 0,
+  hasParts: null,
+  partsDescription: '',
   urgency: null,
   location: null,
   selectedWorkerId: null,

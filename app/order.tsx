@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Calendar, MapPin, Navigation, Tag } from 'lucide-react-native';
+import { ChevronLeft, Calendar, MapPin, Navigation, Tag, Wrench } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -70,6 +70,26 @@ export default function OrderDetailsScreen() {
             </AppText>
           </View>
         </View>
+
+        {/* Replacement Parts */}
+        {request.hasParts !== null && request.hasParts !== undefined && (
+          <View style={styles.section}>
+            <AppText variant="h3" weight="bold" style={styles.sectionTitle}>Replacement Parts</AppText>
+            <View style={styles.card}>
+              <View style={styles.row}>
+                <Wrench size={18} color={request.hasParts ? Colors.success : Colors.warning} />
+                <AppText variant="body" weight="semiBold" style={[styles.rowText, { color: request.hasParts ? Colors.success : Colors.warning }]}>
+                  {request.hasParts ? 'Customer Has Parts' : 'Provider Will Bring Parts'}
+                </AppText>
+              </View>
+              {request.hasParts && request.partsDescription ? (
+                <AppText variant="body" color={Colors.textSecondary} style={{ marginTop: Spacing[2] }}>
+                  {request.partsDescription}
+                </AppText>
+              ) : null}
+            </View>
+          </View>
+        )}
 
         {/* Provider Details */}
         <View style={styles.section}>

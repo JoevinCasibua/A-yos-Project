@@ -106,6 +106,30 @@ export default function ReviewRequestScreen() {
           </View>
         </View>
 
+        {/* Replacement Parts Summary */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <AppText variant="h3" style={styles.sectionTitle}>Replacement Parts</AppText>
+            <Pressable onPress={() => router.push('/new-request/create' as any)}>
+              <Edit3 size={18} color={Colors.primary} />
+            </Pressable>
+          </View>
+          <View style={styles.card}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: request.partsDescription ? Spacing[2] : 0 }}>
+              <Check size={16} color={Colors.success} style={{ marginRight: Spacing[2] }} />
+              <AppText variant="body" weight="semiBold">
+                {request.hasParts ? 'Customer Has Parts' : 'Provider Will Bring Parts'}
+              </AppText>
+            </View>
+            {request.hasParts && request.partsDescription ? (
+              <View style={{ marginTop: Spacing[2] }}>
+                <AppText variant="caption" color={Colors.textSecondary}>Parts Description</AppText>
+                <AppText variant="body">{request.partsDescription}</AppText>
+              </View>
+            ) : null}
+          </View>
+        </View>
+
         {/* Location */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>

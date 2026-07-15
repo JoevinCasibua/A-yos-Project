@@ -7,7 +7,7 @@ import { AppButton } from '@/components/AppButton';
 import { RatingStars } from '@/components/RatingStars';
 import { Avatar } from '@/components/Avatar';
 import { useRequest } from '@/context/RequestContext';
-import { MessageSquare, Clock, ChevronLeft } from 'lucide-react-native';
+import { MessageSquare, Clock, ChevronLeft, Check } from 'lucide-react-native';
 
 const MOCK_BIDS = [
   {
@@ -92,6 +92,22 @@ export default function OpenBidsScreen() {
           <AppText variant="body" style={styles.summaryText} numberOfLines={2}>
             {request.description || request.aiSummary || 'No description provided.'}
           </AppText>
+          
+          {request.hasParts !== null && request.hasParts !== undefined && (
+            <View style={{ marginTop: Spacing[3], paddingTop: Spacing[3], borderTopWidth: 1, borderTopColor: Colors.border }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Check size={16} color={Colors.success} style={{ marginRight: Spacing[2] }} />
+                <AppText variant="caption" weight="semiBold">
+                  {request.hasParts ? 'Customer Has Parts' : 'Provider Will Bring Parts'}
+                </AppText>
+              </View>
+              {request.hasParts && request.partsDescription ? (
+                <AppText variant="caption" style={{ marginTop: Spacing[1], marginLeft: 24 }}>
+                  {request.partsDescription}
+                </AppText>
+              ) : null}
+            </View>
+          )}
         </View>
 
         <AppText variant="h3" style={styles.sectionTitle}>

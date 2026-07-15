@@ -9,9 +9,11 @@ import { AppInput } from '@/components/AppInput';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
+import { useRequest } from '@/context/RequestContext';
 import { providers, weekDays, timeSlots } from '@/constants/mockData';
 
 export default function BookingScreen() {
+  const { request } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
   const provider = providers.find((p) => p.id === id) || providers[0];
 
@@ -154,6 +156,26 @@ export default function BookingScreen() {
             inputStyle={{ minHeight: 80, textAlignVertical: 'top' }}
           />
         </View>
+
+        {/* Replacement Parts */}
+        {request.hasParts !== null && request.hasParts !== undefined && (
+          <View style={styles.section}>
+            <AppText variant="body" weight="semiBold">Replacement Parts</AppText>
+            <View style={{ marginTop: Spacing['3'], padding: Spacing['3'], backgroundColor: Colors.surfaceCard, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Check size={16} color={request.hasParts ? Colors.success : Colors.warning} />
+                <AppText variant="body" weight="semiBold" style={{ marginLeft: Spacing['2'], color: request.hasParts ? Colors.success : Colors.warning }}>
+                  {request.hasParts ? 'Customer Has Parts' : 'Provider Will Bring Parts'}
+                </AppText>
+              </View>
+              {request.hasParts && request.partsDescription ? (
+                <AppText variant="caption" color={Colors.textSecondary} style={{ marginTop: Spacing['2'] }}>
+                  {request.partsDescription}
+                </AppText>
+              ) : null}
+            </View>
+          </View>
+        )}
 
         {/* Price Summary */}
         <View style={[styles.section, { paddingBottom: Spacing['4'] }]}>

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 // Removed expo-image-picker to fix Expo Go crash
-import { Camera, Image as ImageIcon, X, ChevronLeft } from 'lucide-react-native';
-import { Colors, Spacing, Layout, Typography } from '@/constants/theme';
+import { Camera, Image as ImageIcon, X, ChevronLeft, CircleCheck, Circle } from 'lucide-react-native';
+import { Colors, Spacing, Layout, Typography, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
@@ -19,6 +19,8 @@ export default function CreateRequestScreen() {
   const [photos, setPhotos] = useState<string[]>(request.photos || []);
   const [description, setDescription] = useState(request.description || '');
   const [category, setCategory] = useState(request.category || '');
+  const [hasParts, setHasParts] = useState<boolean | null>(request.hasParts !== undefined ? request.hasParts : null);
+  const [partsDescription, setPartsDescription] = useState(request.partsDescription || '');
 
   const pickImage = async (useCamera: boolean) => {
     if (photos.length >= 5) {
@@ -36,11 +38,11 @@ export default function CreateRequestScreen() {
   };
 
   const handleNext = () => {
-    updateRequest({ photos, description, category });
+    updateRequest({ photos, description, category, hasParts, partsDescription });
     router.push('/new-request/issue-summary' as any);
   };
 
-  const isNextDisabled = description.trim().length === 0;
+  const isNextDisabled = description.trim().length === 0 || hasParts === null;
 
   return (
     <View style={styles.container}>
@@ -109,6 +111,50 @@ export default function CreateRequestScreen() {
               />
             ))}
           </View>
+        </View>
+
+        {/* Replacement Parts Section */}
+        <View style={styles.section}>
+          <AppText variant="h3" style={styles.sectionTitle}>Replacement Parts</AppText>
+          <AppText variant="body" color={Colors.textSecondary} style={{ marginBottom: Spacing[3] }}>
+            Do you already have the replacement parts needed for this service?
+          </AppText>
+
+          <Pressable 
+            style={[styles.optionCard, hasParts === true && styles.optionCardSelected]}
+            onPress={() => setHasParts(true)}
+          >
+            {hasParts === true ? <CircleCheck size={24} color={Colors.primary} /> : <Circle size={24} color={Colors.border} />}
+            <View style={styles.optionContent}>
+              <AppText variant="body" weight="semiBold" color={hasParts === true ? Colors.primary : Colors.textPrimary}>I Have the Parts</AppText>
+              <AppText variant="caption" color={Colors.textSecondary}>I already have the replacement parts needed for this service.</AppText>
+            </View>
+          </Pressable>
+
+          <Pressable 
+            style={[styles.optionCard, hasParts === false && styles.optionCardSelected]}
+            onPress={() => {
+              setHasParts(false);
+              setPartsDescription('');
+            }}
+          >
+            {hasParts === false ? <CircleCheck size={24} color={Colors.primary} /> : <Circle size={24} color={Colors.border} />}
+            <View style={styles.optionContent}>
+              <AppText variant="body" weight="semiBold" color={hasParts === false ? Colors.primary : Colors.textPrimary}>I Need the Service Provider to Bring the Parts</AppText>
+              <AppText variant="caption" color={Colors.textSecondary}>I don't have the required parts and would like the service provider to bring them if needed.</AppText>
+            </View>
+          </Pressable>
+
+          {hasParts === true && (
+            <View style={{ marginTop: Spacing[3] }}>
+              <AppInput
+                label="Parts Description (Optional)"
+                placeholder="Example: Kitchen faucet, LED bulb, Aircon capacitor, Door lock"
+                value={partsDescription}
+                onChangeText={setPartsDescription}
+              />
+            </View>
+          )}
         </View>
 
       </ScrollView>
@@ -192,10 +238,10 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: Colors.cta,
     borderStyle: 'dashed',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.surfaceCard,
   },
   textArea: {
@@ -216,4 +262,22 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing[4],
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.md,
+    marginBottom: Spacing[3],
+    backgroundColor: Colors.white,
+  },
+  optionCardSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: `${Colors.primary}10`,
+  },
+  optionContent: {
+    flex: 1,
+    marginLeft: Spacing[3],
+  }
 });
