@@ -34,12 +34,19 @@ Shared screens (accessible from both modes): Provider Detail, Booking, Payment, 
 | 3 | My Bookings | `/(worker)/bookings` | Tab | tab | Yes (bookings) |
 | 4 | My Reviews | `/(worker)/reviews` | Tab | tab | No (hidden from user nav) |
 | 5 | Profile | `/(worker)/profile` | Tab | tab | No |
-| 6 | Provider Detail | `/provider/:id` | Stack | slide_from_right | Yes |
-| 7 | Schedule Booking | `/booking/:id` | Stack | slide_from_right | Yes |
-| 8 | Payment | `/payment` | Stack | modal | Yes |
-| 9 | Live Tracking | `/tracking/:id` | Stack | slide_from_right | Yes |
-| 10 | Rate & Review | `/review/:id` | Stack | modal | Yes |
-| 11 | 404 | `+not-found` | Stack | default | Yes |
+| 6 | Settings | `/(worker)/settings` | Stack | modal | No |
+| 7 | Provider Detail | `/provider/:id` | Stack | slide_from_right | Yes |
+| 8 | Schedule Booking | `/booking/:id` | Stack | slide_from_right | Yes |
+| 9 | Payment | `/payment` | Stack | modal | Yes |
+| 10 | Payment Received | `/payment-received` | Stack | modal | Yes |
+| 11 | Live Tracking | `/tracking/:id` | Stack | slide_from_right | Yes |
+| 12 | Rate & Review | `/review/:id` | Stack | modal | Yes |
+| 13 | Accept Worker | `/accept-worker/:id` | Stack | slide_from_right | Yes |
+| 14 | Chat | `/chat/:id` | Stack | slide_from_right | Yes |
+| 15 | Worker Match | `/match/:id` | Stack | slide_from_right | Yes |
+| 16 | Request Details | `/request/:id` | Stack | slide_from_right | Yes |
+| 17 | Booking Success | `/new-request/success` | Stack | modal | Yes |
+| 18 | 404 | `+not-found` | Stack | default | Yes |
 
 ## Mermaid Diagram
 
@@ -54,10 +61,17 @@ flowchart LR
   BookingsList[My Bookings]
   ReviewsTab[My Reviews]
   ProfileTab[Profile]
+  Settings[Settings]
   ProviderDetail[Provider Detail]
   Payment[Payment Modal]
+  PaymentReceived[Payment Received]
   Tracking[Live Tracking]
   ReviewModal[Rate & Review Modal]
+  AcceptWorker[Accept Worker]
+  Chat[Chat]
+  Match[Worker Match]
+  RequestDetails[Request Details]
+  BookingSuccess[Booking Success]
   SwitchAccount{{Switch to User?}}
   UserTabs[[User Tabs: Home, Browse, Bookings, Profile]]
   NotFound[404 / Not Found]
@@ -77,8 +91,17 @@ flowchart LR
   BookingsList -->|Complete| Payment
   BookingsList -->|Contact Customer| ProviderDetail
   ReviewsTab -->|View details| ProviderDetail
+  ProfileTab --> Settings
   ProfileTab --> SwitchAccount
   SwitchAccount -->|Yes| UserTabs
+
+  WorkerDashboard -->|Accept Job| AcceptWorker
+  AcceptWorker -->|Message| Chat
+  Chat -->|Hire| Match
+  Match -->|View| RequestDetails
+  RequestDetails -->|Complete| BookingSuccess
+  Payment -->|Success| PaymentReceived
+  PaymentReceived --> Tracking
 
   NotFound -.-> WorkerDashboard
 
@@ -92,7 +115,7 @@ flowchart LR
   classDef modal fill:#fff8c4,stroke:#b58900;
   classDef decision fill:#e0f7fa,stroke:#00796b,stroke-width:1px;
   classDef tabgroup fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-  class Start,Onboarding,WorkerDashboard,JobPosts,BookingsList,ReviewsTab,ProfileTab,ProviderDetail,NotFound screen;
+  class Start,Onboarding,WorkerDashboard,JobPosts,BookingsList,ReviewsTab,ProfileTab,Settings,ProviderDetail,AcceptWorker,Chat,Match,RequestDetails,BookingSuccess,PaymentReceived,NotFound screen;
   class Payment,ReviewModal modal;
   class hasAuth,SwitchAccount decision;
   class Tabs,UserTabs tabgroup;
@@ -215,8 +238,14 @@ These screens are accessible from both User and Worker tabs via stack navigation
 |--------|-------|----------------|
 | Provider Detail | `/provider/:id` | View from Reviews tab |
 | Payment | `/payment` | Complete booking flow |
+| Payment Received | `/payment-received` | Success confirmation |
 | Live Tracking | `/tracking/:id` | View active job progress |
 | Rate & Review | `/review/:id` | Leave review for customer |
+| Accept Worker | `/accept-worker/:id` | Accept incoming job request |
+| Chat | `/chat/:id` | Message customer before hiring |
+| Worker Match | `/match/:id` | View matched workers |
+| Request Details | `/request/:id` | View request details and bidders |
+| Booking Success | `/new-request/success` | Booking confirmation |
 
 ---
 

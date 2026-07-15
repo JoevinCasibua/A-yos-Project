@@ -6,12 +6,13 @@ Design target: iPhone 15 / 393×852 dp. Colors and tokens are defined in `consta
 
 Palette (key tokens):
 
-- Primary / CTA: `#0B63D6`
-- Primary Light: `#4DA5FF`
+- Primary / CTA: `#071022`
+- Primary Light: `#1A2B4C`
 - Success: `#117A5C`
 - Warning: `#F59E0B`
 - Error: `#C53030`
-- Background: `#F7F9FC`
+- Info: `#0B63D6`
+- Background: `#F8F9FB`
 
 ## Architecture
 
@@ -20,7 +21,7 @@ The app has two modes — **User** and **Worker** — switchable via the "Switch
 | Mode | Tab Navigator | Tabs |
 |------|---------------|------|
 | User | `(tabs)` | Home, Browse, Bookings, Profile |
-| Worker | `(worker)` | Dashboard, Browse, Bookings, Reviews, Profile |
+| Worker | `(worker)` | Dashboard, Job Posts, Bookings, Reviews, Profile |
 
 Shared screens (accessible from both modes): Provider Detail, Booking, Payment, Tracking, Review Modal.
 
@@ -36,10 +37,16 @@ Shared screens (accessible from both modes): Provider Detail, Booking, Payment, 
 | 6 | Provider Detail | `/provider/:id` | Stack | slide_from_right |
 | 7 | Schedule Booking | `/booking/:id` | Stack | slide_from_right |
 | 8 | Payment | `/payment` | Stack | modal |
-| 9 | Live Tracking | `/tracking/:id` | Stack | slide_from_right |
-| 10 | Rate & Review | `/review/:id` | Stack | modal |
-| 11 | 404 | `+not-found` | Stack | default |
+| 9 | Payment Received | `/payment-received` | Stack | modal |
+| 10 | Live Tracking | `/tracking/:id` | Stack | slide_from_right |
+| 11 | Rate & Review | `/review/:id` | Stack | modal |
 | 12 | New Request | `/new-request/create` | Stack | slide_from_right |
+| 13 | Accept Worker | `/accept-worker/:id` | Stack | slide_from_right |
+| 14 | Chat | `/chat/:id` | Stack | slide_from_right |
+| 15 | Worker Match | `/match/:id` | Stack | slide_from_right |
+| 16 | Request Details | `/request/:id` | Stack | slide_from_right |
+| 17 | Booking Success | `/new-request/success` | Stack | modal |
+| 18 | 404 | `+not-found` | Stack | default |
 
 ## Mermaid Diagram
 
@@ -52,15 +59,25 @@ flowchart LR
   Tabs[[Tabs: Home, Browse, Bookings, Profile]]
   Search[Browse / Search]
   NewRequest[New Request / Parts Selection]
+  Urgency[Urgency Selection]
+  ASAP[ASAP Review]
+  ThisWeek[This Week Schedule]
+  Bidding[Bidding Review]
   Provider[Provider Profile]
   Booking[Schedule Booking]
   Payment[Payment Modal]
+  PaymentReceived[Payment Received]
   Tracking[Live Tracking]
   ReviewModal[Rate & Review Modal]
   BookingsList[My Bookings]
   ProfileScreen[Profile]
+  AcceptWorker[Accept Worker]
+  Chat[Chat]
+  Match[Worker Match]
+  RequestDetails[Request Details]
+  BookingSuccess[Booking Success]
   SwitchAccount{{Switch to Worker?}}
-  WorkerTabs[[Worker Tabs: Dashboard, Browse, Bookings, Reviews, Profile]]
+  WorkerTabs[[Worker Tabs: Dashboard, Job Posts, Bookings, Reviews, Profile]]
   NotFound[404 / Not Found]
 
   %% Flow
@@ -73,12 +90,25 @@ flowchart LR
   Tabs --> ReviewModal
 
   Tabs --> NewRequest
-  NewRequest --> Provider
+  NewRequest --> Urgency
+  Urgency -->|ASAP| ASAP
+  Urgency -->|This Week| ThisWeek
+  Urgency -->|Flexible| Bidding
+
+  ASAP -->|Broadcast| Match
+  Match -->|Select Worker| Chat
+  Chat -->|Hire| AcceptWorker
+  AcceptWorker -->|Confirm| RequestDetails
+
+  ThisWeek -->|Post| BookingSuccess
+  Bidding -->|Post| BookingSuccess
+  BookingSuccess -->|View| RequestDetails
 
   Search --> Provider
   Provider --> Booking
   Booking --> Payment
-  Payment --> Tracking
+  Payment -->|Success| PaymentReceived
+  PaymentReceived --> Tracking
   Tracking --> ReviewModal
   BookingsList -->|Track| Tracking
   BookingsList -->|View| Provider
@@ -101,7 +131,7 @@ flowchart LR
   classDef modal fill:#fff8c4,stroke:#b58900;
   classDef decision fill:#e0f7fa,stroke:#00796b,stroke-width:1px;
   classDef tabgroup fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-  class Start,Onboarding,Home,Search,NewRequest,Provider,Booking,Tracking,BookingsList,ProfileScreen,NotFound screen;
+  class Start,Onboarding,Home,Search,NewRequest,Urgency,ASAP,ThisWeek,Bidding,Provider,Booking,Tracking,BookingsList,ProfileScreen,AcceptWorker,Chat,Match,RequestDetails,BookingSuccess,PaymentReceived,NotFound screen;
   class Payment,ReviewModal modal;
   class hasAuth,SwitchAccount decision;
   class Tabs,WorkerTabs tabgroup;
@@ -115,4 +145,8 @@ flowchart LR
 4. **View provider reviews** → Provider Detail → "See all" → Reviews list (filtered by provider)
 5. **Write a review** → Provider Detail → "Write a Review" → Rate & Review modal
 6. **Switch to worker** → Profile tab → "Switch Account" → Worker app
-7. **Create a new request** → Home tab → New Request (photo, issue summary, replacement parts, ASAP/Bidding) → Select Provider
+7. **Create a new request** → Home tab → New Request → Urgency Selection
+   - **ASAP** → Review → Broadcast → Radar Matching → Chat → Hire → Request Details
+   - **This Week** → Schedule & Review → Post → Success → Request Details
+   - **Flexible** → Review → Post for Bidding → Success → Request Details
+8. **Hire a worker** → Request Details → View bidders → Select worker → Message → Hire
