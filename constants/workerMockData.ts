@@ -240,3 +240,90 @@ export const userMenuItems = [
   { id: 'help', icon: HelpCircle, label: 'Help & Support', color: Colors.textSecondary, bg: Colors.surfaceLight },
   { id: 'settings', icon: Settings, label: 'Settings', color: Colors.textSecondary, bg: Colors.surfaceLight },
 ];
+
+export const INDUSTRIES = [
+  { label: 'Plumbing', value: 'plumbing' },
+  { label: 'Electrical', value: 'electrical' },
+  { label: 'Carpentry', value: 'carpentry' },
+  { label: 'HVAC', value: 'hvac' },
+  { label: 'Painting', value: 'painting' },
+  { label: 'Cleaning', value: 'cleaning' },
+  { label: 'Landscaping', value: 'landscaping' },
+  { label: 'Appliance Repair', value: 'appliance_repair' },
+  { label: 'General Maintenance', value: 'general_maintenance' },
+  { label: 'Construction', value: 'construction' },
+];
+
+export const SKILLS_BY_INDUSTRY: Record<string, { label: string; value: string }[]> = {
+  plumbing: [
+    { label: 'Pipe Repair', value: 'pipe_repair' },
+    { label: 'Drain Cleaning', value: 'drain_cleaning' },
+    { label: 'Water Heater Install', value: 'water_heater_install' },
+    { label: 'Faucet Installation', value: 'faucet_installation' },
+    { label: 'Leak Detection', value: 'leak_detection' },
+    { label: 'Sewer Line Repair', value: 'sewer_line_repair' },
+  ],
+  electrical: [
+    { label: 'Wiring Installation', value: 'wiring_installation' },
+    { label: 'Circuit Breaker Repair', value: 'circuit_breaker_repair' },
+    { label: 'Lighting Installation', value: 'lighting_installation' },
+    { label: 'Outlet/Switch Install', value: 'outlet_switch_install' },
+    { label: 'Generator Setup', value: 'generator_setup' },
+  ],
+  carpentry: [
+    { label: 'Furniture Assembly', value: 'furniture_assembly' },
+    { label: 'Cabinet Installation', value: 'cabinet_installation' },
+    { label: 'Door/Window Repair', value: 'door_window_repair' },
+    { label: 'Deck Building', value: 'deck_building' },
+    { label: 'Custom Woodwork', value: 'custom_woodwork' },
+  ],
+  hvac: [
+    { label: 'AC Installation', value: 'ac_installation' },
+    { label: 'AC Repair', value: 'ac_repair' },
+    { label: 'Duct Cleaning', value: 'duct_cleaning' },
+    { label: 'Thermostat Install', value: 'thermostat_install' },
+    { label: 'Ventilation Service', value: 'ventilation_service' },
+  ],
+  painting: [
+    { label: 'Interior Painting', value: 'interior_painting' },
+    { label: 'Exterior Painting', value: 'exterior_painting' },
+    { label: 'Wallpaper Installation', value: 'wallpaper_installation' },
+    { label: 'Surface Preparation', value: 'surface_preparation' },
+    { label: 'Decorative Finishes', value: 'decorative_finishes' },
+  ],
+  cleaning: [
+    { label: 'Deep Cleaning', value: 'deep_cleaning' },
+    { label: 'Move-in/Move-out', value: 'move_in_out' },
+    { label: 'Post-Construction', value: 'post_construction' },
+    { label: 'Window Cleaning', value: 'window_cleaning' },
+    { label: 'Pressure Washing', value: 'pressure_washing' },
+  ],
+  landscaping: [
+    { label: 'Lawn Mowing', value: 'lawn_mowing' },
+    { label: 'Garden Maintenance', value: 'garden_maintenance' },
+    { label: 'Tree Trimming', value: 'tree_trimming' },
+    { label: 'Irrigation Install', value: 'irrigation_install' },
+    { label: 'Landscape Design', value: 'landscape_design' },
+  ],
+  appliance_repair: [
+    { label: 'Refrigerator Repair', value: 'refrigerator_repair' },
+    { label: 'Washing Machine Repair', value: 'washing_machine_repair' },
+    { label: 'Aircon Servicing', value: 'aircon_servicing' },
+    { label: 'Oven/Range Repair', value: 'oven_range_repair' },
+    { label: 'TV/Monitor Repair', value: 'tv_monitor_repair' },
+  ],
+  general_maintenance: [
+    { label: 'Home Inspection', value: 'home_inspection' },
+    { label: 'Drywall Repair', value: 'drywall_repair' },
+    { label: 'Tile Grouting', value: 'tile_grouting' },
+    { label: 'Lock Replacement', value: 'lock_replacement' },
+    { label: 'Gutter Cleaning', value: 'gutter_cleaning' },
+  ],
+  construction: [
+    { label: 'Room Addition', value: 'room_addition' },
+    { label: 'Flooring Installation', value: 'flooring_installation' },
+    { label: 'Roofing Repair', value: 'roofing_repair' },
+    { label: 'Concrete Work', value: 'concrete_work' },
+    { label: 'Demolition', value: 'demolition' },
+  ],
+};

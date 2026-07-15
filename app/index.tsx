@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { Menu, Home } from 'lucide-react-native';
+import { Menu, Home, Briefcase } from 'lucide-react-native';
 import { Colors, Spacing, Typography, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -14,6 +14,10 @@ export default function LandingScreen() {
 
   const handleSignIn = () => {
     router.push('/sign-in');
+  };
+
+  const handleRegisterWorker = () => {
+    router.push('/register-worker');
   };
 
   return (
@@ -61,6 +65,15 @@ export default function LandingScreen() {
               </AppText>
             </Pressable>
           </View>
+
+          <View style={styles.dividerLine} />
+
+          <Pressable style={styles.workerButton} onPress={handleRegisterWorker}>
+            <Briefcase size={20} color={Colors.white} strokeWidth={2} />
+            <AppText variant="button" weight="semiBold" color={Colors.white}>
+              Register a Worker Account
+            </AppText>
+          </Pressable>
         </View>
       </View>
     </ImageBackground>
@@ -96,7 +109,18 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing['10'],
   },
   buttonGroup: {
-    gap: Spacing['4'],
+    gap: Spacing['3'],
+  },
+  workerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 56,
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    gap: Spacing['2'],
   },
   primaryButton: {
     backgroundColor: Colors.primary,
@@ -110,5 +134,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginVertical: Spacing['6'],
   },
 });

@@ -66,6 +66,12 @@ export default function WorkerTabLayout() {
           tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
         }}
       />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

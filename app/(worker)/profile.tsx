@@ -14,7 +14,7 @@ const menuRoutes: Record<string, () => void> = {
   payouts: () => router.push('/payment'),
   notifications: () => Alert.alert('Notifications', 'Notification settings coming soon.'),
   help: () => Alert.alert('Help & Support', 'Support center coming soon.'),
-  settings: () => Alert.alert('Settings', 'App settings coming soon.'),
+  settings: () => router.push('/(worker)/settings'),
 };
 
 export default function WorkerProfileTabScreen() {
