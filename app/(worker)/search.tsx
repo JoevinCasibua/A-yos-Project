@@ -131,7 +131,7 @@ export default function WorkerBrowseScreen() {
               )}
               keyExtractor={(item) => item}
             />
-            <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginTop: Spacing['3'], marginBottom: Spacing['4'] }}>
+            <AppText variant="bodySm" color={Colors.textSecondary} style={{ marginTop: Spacing['4'], marginBottom: Spacing['1'], marginLeft: Spacing ['2'] }}>
               {filteredJobs.length} posts available
             </AppText>
           </View>
