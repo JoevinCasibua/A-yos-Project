@@ -1,6 +1,9 @@
-# ServiceHub — Provider Marketplace App
+# A-yos — Provider Marketplace App
 
 A mobile-first service provider marketplace built with React Native, Expo, and TypeScript. Users can browse service categories, view provider profiles, book appointments, pay securely, track live service status, and leave reviews.
+
+> [!NOTE]
+> This project is currently under development
 
 ## Tech Stack
 
@@ -40,7 +43,15 @@ app/
 │   ├── reviews.tsx          # Reviews feed
 │   └── profile.tsx          # User profile
 ├── provider/[id].tsx        # Provider profile detail
-├── booking/[id].tsx         # Schedule booking flow
+├── new-request/             # New request creation flow
+│   ├── create.tsx           # Input category, photos, parts, description
+│   ├── issue-summary.tsx    # AI summary and Urgency selection
+│   ├── asap.tsx             # ASAP request review
+│   ├── this-week.tsx        # Scheduled (This Week) review and time picker
+│   └── bidding.tsx          # Open Bidding review
+├── match/[id].tsx           # ASAP radar matching screen
+├── request/[id].tsx         # Live request details (bids/applicants list)
+├── booking/[id].tsx         # Traditional schedule booking flow
 ├── payment.tsx              # Payment screen (modal)
 ├── tracking/[id].tsx        # Live tracking screen
 └── review/[id].tsx          # Rate & review (modal)
@@ -69,13 +80,32 @@ hooks/
 
 ## Design System
 
-All styling uses centralized design tokens from `constants/theme.ts`:
+All styling uses centralized design tokens in `constants/theme.ts`. The project aligns to an iPhone 15 (393×852 dp) baseline and includes tokens for spacing, type, radii, and shadows.
 
-- **Colors**: Primary greens, status colors (success/warning/error/info), neutral text & surface colors
-- **Typography**: 6 font size variants (h1–h4, body, caption) with 4 weights
-- **Spacing**: 8px-based scale (0–16)
-- **Radius**: xs through full
-- **Elevation**: 4 shadow levels (sm/md/lg/xl)
+- **Design Target**: iPhone 15 / iPhone 15 Pro — 393 × 852 dp
+- **Safe Area**: Top = 59px, Bottom = 34px (use `react-native-safe-area-context`)
+- **Layout tokens**: `Layout.screenPadding` = 20, `Layout.sectionSpacing` = 24, `Layout.cardPadding` = 16
+- **Spacing**: 4px step scale with named keys (see `Spacing` in `constants/theme.ts`)
+- **Typography**: `Display`/`H1`/`H2`/`H3`/`Title`/`Section`/`Card`/`Body`/`Small`/`Caption` tokens
+- **Radius**: `xs`=8, `sm`=10, `md`=12, `lg`=14, `xl`=16, `xxl`=20
+- **Buttons**: height 56, radius 14, horizontal padding 20 (`ButtonSize` tokens)
+- **Avatar sizes**: small 40, medium 48, large 64, xl 96
+- **Navigation**: nav height 80, header height 56
+- **Shadows**: card & floating elevation presets in `Elevation`
+
+Colors have been refined for balance and accessibility. Key color tokens (in `constants/theme.ts`):
+
+- **Primary / CTA**: `#0B63D6` (brand blue)
+- **Primary Light**: `#4DA5FF`
+- **Success**: `#117A5C`
+- **Warning**: `#F59E0B`
+- **Error**: `#C53030`
+- **Info**: `#0B63D6`
+- **Background**: `#F7F9FC`
+- **Surface / Card**: `#FFFFFF`
+- **Border**: `#E6EBF6`
+
+Use these tokens rather than hard-coded colors to maintain consistency and ensure complementary palettes across screens.
 
 ## Navigation
 
@@ -93,6 +123,14 @@ All styling uses centralized design tokens from `constants/theme.ts`:
 6. **Live Tracking** — Map background, provider pin, ETA, 5-step tracking timeline, call/message actions
 7. **My Bookings** — Tab-filtered list (upcoming/completed/cancelled) with contextual actions
 8. **Reviews** — Rating summary with distribution chart, filterable review list, review submission modal
+9. **New Request Flow**:
+    - **Creation**: Upload photos, select category, write description, choose parts preference.
+    - **AI Summary**: AI analyzes issue and recommends urgency.
+    - **Urgency Paths**:
+      - **ASAP**: Direct review, posts directly to **Match Radar** screen with live cascading worker discovery.
+      - **This Week**: Select Day/Time, then review and post.
+      - **Open Bidding**: Direct review, post to receive bids.
+10. **Request Details**: Compact Job Summary display with a list of incoming worker applications/bids for the user to review and hire.
 
 ## Platform
 

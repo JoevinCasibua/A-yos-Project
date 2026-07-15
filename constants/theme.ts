@@ -1,56 +1,56 @@
 export const Colors = {
-  // Primary brand greens
-  primary: '#1B5E20',
-  primaryDark: '#0A3D0A',
-  primaryMedium: '#2E7D32',
-  primaryLight: '#4CAF50',
-  primarySurface: '#E8F5E9',
-  primaryBorder: '#A5D6A7',
+  // Primary brand blues (applied system-wide)
+  primary: '#071022',
+  primaryDark: '#000000',
+  primaryMedium: '#1A2B4C',
+  primaryLight: '#2C4166',
+  primarySurface: '#EAF4FF',
+  primaryBorder: '#BDE1FF',
 
   // Accent / CTA
-  cta: '#1B5E20',
-  ctaPressed: '#0A3D0A',
+  cta: '#071022',
+  ctaPressed: '#1A2B4C',
 
   // Verified badge
-  verified: '#2E7D32',
-  verifiedBg: '#E8F5E9',
+  verified: '#0EA5A4',
+  verifiedBg: '#E8FFF9',
 
   // Status colors
-  success: '#2E7D32',
-  successBg: '#E8F5E9',
-  warning: '#F9A825',
-  warningBg: '#FFF8E1',
-  error: '#C62828',
-  errorBg: '#FFEBEE',
-  info: '#1565C0',
-  infoBg: '#E3F2FD',
+  success: '#117A5C',
+  successBg: '#E8FFF7',
+  warning: '#F59E0B',
+  warningBg: '#FFF7ED',
+  error: '#C53030',
+  errorBg: '#FFF5F5',
+  info: '#0B63D6',
+  infoBg: '#EAF4FF',
 
   // Rating / star
-  star: '#FFB800',
+  star: '#F59E0B',
 
   // Neutrals
   white: '#FFFFFF',
-  background: '#F5F6FA',
+  background: '#F8F9FB',
   surfaceCard: '#FFFFFF',
-  surfaceLight: '#F9FAFB',
-  border: '#E5E7EB',
-  borderLight: '#F0F1F3',
-  divider: '#EEEEEE',
+  surfaceLight: '#FBFDFF',
+  border: '#E6EBF6',
+  borderLight: '#F1F5FB',
+  divider: '#EEF4FB',
 
   // Text
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
+  textPrimary: '#071022',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
   textInverse: '#FFFFFF',
-  textLink: '#2E7D32',
+  textLink: '#0E73E6',
 
   // Navigation
-  navActive: '#1B5E20',
+  navActive: '#071022',
   navInactive: '#9CA3AF',
   navBackground: '#FFFFFF',
 
   // Map / live tracking
-  mapAccent: '#1B5E20',
+  mapAccent: '#0B63D6',
 
   // Overlay
   overlay: 'rgba(0,0,0,0.4)',
@@ -64,7 +64,19 @@ export const Typography = {
   fontSemiBold: 'System',
   fontBold: 'System',
 
-  // Font sizes
+  // Font sizes (design system baseline for iPhone 15 viewport)
+  Display: 40,
+  H1: 36,
+  H2: 32,
+  H3: 28,
+  Title: 24,
+  Section: 20,
+  Card: 18,
+  Body: 16,
+  Small: 14,
+  Caption: 12,
+
+  // Legacy/smaller tokens for components
   xs: 10,
   sm: 12,
   base: 14,
@@ -106,15 +118,25 @@ export const Spacing = {
   '16': 64,
 } as const;
 
+// Layout tokens based on iPhone 15 (393x852 dp) baseline
+export const Layout = {
+  screenPadding: 20, // primary horizontal padding
+  sectionSpacing: 24,
+  cardPadding: 16,
+  componentGap: 16,
+  smallGap: 8,
+  // Navigation / header
+  navHeight: 80,
+  headerHeight: 56,
+} as const;
+
 export const Radius = {
-  none: 0,
-  xs: 4,
-  sm: 6,
-  md: 8,
-  lg: 12,
+  xs: 8,
+  sm: 10,
+  md: 12,
+  lg: 14,
   xl: 16,
-  '2xl': 20,
-  '3xl': 24,
+  xxl: 20,
   full: 9999,
 } as const;
 
@@ -157,6 +179,19 @@ export const IconSize = {
   lg: 24,
   xl: 28,
   '2xl': 32,
+} as const;
+
+export const AvatarSize = {
+  small: 40,
+  medium: 48,
+  large: 64,
+  xl: 96,
+} as const;
+
+export const ButtonSize = {
+  height: 56,
+  radius: 14,
+  horizontalPadding: 20,
 } as const;
 
 export const TouchTarget = 44;

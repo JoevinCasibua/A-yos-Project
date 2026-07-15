@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import { ChevronLeft, Phone, MessageCircle, Navigation, Star, Clock, MapPin } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
+import { useRequest } from '@/context/RequestContext';
 import { providers } from '@/constants/mockData';
 
 const { width, height } = Dimensions.get('window');
@@ -21,6 +22,7 @@ const trackingSteps = [
 ];
 
 export default function TrackingScreen() {
+  const { request } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
   const provider = providers.find((p) => p.id === id) || providers[0];
   const [currentStep, setCurrentStep] = useState(1);
@@ -40,7 +42,7 @@ export default function TrackingScreen() {
     return () => clearInterval(timer);
   }, [currentStep]);
 
-  const handleBack = useCallback(() => router.back(), []);
+  const handleBack = useCallback(() => router.replace('/order'), []);
   const handleComplete = useCallback(() => {
     router.push(`/review/${provider.id}`);
   }, [provider.id]);
@@ -54,17 +56,12 @@ export default function TrackingScreen() {
       />
       <View style={styles.mapOverlay} />
 
-      {/* Top Nav */}
-      <View style={styles.topNav}>
-        <Pressable style={styles.navBtn} onPress={handleBack}>
-          <ChevronLeft size={22} color={Colors.textPrimary} strokeWidth={2.5} />
+      {/* Top Nav (Standardized Header) */}
+      <View style={styles.header}>
+        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
         </Pressable>
-        <View style={styles.etaPill}>
-          <Clock size={16} color={Colors.cta} strokeWidth={2} />
-          <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>
-            {currentStep >= 2 ? 'Arrived' : `ETA ${etaMinutes} min`}
-          </AppText>
-        </View>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Live Tracking</AppText>
         <View style={{ width: 40 }} />
       </View>
 
@@ -101,6 +98,22 @@ export default function TrackingScreen() {
             </Pressable>
           </View>
         </View>
+
+        {/* Replacement Parts Status */}
+        {request.hasParts !== null && request.hasParts !== undefined && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: Spacing['4'] }}>
+            <View style={{ 
+              backgroundColor: request.hasParts ? `${Colors.success}15` : `${Colors.warning}15`, 
+              paddingHorizontal: Spacing['3'], 
+              paddingVertical: Spacing['1'], 
+              borderRadius: Radius.full 
+            }}>
+              <AppText variant="caption" weight="semiBold" style={{ color: request.hasParts ? Colors.success : Colors.warning }}>
+                {request.hasParts ? '🟢 Customer Has Parts' : '🟠 Needs Parts'}
+              </AppText>
+            </View>
+          </View>
+        )}
 
         {/* Tracking Steps */}
         <View style={styles.stepsContainer}>
@@ -147,24 +160,13 @@ export default function TrackingScreen() {
         </View>
 
         {/* CTA */}
-        {currentStep >= 4 ? (
-          <AppButton
-            label="Rate & Review"
-            size="lg"
-            fullWidth
-            onPress={handleComplete}
-            leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
-          />
-        ) : (
-          <AppButton
-            label="Track Live on Map"
-            size="lg"
-            fullWidth
-            variant="outline"
-            onPress={() => {}}
-            leftIcon={<Navigation size={18} color={Colors.cta} strokeWidth={2} />}
-          />
-        )}
+        <AppButton
+          label="Evaluate Worker"
+          size="lg"
+          fullWidth
+          onPress={handleComplete}
+          leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
+        />
       </View>
     </View>
   );
@@ -174,20 +176,21 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   mapImage: { width: '100%', height: '100%', resizeMode: 'cover', position: 'absolute' },
   mapOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(245,246,250,0.3)' },
-  topNav: {
-    position: 'absolute', top: 50, left: 0, right: 0,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing['4'],
+  header: {
+    position: 'absolute', top: 0, left: 0, right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing[4],
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
   },
-  navBtn: {
-    width: 40, height: 40, borderRadius: Radius.full, backgroundColor: Colors.white,
-    alignItems: 'center', justifyContent: 'center', ...Elevation.md,
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
   },
-  etaPill: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing['1'],
-    backgroundColor: Colors.white, paddingHorizontal: Spacing['4'], paddingVertical: Spacing['2'],
-    borderRadius: Radius.full, ...Elevation.md,
-  },
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
   pinContainer: {
     position: 'absolute', top: height * 0.35, left: 0, right: 0,
     alignItems: 'center',
@@ -202,7 +205,7 @@ const styles = StyleSheet.create({
   },
   bottomSheet: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: Colors.white, borderTopLeftRadius: Radius['2xl'], borderTopRightRadius: Radius['2xl'],
+    backgroundColor: Colors.white, borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl,
     paddingHorizontal: Spacing['4'], paddingTop: Spacing['3'], paddingBottom: Spacing['6'],
     ...Elevation.xl,
   },

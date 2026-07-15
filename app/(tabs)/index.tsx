@@ -5,20 +5,19 @@ import {
   ScrollView,
   Pressable,
   Image,
-  Dimensions,
 } from 'react-native';
 import { Bell, ChevronRight, Wrench, Zap, Wind, Sparkles, Hammer, Paintbrush, TreePine, Grid2x2 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
+import { AppButton } from '@/components/AppButton';
 import { SearchBar } from '@/components/SearchBar';
 import { SectionHeader } from '@/components/SectionHeader';
 import { ProviderCard } from '@/components/ProviderCard';
 import { ServiceCategoryCard } from '@/components/ServiceCategoryCard';
 import { providers, serviceCategories } from '@/constants/mockData';
 
-const { width } = Dimensions.get('window');
-const CARD_W = (width - Spacing['4'] * 2 - Spacing['4']) / 2;
+
 
 const iconMap: Record<string, React.ReactNode> = {
   Wrench: <Wrench size={26} color={Colors.cta} strokeWidth={2} />,
@@ -57,7 +56,7 @@ export default function HomeScreen() {
                 Welcome back
               </AppText>
               <AppText variant="h3" weight="bold" style={{ marginTop: 2 }}>
-                Hello, Alex
+                Alex
               </AppText>
             </View>
             <Pressable style={styles.bell} hitSlop={12}>
@@ -129,7 +128,7 @@ export default function HomeScreen() {
                 key={p.id}
                 provider={p}
                 compact
-                style={{ width: CARD_W, marginBottom: Spacing['3'] }}
+                style={{ marginBottom: Spacing['3'] }}
                 onPress={() => router.push(`/provider/${p.id}`)}
               />
             ))}
@@ -170,7 +169,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: Colors.white,
     paddingHorizontal: Spacing['4'],
-    paddingTop: Spacing['2'],
+    paddingTop: Spacing['16'],
     paddingBottom: Spacing['5'],
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
@@ -235,9 +234,6 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   providersGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
     marginTop: Spacing['3'],
   },
 });

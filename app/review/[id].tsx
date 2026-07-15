@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
 import { ChevronLeft, Star, X } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
@@ -18,7 +18,8 @@ export default function ReviewScreen() {
 
   const handleClose = useCallback(() => router.back(), []);
   const handleSubmit = useCallback(() => {
-    router.back();
+    // Navigate forward to Payment Received/Confirmation
+    router.replace('/payment-received');
   }, []);
 
   const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
@@ -27,10 +28,10 @@ export default function ReviewScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable style={styles.closeBtn} onPress={handleClose} hitSlop={12}>
-          <X size={22} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backBtn} onPress={handleClose} hitSlop={12}>
+          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
         </Pressable>
-        <AppText variant="h4" weight="bold">Rate & Review</AppText>
+        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Rate & Review</AppText>
         <View style={{ width: 40 }} />
       </View>
 
@@ -132,11 +133,23 @@ export default function ReviewScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing['4'], paddingTop: Spacing['3'], paddingBottom: Spacing['3'],
-    backgroundColor: Colors.white, borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: 60,
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.background,
   },
-  closeBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.full, backgroundColor: Colors.surfaceLight },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+  },
   providerCard: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing['4'],
     marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
