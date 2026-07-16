@@ -67,10 +67,10 @@ export default function BookingRequestScreen() {
       >
         {/* Job Card */}
         <View style={styles.jobCard}>
-          {/* Booking ID + ThreeDotMenu */}
+          {/* Service Name + ThreeDotMenu */}
           <View style={styles.cardTopRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>
-              Booking #{job.id.padStart(4, '0')}
+            <AppText variant="h3" weight="bold" style={{ flex: 1 }}>
+              {job.service}
             </AppText>
             <ThreeDotMenu
               onReportUser={handleReportUser}
@@ -78,9 +78,9 @@ export default function BookingRequestScreen() {
             />
           </View>
 
-          {/* Service Name */}
-          <AppText variant="h3" weight="bold">
-            {job.service}
+          {/* Booking ID */}
+          <AppText variant="caption" color={Colors.textTertiary}>
+            Booking #{job.id.padStart(4, '0')}
           </AppText>
 
           {/* Urgency Badge */}
