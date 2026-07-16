@@ -146,7 +146,7 @@ export default function CreateRequestScreen() {
             {hasParts === false ? <CircleCheck size={24} color={Colors.primary} /> : <Circle size={24} color={Colors.border} />}
             <View style={styles.optionContent}>
               <AppText variant="body" weight="semiBold" color={hasParts === false ? Colors.primary : Colors.textPrimary}>I Need the Service Provider to Bring the Parts</AppText>
-              <AppText variant="caption" color={Colors.textSecondary}>I don't have the required parts and would like the service provider to bring them if needed.</AppText>
+              <AppText variant="caption" color={Colors.textSecondary}>I don&apos;t have the required parts and would like the service provider to bring them if needed.</AppText>
             </View>
           </Pressable>
 

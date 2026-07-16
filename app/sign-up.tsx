@@ -430,7 +430,7 @@ export default function SignUpScreen() {
               Registration Successful!
             </AppText>
             <AppText variant="body" color={Colors.textSecondary} style={{ textAlign: 'center', marginBottom: Spacing['6'] }}>
-              Your account is being verified. We will notify you once you're good to go!
+              Your account is active. Your submitted ID is pending manual verification before marketplace booking is enabled.
             </AppText>
             <AppButton
               label="Go to Sign In"

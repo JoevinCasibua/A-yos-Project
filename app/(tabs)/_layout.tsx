@@ -20,9 +20,10 @@ const tabLabels: Record<string, string> = {
 };
 
 export default function TabLayout() {
-  const {user,loading}=useAuth();
+  const {user,roles,loading}=useAuth();
   const router = require('expo-router').useRouter();
   if(!loading&&!user)return <Redirect href="/sign-in"/>;
+  if(!loading&&user&&!roles.includes('customer'))return <Redirect href="/sign-in"/>;
   return (
     <Tabs
       screenOptions={{

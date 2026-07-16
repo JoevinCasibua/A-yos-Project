@@ -26,9 +26,9 @@ export default function PaymentReceivedScreen() {
           </View>
         </View>
         
-        <AppText variant="h2" style={styles.title}>Payment Released!</AppText>
+        <AppText variant="h2" style={styles.title}>Review Submitted</AppText>
         <AppText variant="body" style={styles.subtitle}>
-          The funds have been successfully transferred to the worker for the completed job.
+          Your feedback was saved. Cash payment records are confirmed separately by the assigned worker or an administrator.
         </AppText>
 
         <View style={styles.card}>

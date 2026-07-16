@@ -46,7 +46,7 @@ export default function ChatScreen() {
           <Avatar uri={provider.avatarUri} size={40} />
           <View style={styles.headerInfo}>
             <AppText variant="body" weight="bold">{provider.name}</AppText>
-            <AppText variant="caption" color={Colors.success}>Online</AppText>
+            <AppText variant="caption" color={Colors.success}>Approved provider</AppText>
           </View>
         </View>
         <AppButton 

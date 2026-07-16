@@ -41,6 +41,7 @@ import { Chip } from '@/components/Chip';
 import { ImageUploadCard } from '@/components/ImageUploadCard';
 import { INDUSTRIES, SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
 import { registerWorker } from '@/services/auth';
+import * as Location from 'expo-location';
 
 const GENDERS: SelectOption[] = [
   { label: 'Male', value: 'male' },
@@ -88,6 +89,10 @@ export default function RegisterWorkerScreen() {
   const [employmentType, setEmploymentType] = useState<'employed' | 'freelance' | ''>('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
+  const [experienceYears,setExperienceYears]=useState('');
+  const [experienceSummary,setExperienceSummary]=useState('');
+  const [fixedPrice,setFixedPrice]=useState('');
+  const [serviceRadius,setServiceRadius]=useState('15');
 
   // Step 3: Office Address + Contact Info
   const [streetNumber, setStreetNumber] = useState('');
@@ -155,6 +160,10 @@ export default function RegisterWorkerScreen() {
     if (!industry) e.industry = 'Please input primary industry';
     if (!employmentType) e.employmentType = 'Please select employment type';
     if (selectedSkills.length === 0) e.skills = 'Select at least one skill';
+    if(!Number.isFinite(Number(experienceYears))||Number(experienceYears)<0)e.experienceYears='Enter valid years of experience';
+    if(experienceSummary.trim().length<20)e.experienceSummary='Describe at least 20 characters of work experience';
+    if(!Number.isFinite(Number(fixedPrice))||Number(fixedPrice)<=0)e.fixedPrice='Enter a fixed service price';
+    if(!Number.isFinite(Number(serviceRadius))||Number(serviceRadius)<=0)e.serviceRadius='Enter a valid service radius';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -202,7 +211,10 @@ export default function RegisterWorkerScreen() {
     }
     if (!frontId || !backId) return;
     setErrors({}); setIsSubmitting(true);
-    const result = await registerWorker({ email,password,firstName,middleName,lastName,phone,birthday,gender,industry:getIndustryLabel(),skills:getSkillLabels(),employmentType,streetNumber,street,district,city,region,postalCode,idType,frontIdUri:frontId,backIdUri:backId });
+    const permission=await Location.requestForegroundPermissionsAsync();
+    if(!permission.granted){setIsSubmitting(false);Alert.alert('Location required','Allow location access to register your service location and radius.');return;}
+    const position=await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Balanced});
+    const result = await registerWorker({ email,password,firstName,middleName,lastName,phone,birthday,gender,industry:getIndustryLabel(),skills:getSkillLabels(),employmentType,streetNumber,street,district,city,region,postalCode,idType,frontIdUri:frontId,backIdUri:backId,experienceYears:Number(experienceYears),experienceSummary,fixedPriceCentavos:Math.round(Number(fixedPrice)*100),serviceRadiusMeters:Math.round(Number(serviceRadius)*1000),baseLocation:{latitude:position.coords.latitude,longitude:position.coords.longitude} });
     setIsSubmitting(false);
     if (result.error) { Alert.alert('Registration failed', result.error.message); return; }
     setShowSuccess(true);
@@ -435,6 +447,13 @@ export default function RegisterWorkerScreen() {
           {errors.employmentType}
         </AppText>
       )}
+
+      <AppInput label="Years of Work Experience" value={experienceYears} onChangeText={setExperienceYears} keyboardType="decimal-pad" error={errors.experienceYears}/>
+      <AppInput label="Work Experience" value={experienceSummary} onChangeText={setExperienceSummary} multiline placeholder="Describe relevant jobs, responsibilities, and qualifications" error={errors.experienceSummary}/>
+      <View style={{flexDirection:'row',gap:Spacing['3']}}>
+        <AppInput label="Fixed Service Price (PHP)" value={fixedPrice} onChangeText={setFixedPrice} keyboardType="decimal-pad" error={errors.fixedPrice} containerStyle={{flex:1}}/>
+        <AppInput label="Service Radius (km)" value={serviceRadius} onChangeText={setServiceRadius} keyboardType="decimal-pad" error={errors.serviceRadius} containerStyle={{flex:1}}/>
+      </View>
 
       {industry ? (
         <>
@@ -788,7 +807,7 @@ export default function RegisterWorkerScreen() {
               Registration Submitted!
             </AppText>
             <AppText variant="body" color={Colors.textSecondary} style={{ textAlign: 'center', marginBottom: Spacing['6'] }}>
-              Your worker account is under review. We will notify you once you're verified and ready to accept jobs.
+              Your worker account is under review. We will notify you once you&apos;re verified and ready to accept jobs.
             </AppText>
             <AppButton
               label="Go to Sign In"

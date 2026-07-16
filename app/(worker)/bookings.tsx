@@ -9,7 +9,10 @@ import { Chip } from '@/components/Chip';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { statusConfig } from '@/constants/workerMockData';
 import type { WorkerBooking } from '@/constants/workerMockData';
-import { completeJob, fetchWorkerBookings, startJob } from '@/services/api';
+import { completeJob, confirmWorkerCash, declineJob, fetchWorkerBookings, startJob } from '@/services/api';
+import { showFeatureLocked } from '@/lib/featureLocks';
+import { saveEnRouteLocation } from '@/services/marketplace';
+import * as Location from 'expo-location';
 
 const filterTabs = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 
@@ -34,7 +37,21 @@ export default function WorkerBookingsScreen() {
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Start',
-        onPress: async () => { const result=await startJob(bookingId); if(result.error) Alert.alert('Unable to start job',result.error.message); else void load(); },
+        onPress: async () => {
+          const result=await startJob(bookingId);
+          if(result.error) { Alert.alert('Unable to start job',result.error.message); return; }
+          if (result.data.status === 'en_route') {
+            const permission = await Location.requestForegroundPermissionsAsync();
+            if (permission.status === 'granted') {
+              const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+              const route = await saveEnRouteLocation(bookingId, [current.coords.longitude, current.coords.latitude]);
+              if (route.error) Alert.alert('Route estimate unavailable', route.error.message);
+            } else {
+              Alert.alert('Location not shared', 'The booking will continue without a current-location route snapshot.');
+            }
+          }
+          void load();
+        },
       },
     ]);
   }, [load]);
@@ -48,6 +65,8 @@ export default function WorkerBookingsScreen() {
       },
     ]);
   }, [load]);
+  const handleDecline=useCallback((bookingId:string)=>{Alert.alert('Decline assignment','This returns the request to worker selection.',[{text:'Keep',style:'cancel'},{text:'Decline',style:'destructive',onPress:async()=>{const result=await declineJob(bookingId);if(result.error)Alert.alert('Unable to decline',result.error.message);else void load();}}]);},[load]);
+  const handleCash=useCallback(async(bookingId:string)=>{const result=await confirmWorkerCash(bookingId);if(result.error)Alert.alert('Unable to confirm cash',result.error.message);else void load();},[load]);
 
   const renderItem: ListRenderItem<WorkerBooking> = useCallback(
     ({ item }) => (
@@ -87,10 +106,11 @@ export default function WorkerBookingsScreen() {
           <View style={styles.actionRow}>
             {item.status === 'upcoming' && (
               <>
-                <Pressable style={({ pressed }) => [styles.actionBtn, styles.messageBtn, { opacity: pressed ? 0.8 : 1 }]}>
+                <Pressable onPress={()=>showFeatureLocked('chat')} style={({ pressed }) => [styles.actionBtn, styles.messageBtn, { opacity: pressed ? 0.8 : 1 }]}> 
                   <Phone size={16} color={Colors.cta} />
                   <AppText variant="caption" weight="semiBold" color={Colors.cta}>Contact</AppText>
                 </Pressable>
+                <Pressable style={({pressed})=>[styles.actionBtn,styles.messageBtn,{opacity:pressed ? 0.8 : 1}]} onPress={()=>handleDecline(item.id)}><AppText variant="caption" weight="semiBold" color={Colors.error}>Decline</AppText></Pressable>
                 <Pressable
                   style={({ pressed }) => [styles.actionBtn, styles.primaryBtn, { opacity: pressed ? 0.8 : 1 }]}
                   onPress={() => handleStartJob(item.id)}
@@ -107,14 +127,12 @@ export default function WorkerBookingsScreen() {
                 <AppText variant="caption" weight="semiBold" color={Colors.white}>Complete</AppText>
               </Pressable>
             )}
-            {item.status === 'completed' && (
-              <AppText variant="caption" color={Colors.textTertiary}>Paid · {item.price}</AppText>
-            )}
+            {item.status === 'completed' && (item.cashStatus==='unpaid'?<Pressable style={({pressed})=>[styles.actionBtn,styles.primaryBtn,{opacity:pressed ? 0.8 : 1}]} onPress={()=>handleCash(item.id)}><AppText variant="caption" weight="semiBold" color={Colors.white}>Confirm Cash</AppText></Pressable>:<AppText variant="caption" color={Colors.textTertiary}>Cash {item.cashStatus||'unavailable'} · {item.price}</AppText>)}
           </View>
         </View>
       </View>
     ),
-    [handleStartJob, handleCompleteJob],
+    [handleStartJob, handleCompleteJob,handleDecline,handleCash],
   );
 
   const keyExtractor = useCallback((item: WorkerBooking) => item.id, []);

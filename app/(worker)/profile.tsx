@@ -9,9 +9,9 @@ import { fetchWorkerProfile } from '@/services/api';
 import { signOut } from '@/services/auth';
 
 const menuRoutes: Record<string, () => void> = {
-  experience: () => Alert.alert('Work Experience', 'Work history and certifications coming soon.'),
-  skills: () => Alert.alert('My Skills', 'Skill management coming soon.'),
-  areas: () => Alert.alert('Service Areas', 'Service area settings coming soon.'),
+  experience: () => router.push('/(worker)/settings'),
+  skills: () => router.push('/(worker)/settings'),
+  areas: () => router.push('/(worker)/settings'),
   portfolio: () => Alert.alert('Portfolio', 'Portfolio gallery coming soon.'),
   payouts: () => router.push('/payment'),
   notifications: () => Alert.alert('Notifications', 'Notification settings coming soon.'),

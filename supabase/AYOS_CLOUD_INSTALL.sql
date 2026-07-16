@@ -1,3 +1,30 @@
+-- A-YOS Supabase Cloud Installer
+-- Target: a fresh Supabase project only.
+-- Paste this entire file into the Supabase SQL Editor and run it once.
+-- The transaction is atomic: any error prevents the installer from committing.
+--
+-- This installs the database, RLS, Storage, Realtime, and RPC foundation.
+-- Supabase Edge Functions and their secrets must be deployed separately; see
+-- SUPABASE_CLOUD_SETUP.md.
+
+begin;
+
+do $ayos_preflight$
+begin
+  if to_regclass('public.profiles') is not null
+     or to_regclass('public.service_requests') is not null
+     or to_regclass('public.bookings') is not null then
+    raise exception using
+      errcode = 'P0001',
+      message = 'A_YOS_INSTALL_REFUSED',
+      detail = 'Existing A-YOS tables were detected. This installer is for a fresh Supabase project and will not overwrite or upgrade an existing schema.';
+  end if;
+end
+$ayos_preflight$;
+
+create schema if not exists extensions;
+
+-- Source: supabase/migrations/20260716000100_ayos_mvp.sql
 create extension if not exists pgcrypto with schema extensions;
 create extension if not exists postgis with schema extensions;
 create type public.account_status as enum ('active','suspended','deactivated');
@@ -96,3 +123,350 @@ revoke update on public.profiles from authenticated;
 grant update(first_name,middle_name,last_name,phone,birthday,gender,avatar_path,updated_at)on public.profiles to authenticated;
 revoke update on public.worker_applications from authenticated;
 grant update(experience_years,experience_summary,base_location,service_radius_meters,updated_at)on public.worker_applications to authenticated;
+
+-- Source: supabase/migrations/20260716000200_admin_operations.sql
+create or replace function public.admin_review_worker(application_uuid uuid, decision public.worker_application_status, reason text)
+returns public.worker_applications language plpgsql security definer set search_path = '' as $$
+declare before_row public.worker_applications; result public.worker_applications;
+begin
+  if not public.is_admin() then raise exception using errcode='P0001', message='AUTHORIZATION_DENIED'; end if;
+  if decision not in ('approved','rejected','suspended') or char_length(trim(reason)) < 3 then raise exception using errcode='P0001', message='VALIDATION_FAILED'; end if;
+  select * into before_row from public.worker_applications where id=application_uuid for update;
+  if decision='approved' and (not public.has_approved_id(before_row.user_id) or before_row.base_location is null or not exists(select 1 from public.worker_services where worker_id=application_uuid and price_centavos > 0)) then raise exception using errcode='P0001', message='WORKER_INELIGIBLE'; end if;
+  update public.worker_applications set status=decision,rejection_reason=case when decision='approved' then null else reason end,reviewed_at=now(),reviewed_by=auth.uid() where id=application_uuid returning * into result;
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data) values(auth.uid(),'review_worker','worker_application',application_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+
+create or replace function public.admin_set_account_status(user_uuid uuid, next_status public.account_status, reason text)
+returns public.profiles language plpgsql security definer set search_path = '' as $$
+declare before_row public.profiles; result public.profiles;
+begin
+  if not public.is_admin() or char_length(trim(reason)) < 3 then raise exception using errcode='P0001', message='AUTHORIZATION_DENIED'; end if;
+  select * into before_row from public.profiles where id=user_uuid for update;
+  update public.profiles set account_status=next_status where id=user_uuid returning * into result;
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data) values(auth.uid(),'set_account_status','profile',user_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+
+create or replace function public.admin_moderate_review(review_uuid uuid, hidden boolean, reason text)
+returns public.reviews language plpgsql security definer set search_path = '' as $$
+declare before_row public.reviews; result public.reviews;
+begin
+  if not public.is_admin() or char_length(trim(reason)) < 3 then raise exception using errcode='P0001', message='AUTHORIZATION_DENIED'; end if;
+  select * into before_row from public.reviews where id=review_uuid for update;
+  update public.reviews set is_hidden=hidden where id=review_uuid returning * into result;
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data) values(auth.uid(),'moderate_review','review',review_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+
+grant execute on function public.admin_review_worker(uuid,public.worker_application_status,text) to authenticated;
+grant execute on function public.admin_set_account_status(uuid,public.account_status,text) to authenticated;
+grant execute on function public.admin_moderate_review(uuid,boolean,text) to authenticated;
+
+-- Source: supabase/migrations/20260716000300_workflow_integrations.sql
+create policy analysis_insert on public.ai_analyses
+for insert to authenticated
+with check (
+  exists (
+    select 1 from public.service_requests request
+    where request.id = request_id
+      and request.customer_id = auth.uid()
+      and request.status = 'draft'
+  )
+);
+
+create or replace function public.save_workflow_translation(
+  entity_kind text,
+  entity_uuid uuid,
+  source_lang text,
+  target_lang text,
+  original_value text,
+  translated_value text,
+  translation_state public.translation_status,
+  provider_name text,
+  model_name text default null
+) returns public.workflow_translations
+language plpgsql security definer set search_path = '' as $$
+declare result public.workflow_translations; authorized boolean := false;
+begin
+  if entity_kind='service_request' then
+    authorized := exists (
+      select 1 from public.service_requests request
+      where request.id = entity_uuid and request.customer_id = auth.uid()
+    );
+  elsif entity_kind='booking_status_event' then
+    authorized := exists(
+      select 1 from public.booking_status_events event join public.bookings booking on booking.id=event.booking_id
+      where event.id=entity_uuid and (booking.customer_id=auth.uid() or booking.worker_id=public.current_worker_id() or public.is_admin())
+    );
+  end if;
+  if source_lang not in ('en','fil') or target_lang not in ('en','fil') or not authorized then
+    raise exception using errcode='P0001', message='AUTHORIZATION_DENIED';
+  end if;
+
+  insert into public.workflow_translations(
+    entity_type, entity_id, source_language, target_language, original_text,
+    translated_text, status, provider, model
+  ) values (
+    entity_kind, entity_uuid, source_lang, target_lang, original_value,
+    translated_value, translation_state, provider_name, model_name
+  )
+  on conflict(entity_type, entity_id, target_language) do update set
+    original_text=excluded.original_text,
+    translated_text=excluded.translated_text,
+    status=excluded.status,
+    provider=excluded.provider,
+    model=excluded.model,
+    created_at=now()
+  returning * into result;
+  return result;
+end $$;
+
+create or replace function public.get_booking_route_context(booking_uuid uuid)
+returns jsonb language plpgsql stable security definer set search_path = '' as $$
+declare result jsonb;
+begin
+  select jsonb_build_object(
+    'origin', jsonb_build_array(
+      extensions.st_x(extensions.geometry(worker.base_location)),
+      extensions.st_y(extensions.geometry(worker.base_location))
+    ),
+    'destination', jsonb_build_array(
+      extensions.st_x(extensions.geometry(request.location)),
+      extensions.st_y(extensions.geometry(request.location))
+    )
+  ) into result
+  from public.bookings booking
+  join public.worker_applications worker on worker.id=booking.worker_id
+  join public.service_requests request on request.id=booking.request_id
+  where booking.id=booking_uuid
+    and (booking.customer_id=auth.uid() or booking.worker_id=public.current_worker_id() or public.is_admin())
+    and worker.base_location is not null;
+
+  if result is null then
+    raise exception using errcode='P0001', message='ROUTE_UNAVAILABLE';
+  end if;
+  return result;
+end $$;
+
+create unique index one_worker_location_snapshot_per_booking
+on public.route_snapshots(booking_id) where worker_location_snapshot;
+
+create or replace function public.save_route_snapshot(
+  booking_uuid uuid,
+  origin_lon double precision,
+  origin_lat double precision,
+  destination_lon double precision,
+  destination_lat double precision,
+  distance_value integer,
+  duration_value integer,
+  route_geometry jsonb,
+  provider_name text,
+  route_state public.route_status,
+  is_worker_snapshot boolean default false
+) returns public.route_snapshots
+language plpgsql security definer set search_path = '' as $$
+declare booking_row public.bookings; result public.route_snapshots;
+begin
+  select * into booking_row from public.bookings where id=booking_uuid;
+  if booking_row.id is null
+    or (booking_row.customer_id<>auth.uid()
+      and booking_row.worker_id is distinct from public.current_worker_id()
+      and not public.is_admin()) then
+    raise exception using errcode='P0001', message='AUTHORIZATION_DENIED';
+  end if;
+  if is_worker_snapshot and public.current_worker_id() is distinct from booking_row.worker_id and not public.is_admin() then
+    raise exception using errcode='P0001', message='AUTHORIZATION_DENIED';
+  end if;
+  if distance_value < 0 or duration_value < 0 then
+    raise exception using errcode='P0001', message='VALIDATION_FAILED';
+  end if;
+
+  insert into public.route_snapshots(
+    booking_id, origin, destination, distance_meters, duration_seconds,
+    geometry, provider, status, worker_location_snapshot
+  ) values (
+    booking_uuid,
+    extensions.st_setsrid(extensions.st_makepoint(origin_lon,origin_lat),4326)::extensions.geography,
+    extensions.st_setsrid(extensions.st_makepoint(destination_lon,destination_lat),4326)::extensions.geography,
+    distance_value, duration_value, route_geometry, provider_name, route_state, is_worker_snapshot
+  ) returning * into result;
+  return result;
+exception when unique_violation then
+  select * into result from public.route_snapshots
+  where booking_id=booking_uuid and worker_location_snapshot
+  order by calculated_at desc limit 1;
+  return result;
+end $$;
+
+create or replace function public.admin_override_booking(
+  booking_uuid uuid,
+  next_status public.booking_status,
+  reason text
+) returns public.bookings
+language plpgsql security definer set search_path = '' as $$
+declare before_row public.bookings; result public.bookings;
+begin
+  if not public.is_admin() or char_length(trim(reason)) < 3 then
+    raise exception using errcode='P0001', message='AUTHORIZATION_DENIED';
+  end if;
+  select * into before_row from public.bookings where id=booking_uuid for update;
+  if before_row.id is null then raise exception using errcode='P0001', message='VALIDATION_FAILED'; end if;
+  update public.bookings set status=next_status,
+    cancelled_reason=case when next_status='cancelled' then reason else cancelled_reason end
+  where id=booking_uuid returning * into result;
+  insert into public.booking_status_events(booking_id,from_status,to_status,actor_id,note_original,note_language)
+  values(booking_uuid,before_row.status,next_status,auth.uid(),reason,'en');
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data)
+  values(auth.uid(),'override_booking','booking',booking_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+
+grant execute on function public.save_workflow_translation(text,uuid,text,text,text,text,public.translation_status,text,text) to authenticated;
+grant execute on function public.get_booking_route_context(uuid) to authenticated;
+grant execute on function public.save_route_snapshot(uuid,double precision,double precision,double precision,double precision,integer,integer,jsonb,text,public.route_status,boolean) to authenticated;
+grant execute on function public.admin_override_booking(uuid,public.booking_status,text) to authenticated;
+
+create table public.notification_preferences(
+  user_id uuid primary key references public.profiles on delete cascade,
+  booking_alerts boolean not null default true,
+  message_alerts boolean not null default false,
+  promotions boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+alter table public.notification_preferences enable row level security;
+create policy notification_preferences_owner on public.notification_preferences
+for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
+
+create or replace function public.admin_set_cash_status(
+  cash_uuid uuid, next_status public.cash_status, reason text
+) returns public.cash_records language plpgsql security definer set search_path='' as $$
+declare before_row public.cash_records; result public.cash_records;
+begin
+  if not public.is_admin() or char_length(trim(reason))<3 then raise exception using errcode='P0001',message='AUTHORIZATION_DENIED'; end if;
+  select * into before_row from public.cash_records where id=cash_uuid for update;
+  update public.cash_records set status=next_status,
+    confirmed_at=case when next_status='paid' then coalesce(confirmed_at,now()) else confirmed_at end,
+    confirmed_by=case when next_status='paid' then coalesce(confirmed_by,auth.uid()) else confirmed_by end
+  where id=cash_uuid returning * into result;
+  if result.id is null then raise exception using errcode='P0001',message='VALIDATION_FAILED'; end if;
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data)
+  values(auth.uid(),'set_cash_status','cash_record',cash_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+
+create or replace function public.admin_correct_service_price(
+  service_uuid uuid, next_price_centavos integer, reason text
+) returns public.worker_services language plpgsql security definer set search_path='' as $$
+declare before_row public.worker_services; result public.worker_services;
+begin
+  if not public.is_admin() or next_price_centavos<0 or char_length(trim(reason))<3 then raise exception using errcode='P0001',message='AUTHORIZATION_DENIED'; end if;
+  select * into before_row from public.worker_services where id=service_uuid for update;
+  update public.worker_services set price_centavos=next_price_centavos where id=service_uuid returning * into result;
+  if result.id is null then raise exception using errcode='P0001',message='VALIDATION_FAILED'; end if;
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data)
+  values(auth.uid(),'correct_service_price','worker_service',service_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+
+grant execute on function public.admin_set_cash_status(uuid,public.cash_status,text) to authenticated;
+grant execute on function public.admin_correct_service_price(uuid,integer,text) to authenticated;
+
+create or replace function public.admin_set_category_active(category_uuid uuid, active boolean, reason text)
+returns public.categories language plpgsql security definer set search_path='' as $$
+declare before_row public.categories; result public.categories;
+begin
+  if not public.is_admin() or char_length(trim(reason))<3 then raise exception using errcode='P0001',message='AUTHORIZATION_DENIED'; end if;
+  select * into before_row from public.categories where id=category_uuid for update;
+  update public.categories set is_active=active where id=category_uuid returning * into result;
+  if result.id is null then raise exception using errcode='P0001',message='VALIDATION_FAILED'; end if;
+  insert into public.admin_audit_logs(admin_id,action,entity_type,entity_id,reason,before_data,after_data)
+  values(auth.uid(),'set_category_active','category',category_uuid,reason,to_jsonb(before_row),to_jsonb(result));
+  return result;
+end $$;
+grant execute on function public.admin_set_category_active(uuid,boolean,text) to authenticated;
+
+create or replace function public.get_request_coordinates(request_uuid uuid)
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare result jsonb;
+begin
+  select jsonb_build_object('longitude',extensions.st_x(extensions.geometry(request.location)),'latitude',extensions.st_y(extensions.geometry(request.location))) into result
+  from public.service_requests request where request.id=request_uuid and (request.customer_id=auth.uid() or request.assigned_worker_id=public.current_worker_id() or public.is_admin());
+  if result is null then raise exception using errcode='P0001',message='AUTHORIZATION_DENIED'; end if;
+  return result;
+end $$;
+grant execute on function public.get_request_coordinates(uuid) to authenticated;
+
+create or replace function public.get_my_private_profile()
+returns public.profiles language sql stable security definer set search_path='' as $$
+  select * from public.profiles where id=auth.uid()
+$$;
+grant execute on function public.get_my_private_profile() to authenticated;
+
+create or replace function public.get_booking_service_address(booking_uuid uuid)
+returns text language plpgsql stable security definer set search_path='' as $$
+declare result text;
+begin
+  select concat_ws(', ',nullif(address.street_number,''),address.street,nullif(address.district,''),address.city,address.region,nullif(address.postal_code,'')) into result
+  from public.bookings booking join public.service_requests request on request.id=booking.request_id join public.addresses address on address.id=request.address_id
+  where booking.id=booking_uuid and (booking.customer_id=auth.uid() or booking.worker_id=public.current_worker_id() or public.is_admin());
+  if result is null then raise exception using errcode='P0001',message='AUTHORIZATION_DENIED'; end if;return result;
+end $$;
+grant execute on function public.get_booking_service_address(uuid) to authenticated;
+
+-- Source: supabase/migrations/20260716000400_api_privileges.sql
+grant usage on schema public to anon, authenticated;
+
+grant select on public.categories, public.reviews to anon;
+
+grant select on public.user_roles, public.addresses,
+  public.identity_verifications, public.categories, public.worker_applications,
+  public.worker_services, public.worker_availability, public.service_requests,
+  public.service_request_media, public.ai_analyses, public.recommendations,
+  public.bookings, public.booking_status_events, public.workflow_translations,
+  public.route_snapshots, public.cash_records, public.reviews,
+  public.notifications, public.admin_audit_logs, public.notification_preferences
+to authenticated;
+
+grant select(id,first_name,last_name,avatar_path,account_status,created_at,updated_at) on public.profiles to authenticated;
+
+grant insert, delete on public.addresses to authenticated;
+grant update(street_number,street,district,city,region,postal_code,location,is_default,updated_at)
+  on public.addresses to authenticated;
+grant insert on public.identity_verifications to authenticated;
+grant insert on public.worker_applications to authenticated;
+grant insert, update, delete on public.worker_services to authenticated;
+grant insert, update, delete on public.worker_availability to authenticated;
+grant insert, delete on public.service_requests to authenticated;
+grant update(category_id,description_original,description_language,parts_known,parts_description,
+  urgency,scheduled_at,address_id,location,updated_at) on public.service_requests to authenticated;
+grant insert, delete on public.service_request_media to authenticated;
+grant insert on public.ai_analyses to authenticated;
+grant update(read_at) on public.notifications to authenticated;
+grant insert, update, delete on public.notification_preferences to authenticated;
+
+-- Seed only the marketplace categories used by the current frontend/backend.
+insert into public.categories(id,slug,name,description,icon) values
+  ('40000000-0000-0000-0000-000000000001','plumbing','Plumbing','Pipes, leaks, drains, and fixtures','wrench'),
+  ('40000000-0000-0000-0000-000000000002','electrical','Electrical','Home electrical installation and repair','zap'),
+  ('40000000-0000-0000-0000-000000000003','cleaning','Cleaning','Residential cleaning services','sparkles'),
+  ('40000000-0000-0000-0000-000000000004','carpentry','Carpentry','Furniture and wood repair','hammer'),
+  ('40000000-0000-0000-0000-000000000005','aircon','Air Conditioning','Aircon cleaning and repair','wind')
+on conflict (id) do nothing;
+
+commit;
+
+-- FIRST ADMIN ACCOUNT (run this statement separately after registering the account):
+--
+-- insert into public.user_roles(user_id, role)
+-- select id, 'admin'::public.app_role
+-- from auth.users
+-- where lower(email) = lower('REPLACE_WITH_ADMIN_EMAIL')
+-- on conflict (user_id, role) do nothing;
+--
+-- Verify the promotion:
+-- select u.email, r.role
+-- from auth.users u
+-- join public.user_roles r on r.user_id = u.id
+-- where lower(u.email) = lower('REPLACE_WITH_ADMIN_EMAIL');

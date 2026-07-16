@@ -247,6 +247,7 @@ export interface WorkerBooking {
   price: string;
   hasParts?: boolean;
   partsDescription?: string;
+  cashStatus?: 'unpaid'|'paid'|'disputed'|'void';
 }
 
 export const workerBookings: WorkerBooking[] = [

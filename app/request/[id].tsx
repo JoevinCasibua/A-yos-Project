@@ -10,7 +10,7 @@ import { Badge } from '@/components/Badge';
 import { JobSummary } from '@/components/JobSummary';
 import { ProviderCard } from '@/components/ProviderCard';
 import { useRequest } from '@/context/RequestContext';
-import { fetchRecommendations, type WorkerRecommendation } from '@/services/marketplace';
+import { fetchPublishedRequest, fetchRecommendations, type WorkerRecommendation } from '@/services/marketplace';
 import { fetchProviderById } from '@/services/api';
 import type { ProviderData } from '@/components/ProviderCard';
 
@@ -18,6 +18,7 @@ export default function RequestDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { request } = useRequest();
+  const[displayRequest,setDisplayRequest]=useState(request);
   
   const [applicants, setApplicants] = useState<WorkerRecommendation[]>([]);
   const [assignedWorker,setAssignedWorker]=useState<ProviderData|null>(null);
@@ -27,11 +28,12 @@ export default function RequestDetailsScreen() {
     if(request.urgency==='Open Bidding'){setApplicants([]);setIsLoading(false);return;}
     if(!id){setIsLoading(false);return;}let active=true;void fetchRecommendations(id).then(result=>{if(active){setApplicants(result.data||[]);setIsLoading(false);}});return()=>{active=false;};
   }, [id,request.urgency]);
-  useEffect(()=>{if(request.selectedWorkerId)void fetchProviderById(request.selectedWorkerId).then(result=>setAssignedWorker(result.data||null));},[request.selectedWorkerId]);
+  useEffect(()=>{if(!id)return;void fetchPublishedRequest(id).then(result=>{if(!result.data)return;setDisplayRequest(current=>({...current,category:result.data!.category,description:result.data!.description,hasParts:result.data!.partsKnown??undefined,partsDescription:result.data!.partsDescription||'',urgency:result.data!.urgency,scheduledDate:result.data!.scheduledDate,photos:result.data!.photos,status:result.data!.status,selectedWorkerId:result.data!.assignedWorkerId,location:{latitude:result.data!.latitude,longitude:result.data!.longitude,address:result.data!.address}}));});},[id]);
+  useEffect(()=>{if(displayRequest.selectedWorkerId)void fetchProviderById(displayRequest.selectedWorkerId).then(result=>setAssignedWorker(result.data||null));},[displayRequest.selectedWorkerId]);
 
   const handleBack = () => router.back();
 
-  const isBidding = request.urgency === 'Open Bidding';
+  const isBidding = displayRequest.urgency === 'Open Bidding';
 
   return (
     <View style={styles.container}>
@@ -49,11 +51,11 @@ export default function RequestDetailsScreen() {
         {/* Highlighted Job Summary at the top */}
         <View style={[styles.section, styles.highlightBox]}>
           <AppText variant="h3" weight="bold" style={[styles.sectionTitle, { marginBottom: Spacing['3'] }]}>Request Summary</AppText>
-          <JobSummary request={request} showEditButtons={request.status === 'Draft' || request.status === 'Posted'} compact={true} />
+          <JobSummary request={displayRequest} showEditButtons={displayRequest.status === 'Draft' || displayRequest.status === 'Posted'} compact={true} />
         </View>
 
         {/* Dynamic State Rendering */}
-        {request.status === 'Posted' || request.status === 'Searching' ? (
+        {displayRequest.status === 'Posted' || displayRequest.status === 'Searching' ? (
           <View style={styles.section}>
             <View style={styles.statusAlert}>
               <AppText variant="h4" weight="bold" color={Colors.white}>
@@ -139,14 +141,14 @@ export default function RequestDetailsScreen() {
                 leftIcon={<MessageSquare size={18} color={Colors.primary} />}
                 onPress={() => router.push(`/chat/${assignedWorker.id}` as any)}
               />
-              {request.status === 'Completed' && (
+              {displayRequest.status === 'Completed' && (
                 <AppButton 
                   label="Leave Review" 
                   style={[styles.actionBtn, { marginTop: Spacing['3'] }]} 
                   onPress={() => router.push(`/review/${assignedWorker.id}` as any)}
                 />
               )}
-              {request.status === 'Accepted' && (
+              {displayRequest.status === 'Accepted' && (
                 <AppButton 
                   label="Proceed to Payment" 
                   style={[styles.actionBtn, { marginTop: Spacing['3'] }]} 

@@ -20,7 +20,7 @@ export type RequestState = {
   selectedWorkerId: string | null;
   publishedRequestId: string | null;
   bookingId: string | null;
-  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled' | 'Posted';
+  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled' | 'Posted' | 'Cancelled';
   estimatedPriceRange?: string;
   scheduledDate?: Date;
 };

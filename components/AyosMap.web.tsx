@@ -7,9 +7,10 @@ import type { AyosMapProps } from './AyosMap.types';
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
 export default function AyosMap({ origin, destination, route, interactive = true }: AyosMapProps) {
   const container = useRef<HTMLDivElement | null>(null); const map = useRef<MapInstance | null>(null);
+  const routeCenter=route?.coordinates[0];
+  const center = destination || origin || routeCenter;
   useEffect(() => {
-    if (!container.current) return;
-    const center = destination || origin || [121.0244,14.5547];
+    if (!container.current || !center) return;
     const instance = new maplibregl.Map({ container: container.current, style: STYLE_URL, center, zoom: route ? 12 : 15, interactive, attributionControl: {} });
     map.current = instance;
     instance.on('load',()=>{
@@ -18,6 +19,7 @@ export default function AyosMap({ origin, destination, route, interactive = true
       if (destination) new maplibregl.Marker({color:'#D32F2F'}).setLngLat(destination).addTo(instance);
     });
     return()=>{instance.remove();map.current=null;};
-  },[destination?.[0],destination?.[1],interactive,origin?.[0],origin?.[1],route]);
+  },[center?.[0],center?.[1],destination?.[0],destination?.[1],interactive,origin?.[0],origin?.[1],route]);
+  if(!center)return <View style={{flex:1}}/>;
   return <View style={{flex:1}}><div ref={container} style={{position:'absolute',inset:0}} /></View>;
 }

@@ -43,7 +43,7 @@ export default function WorkerDashboardScreen() {
 
         {/* Today's Stats */}
         <View style={styles.section}>
-          <AppText variant="h4" weight="bold">Today's Overview</AppText>
+          <AppText variant="h4" weight="bold">Today&apos;s Overview</AppText>
           <View style={styles.statsGrid}>
             {todayStats.map((stat) => (
               <View key={stat.label} style={styles.statCard}>

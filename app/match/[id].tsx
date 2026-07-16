@@ -9,6 +9,7 @@ import { Badge } from '@/components/Badge';
 import { useRequest } from '@/context/RequestContext';
 import { ChevronLeft, MapPin, CheckCircle, MessageSquare, ShieldAlert } from 'lucide-react-native';
 import { fetchRecommendations, type WorkerRecommendation } from '@/services/marketplace';
+import AyosMap from '@/components/AyosMap';
 
 const RadarPulse = () => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
@@ -86,8 +87,7 @@ export default function ASAPMatchScreen() {
 
       {/* Map Area */}
       <View style={styles.mapArea}>
-        {/* Placeholder for actual MapView */}
-        <View style={styles.mapBackground} />
+        <View style={styles.mapBackground}>{request.location&&<AyosMap destination={[request.location.longitude,request.location.latitude]} interactive={false}/>}</View>
         <RadarPulse />
         
         <View style={styles.mapOverlayTop}>

@@ -141,7 +141,7 @@ export default function SignInScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         <AppText variant="body" color={Colors.textSecondary}>
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
         </AppText>
         <Pressable onPress={handleRegister}>
           <AppText variant="body" weight="bold" color={Colors.textPrimary}>
