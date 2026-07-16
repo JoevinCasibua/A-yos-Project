@@ -5,12 +5,14 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { Colors } from '@/constants/theme';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RequestProvider } from '@/context/RequestContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 export default function RootLayout() {
   useFrameworkReady();
 
   return (
     <SafeAreaProvider>
+      <AuthProvider>
       <RequestProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -31,6 +33,7 @@ export default function RootLayout() {
           <Stack.Screen name="+not-found" options={{ headerShown: false }} />
         </Stack>
       </RequestProvider>
+      </AuthProvider>
       <StatusBar style="dark" backgroundColor={Colors.white} />
     </SafeAreaProvider>
   );
