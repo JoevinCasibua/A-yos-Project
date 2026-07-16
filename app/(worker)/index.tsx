@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Bell, Clock, CheckCircle2, TrendingUp, DollarSign } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -6,19 +6,16 @@ import { Colors, Radius, Spacing, Elevation, IconSize, AvatarSize, Layout } from
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
-import { workerProfile } from '@/constants/workerData';
-import { workerBookings, statusConfig } from '@/constants/workerMockData';
-
-const todayStats = [
-  { label: 'Active Jobs', value: '2', icon: Clock, color: Colors.cta, bg: Colors.primarySurface },
-  { label: 'Pending', value: '3', icon: TrendingUp, color: Colors.warning, bg: Colors.warningBg },
-  { label: 'Completed', value: '5', icon: CheckCircle2, color: Colors.success, bg: Colors.successBg },
-  { label: 'Earnings', value: '$180', icon: DollarSign, color: Colors.info, bg: Colors.infoBg },
-];
-
-const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled');
+import type { WorkerProfile } from '@/constants/workerData';
+import { statusConfig, type WorkerBooking } from '@/constants/workerMockData';
+import { fetchWorkerBookings, fetchWorkerProfile } from '@/services/api';
 
 export default function WorkerDashboardScreen() {
+  const [workerProfile,setWorkerProfile]=useState<WorkerProfile|null>(null);const [workerBookings,setWorkerBookings]=useState<WorkerBooking[]>([]);
+  useEffect(()=>{void Promise.all([fetchWorkerProfile(),fetchWorkerBookings()]).then(([profile,bookings])=>{setWorkerProfile(profile.data);setWorkerBookings(bookings.data);});},[]);
+  const activeBookings=useMemo(()=>workerBookings.filter(b=>b.status!=='completed'&&b.status!=='cancelled'),[workerBookings]);
+  const todayStats=[{label:'Active Jobs',value:String(activeBookings.length),icon:Clock,color:Colors.cta,bg:Colors.primarySurface},{label:'Pending',value:String(workerBookings.filter(b=>b.status==='upcoming').length),icon:TrendingUp,color:Colors.warning,bg:Colors.warningBg},{label:'Completed',value:String(workerBookings.filter(b=>b.status==='completed').length),icon:CheckCircle2,color:Colors.success,bg:Colors.successBg},{label:'Cash Records',value:'Recorded',icon:DollarSign,color:Colors.info,bg:Colors.infoBg}];
+  if(!workerProfile)return <View style={styles.container}/>;
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
