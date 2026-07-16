@@ -1,10 +1,13 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 import { LayoutDashboard, Search, CalendarDays, Star, User } from 'lucide-react-native';
 import { Colors, Typography } from '@/constants/theme';
 
 export default function WorkerTabLayout() {
+  const {user,roles,loading}=useAuth();
+  if(!loading&&(!user||!roles.includes('worker')))return <Redirect href="/sign-in"/>;
   return (
     <Tabs
       screenOptions={{

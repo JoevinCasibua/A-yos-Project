@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-// Removed expo-image-picker to fix Expo Go crash
+import * as ImagePicker from 'expo-image-picker';
 import { Camera, Image as ImageIcon, X, ChevronLeft, CircleCheck, Circle } from 'lucide-react-native';
 import { Colors, Spacing, Layout, Typography, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -28,9 +28,14 @@ export default function CreateRequestScreen() {
       return;
     }
 
-    // Mock image selection to avoid Expo Go native module errors
-    const mockImageUri = 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800';
-    setPhotos((prev) => [...prev, mockImageUri]);
+    const permission = useCamera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) { Alert.alert('Permission required', `Allow ${useCamera ? 'camera' : 'photo'} access to add service photos.`); return; }
+    const result = useCamera
+      ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 })
+      : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+    if (!result.canceled) setPhotos((prev) => [...prev, result.assets[0].uri]);
   };
 
   const removePhoto = (index: number) => {
@@ -141,7 +146,7 @@ export default function CreateRequestScreen() {
             {hasParts === false ? <CircleCheck size={24} color={Colors.primary} /> : <Circle size={24} color={Colors.border} />}
             <View style={styles.optionContent}>
               <AppText variant="body" weight="semiBold" color={hasParts === false ? Colors.primary : Colors.textPrimary}>I Need the Service Provider to Bring the Parts</AppText>
-              <AppText variant="caption" color={Colors.textSecondary}>I don't have the required parts and would like the service provider to bring them if needed.</AppText>
+              <AppText variant="caption" color={Colors.textSecondary}>I don&apos;t have the required parts and would like the service provider to bring them if needed.</AppText>
             </View>
           </Pressable>
 

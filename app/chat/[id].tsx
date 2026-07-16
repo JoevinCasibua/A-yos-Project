@@ -6,7 +6,9 @@ import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { providers } from '@/constants/mockData';
+import { showFeatureLocked } from '@/lib/featureLocks';
+import { fetchProviderById } from '@/services/api';
+import type { ProviderData } from '@/components/ProviderCard';
 
 const QUICK_REPLIES = [
   "Can you come today?",
@@ -18,20 +20,20 @@ const QUICK_REPLIES = [
 export default function ChatScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
+  const [provider,setProvider]=useState<ProviderData|null>(null);
+  React.useEffect(()=>{if(id)void fetchProviderById(id).then(result=>setProvider(result.data||null));},[id]);
   
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    { id: '1', text: 'Hi! I can repair your leaking faucet right now. I have 6 years of plumbing experience.', sender: 'worker', time: '10:00 AM' },
-  ]);
+  const messages: Array<{ id: string; text: string; sender: string; time: string }> = [];
 
   const handleSend = (text: string) => {
     if (!text.trim()) return;
-    setMessages([...messages, { id: Date.now().toString(), text, sender: 'user', time: 'Just now' }]);
-    setMessage('');
+    showFeatureLocked('chat');
   };
 
   const handleBack = () => router.back();
+
+  if(!provider)return <View style={styles.container}/>;
 
   return (
     <View style={styles.container}>
@@ -44,7 +46,7 @@ export default function ChatScreen() {
           <Avatar uri={provider.avatarUri} size={40} />
           <View style={styles.headerInfo}>
             <AppText variant="body" weight="bold">{provider.name}</AppText>
-            <AppText variant="caption" color={Colors.success}>Online</AppText>
+            <AppText variant="caption" color={Colors.success}>Approved provider</AppText>
           </View>
         </View>
         <AppButton 

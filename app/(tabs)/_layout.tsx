@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, Platform } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 import { Home, Search, CalendarDays, User, Plus } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
@@ -19,7 +20,10 @@ const tabLabels: Record<string, string> = {
 };
 
 export default function TabLayout() {
+  const {user,roles,loading}=useAuth();
   const router = require('expo-router').useRouter();
+  if(!loading&&!user)return <Redirect href="/sign-in"/>;
+  if(!loading&&user&&!roles.includes('customer'))return <Redirect href="/sign-in"/>;
   return (
     <Tabs
       screenOptions={{

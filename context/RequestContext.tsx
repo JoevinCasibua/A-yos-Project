@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 export type UrgencyLevel = 'ASAP' | 'This Week' | 'Open Bidding';
 
@@ -18,7 +18,9 @@ export type RequestState = {
     address: string;
   } | null;
   selectedWorkerId: string | null;
-  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled' | 'Posted';
+  publishedRequestId: string | null;
+  bookingId: string | null;
+  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled' | 'Posted' | 'Cancelled';
   estimatedPriceRange?: string;
   scheduledDate?: Date;
 };
@@ -35,6 +37,8 @@ const initialState: RequestState = {
   urgency: null,
   location: null,
   selectedWorkerId: null,
+  publishedRequestId: null,
+  bookingId: null,
   status: 'Draft',
 };
 
@@ -49,16 +53,18 @@ const RequestContext = createContext<RequestContextType | undefined>(undefined);
 export const RequestProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [request, setRequest] = useState<RequestState>(initialState);
 
-  const updateRequest = (updates: Partial<RequestState>) => {
+  const updateRequest = useCallback((updates: Partial<RequestState>) => {
     setRequest((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
 
-  const resetRequest = () => {
+  const resetRequest = useCallback(() => {
     setRequest(initialState);
-  };
+  }, []);
+
+  const value = useMemo(() => ({ request, updateRequest, resetRequest }), [request, updateRequest, resetRequest]);
 
   return (
-    <RequestContext.Provider value={{ request, updateRequest, resetRequest }}>
+    <RequestContext.Provider value={value}>
       {children}
     </RequestContext.Provider>
   );

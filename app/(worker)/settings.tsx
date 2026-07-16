@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,33 +10,33 @@ import {
   Switch,
 } from 'react-native';
 import { router } from 'expo-router';
-import { ChevronLeft, Camera, Eye, EyeOff } from 'lucide-react-native';
+import { ChevronLeft, Eye, EyeOff } from 'lucide-react-native';
 import { Colors, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
 import { ImageUploadCard } from '@/components/ImageUploadCard';
-import { workerProfile } from '@/constants/workerData';
+import { supabase } from '@/lib/supabase';
 
 export default function WorkerSettingsScreen() {
   // Personal info
-  const [firstName, setFirstName] = useState('Carlos');
+  const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
-  const [lastName, setLastName] = useState('Méndez');
-  const [email, setEmail] = useState(workerProfile.email);
-  const [phone, setPhone] = useState('09123456789');
-  const [birthday, setBirthday] = useState('01/15/1990');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [birthday, setBirthday] = useState('');
 
   // Industry & skills (display only for now)
-  const [industry, setIndustry] = useState(workerProfile.category);
-  const [skills, setSkills] = useState(workerProfile.skills.join(', '));
+  const [industry, setIndustry] = useState('');
+  const [skills, setSkills] = useState('');
 
   // Address
-  const [street, setStreet] = useState('123 Oak Street');
-  const [barangay, setBarangay] = useState('Downtown');
-  const [city, setCity] = useState('Makati City');
-  const [province, setProvince] = useState('Metro Manila');
-  const [zipCode, setZipCode] = useState('1200');
+  const [street, setStreet] = useState('');
+  const [barangay, setBarangay] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [zipCode, setZipCode] = useState('');
 
   // Password
   const [currentPassword, setCurrentPassword] = useState('');
@@ -48,13 +48,68 @@ export default function WorkerSettingsScreen() {
   const [bookingAlerts, setBookingAlerts] = useState(true);
   const [messageAlerts, setMessageAlerts] = useState(true);
   const [promotions, setPromotions] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+      setEmail(auth.user.email || '');
+      const [profile, address, worker, preferences] = await Promise.all([
+        supabase.rpc('get_my_private_profile'),
+        supabase.from('addresses').select('street_number,street,district,city,region,postal_code').eq('user_id', auth.user.id).eq('is_default', true).maybeSingle(),
+        supabase.from('worker_applications').select('id,worker_services(title,categories(name))').eq('user_id', auth.user.id).single(),
+        supabase.from('notification_preferences').select('booking_alerts,message_alerts,promotions').eq('user_id', auth.user.id).maybeSingle(),
+      ]);
+      if (profile.data) {
+        setFirstName(profile.data.first_name); setMiddleName(profile.data.middle_name || ''); setLastName(profile.data.last_name);
+        setPhone(profile.data.phone || '');
+        if (profile.data.birthday) { const [year,month,day]=profile.data.birthday.split('-'); setBirthday(`${month}/${day}/${year}`); }
+      }
+      if (address.data) {
+        setStreet(address.data.street); setBarangay(address.data.district || ''); setCity(address.data.city);
+        setProvince(address.data.region); setZipCode(address.data.postal_code || '');
+      }
+      const services = (worker.data?.worker_services || []) as unknown as Array<{ title:string; categories:{name:string}|Array<{name:string}> }>;
+      const selectedCategory=services[0]?.categories;
+      setIndustry((Array.isArray(selectedCategory)?selectedCategory[0]?.name:selectedCategory?.name) || ''); setSkills(services.map(item=>item.title).join(', '));
+      if (preferences.data) {
+        setBookingAlerts(preferences.data.booking_alerts); setMessageAlerts(preferences.data.message_alerts); setPromotions(preferences.data.promotions);
+      }
+    })();
+  }, []);
 
   const handleBack = () => router.push('/(worker)/profile');
 
-  const handleSave = () => {
-    Alert.alert('Saved', 'Profile updated successfully.', [
-      { text: 'OK', onPress: () => router.push('/(worker)/profile') },
-    ]);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser(); if (!auth.user) throw new Error('Please sign in again.');
+      const [month,day,year] = birthday.split('/');
+      const profile = await supabase.from('profiles').update({ first_name:firstName.trim(),middle_name:middleName.trim()||null,last_name:lastName.trim(),phone:phone.trim(),birthday:year&&month&&day?`${year}-${month}-${day}`:null }).eq('id',auth.user.id);
+      if(profile.error) throw profile.error;
+      const address = await supabase.from('addresses').update({ street, district:barangay||null, city, region:province, postal_code:zipCode||null }).eq('user_id',auth.user.id).eq('is_default',true);
+      if(address.error) throw address.error;
+      const [{data:application,error:applicationError},{data:category,error:categoryError}] = await Promise.all([
+        supabase.from('worker_applications').select('id').eq('user_id',auth.user.id).single(),
+        supabase.from('categories').select('id').ilike('name',industry.trim()).maybeSingle(),
+      ]);
+      if(applicationError||categoryError||!category) throw applicationError||categoryError||new Error('Choose an existing service category.');
+      const skillValues=skills.split(',').map(value=>value.trim()).filter(Boolean);
+      if(!skillValues.length) throw new Error('Add at least one service skill.');
+      const service=await supabase.from('worker_services').update({category_id:category.id,title:skillValues[0],description:skillValues.join(', ')}).eq('worker_id',application.id);
+      if(service.error) throw service.error;
+      const preferences = await supabase.from('notification_preferences').upsert({ user_id:auth.user.id,booking_alerts:bookingAlerts,message_alerts:messageAlerts,promotions });
+      if(preferences.error) throw preferences.error;
+      if (email.trim().toLowerCase() !== auth.user.email?.toLowerCase()) { const changed=await supabase.auth.updateUser({email:email.trim().toLowerCase()}); if(changed.error) throw changed.error; }
+      if (newPassword) {
+        if(newPassword!==confirmPassword || !currentPassword) throw new Error('Confirm your current and new passwords.');
+        const verified=await supabase.auth.signInWithPassword({email:auth.user.email||email,password:currentPassword}); if(verified.error) throw verified.error;
+        const changed=await supabase.auth.updateUser({password:newPassword}); if(changed.error) throw changed.error;
+      }
+      Alert.alert('Saved', 'Profile updated successfully.', [{ text: 'OK', onPress: () => router.push('/(worker)/profile') }]);
+    } catch (error) { Alert.alert('Unable to save', error instanceof Error ? error.message : 'Please try again.'); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -77,7 +132,7 @@ export default function WorkerSettingsScreen() {
           <ImageUploadCard
             label="Avatar"
             description="Tap to change your profile photo"
-            onImageSelected={() => {}}
+            onImageSelected={() => Alert.alert('Unavailable', 'Profile photo storage is not enabled in this MVP build.')}
             containerStyle={{ marginBottom: Spacing['4'] }}
           />
         </View>
@@ -249,6 +304,7 @@ export default function WorkerSettingsScreen() {
         <AppButton
           label="Save Changes"
           onPress={handleSave}
+          loading={saving}
           fullWidth
         />
       </View>

@@ -6,14 +6,14 @@ import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { useRequest } from '@/context/RequestContext';
+import { showFeatureLocked } from '@/lib/featureLocks';
 
 export default function RequestSuccessScreen() {
   const router = useRouter();
   const { resetRequest } = useRequest();
 
   const handleViewRequest = () => {
-    // Navigate to the request tracking/management screen
-    router.replace(`/request/temp-req-1` as any);
+    showFeatureLocked('open_bidding');
   };
 
   const handleBackToHome = () => {
@@ -29,35 +29,35 @@ export default function RequestSuccessScreen() {
         </View>
         
         <AppText variant="h2" weight="bold" align="center" style={styles.title}>
-          Request Posted Successfully!
+          Open Bidding Preview
         </AppText>
         
         <AppText variant="body" color={Colors.textSecondary} align="center" style={styles.subtitle}>
-          Your request is now live in the marketplace. Verified workers in your area can now view your request and submit their applications or bids.
+          Open Bidding is visible as a future feature, but it is not connected to the MVP backend and no request or bid was created.
         </AppText>
 
         <View style={styles.statusBox}>
           <AppText variant="h4" weight="bold" align="center" style={styles.statusBoxTitle}>
-            What happens next?
+            Not available in this MVP
           </AppText>
           <View style={styles.stepRow}>
             <View style={styles.stepDot} />
-            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.stepText}>Wait for workers to apply</AppText>
+            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.stepText}>No bids or offers are persisted</AppText>
           </View>
           <View style={styles.stepRow}>
             <View style={styles.stepDot} />
-            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.stepText}>Review their profiles and chat with them</AppText>
+            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.stepText}>Chat message sending is also locked</AppText>
           </View>
           <View style={styles.stepRow}>
             <View style={styles.stepDot} />
-            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.stepText}>Accept the best worker and proceed to payment</AppText>
+            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.stepText}>Use normal worker recommendations for an MVP booking</AppText>
           </View>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
         <AppButton 
-          label="View My Request" 
+          label="Open Bidding Unavailable" 
           onPress={handleViewRequest} 
           fullWidth
           size="lg"

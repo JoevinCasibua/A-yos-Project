@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, Modal, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { 
   Home, User, Mail, Phone, Lock, EyeOff, Eye, Square, Check, 
@@ -11,6 +11,7 @@ import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
 import { AppSelect, SelectOption } from '@/components/AppSelect';
 import { ImageUploadCard } from '@/components/ImageUploadCard';
+import { registerCustomer } from '@/services/auth';
 // LocationPicker temporarily removed for manual address entry
 
 const ID_TYPES: SelectOption[] = [
@@ -39,6 +40,7 @@ const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 export default function SignUpScreen() {
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 1: Personal Info
   const [firstName, setFirstName] = useState('');
@@ -129,10 +131,17 @@ export default function SignUpScreen() {
     }
   };
 
-  const handleRegister = () => {
-    if (validateStep3()) {
-      setShowSuccess(true);
-    }
+  const handleRegister = async () => {
+    if (!validateStep3() || !frontId || !backId) return;
+    setIsSubmitting(true);
+    const result = await registerCustomer({
+      email, password, firstName, middleName, lastName, phone, birthday, gender, idType,
+      frontIdUri: frontId, backIdUri: backId, selfieUri: selfie,
+      address: { streetNumber, street, district, city, region, postalCode },
+    });
+    setIsSubmitting(false);
+    if (result.error) { Alert.alert('Registration failed', result.error.message); return; }
+    setShowSuccess(true);
   };
 
   const handleBirthdayChange = (text: string) => {
@@ -404,6 +413,8 @@ export default function SignUpScreen() {
           <AppButton
             label="Complete Registration"
             onPress={handleRegister}
+            loading={isSubmitting}
+            disabled={isSubmitting}
             fullWidth
           />
         )}
@@ -419,7 +430,7 @@ export default function SignUpScreen() {
               Registration Successful!
             </AppText>
             <AppText variant="body" color={Colors.textSecondary} style={{ textAlign: 'center', marginBottom: Spacing['6'] }}>
-              Your account is being verified. We will notify you once you're good to go!
+              Your account is active. Your submitted ID is pending manual verification before marketplace booking is enabled.
             </AppText>
             <AppButton
               label="Go to Sign In"

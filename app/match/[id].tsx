@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, ScrollView, Animated, Easing, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Animated, Easing, Pressable, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Layout, Spacing, Radius, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
-import { providers } from '@/constants/mockData';
 import { useRequest } from '@/context/RequestContext';
 import { ChevronLeft, MapPin, CheckCircle, MessageSquare, ShieldAlert } from 'lucide-react-native';
+import { fetchRecommendations, type WorkerRecommendation } from '@/services/marketplace';
+import AyosMap from '@/components/AyosMap';
 
 const RadarPulse = () => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
@@ -58,37 +59,18 @@ export default function ASAPMatchScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { request } = useRequest();
   
-  const [matchedWorkers, setMatchedWorkers] = useState<any[]>([]);
+  const [matchedWorkers, setMatchedWorkers] = useState<WorkerRecommendation[]>([]);
 
   useEffect(() => {
-    // Cascade popups every 3 seconds
-    const worker1 = {
-      ...providers[0],
-      estimatedPrice: '$60/hr',
-      eta: '5 mins away',
-      message: 'I am nearby and can fix this right now!',
-    };
-    
-    const worker2 = {
-      ...providers[1],
-      estimatedPrice: '$55/hr',
-      eta: '8 mins away',
-      message: 'Just finishing up a job, I can head over immediately!',
-    };
-
-    const t1 = setTimeout(() => {
-      setMatchedWorkers(prev => [worker1, ...prev]);
-    }, 2500);
-
-    const t2 = setTimeout(() => {
-      setMatchedWorkers(prev => [worker2, ...prev]);
-    }, 5500);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, []);
+    if (!id) return;
+    let active = true;
+    void fetchRecommendations(id).then((result) => {
+      if (!active) return;
+      if (result.error) Alert.alert('Unable to load recommendations', result.error.message);
+      setMatchedWorkers(result.data || []);
+    });
+    return () => { active = false; };
+  }, [id]);
 
   const handleBack = () => router.back();
 
@@ -105,8 +87,7 @@ export default function ASAPMatchScreen() {
 
       {/* Map Area */}
       <View style={styles.mapArea}>
-        {/* Placeholder for actual MapView */}
-        <View style={styles.mapBackground} />
+        <View style={styles.mapBackground}>{request.location&&<AyosMap destination={[request.location.longitude,request.location.latitude]} interactive={false}/>}</View>
         <RadarPulse />
         
         <View style={styles.mapOverlayTop}>
@@ -153,7 +134,7 @@ export default function ASAPMatchScreen() {
 
                 <View style={styles.messageBubble}>
                   <AppText variant="bodySm" color={Colors.textSecondary} numberOfLines={2}>
-                    "{worker.message}"
+                    {worker.explanation}
                   </AppText>
                 </View>
 

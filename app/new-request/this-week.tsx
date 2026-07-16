@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { Calendar, Clock, ChevronLeft } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
@@ -8,6 +9,7 @@ import { AppButton } from '@/components/AppButton';
 import { AppInput } from '@/components/AppInput';
 import { JobSummary } from '@/components/JobSummary';
 import { useRequest } from '@/context/RequestContext';
+import { publishServiceRequest } from '@/services/marketplace';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TIMES = ['Morning (8am-12pm)', 'Afternoon (12pm-4pm)', 'Evening (4pm-8pm)'];
@@ -17,6 +19,9 @@ export default function ScheduleScreen() {
   const { request, updateRequest } = useRequest();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [posting,setPosting]=useState(false);
+
+  useEffect(()=>{if(request.location)return;void(async()=>{const permission=await Location.requestForegroundPermissionsAsync();if(!permission.granted)return;const position=await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Balanced});const places=await Location.reverseGeocodeAsync(position.coords);const place=places[0];updateRequest({location:{latitude:position.coords.latitude,longitude:position.coords.longitude,address:[place?.streetNumber,place?.street,place?.district,place?.city,place?.region].filter(Boolean).join(', ')||'Current location'}});})().catch(()=>undefined);},[request.location,updateRequest]);
 
   const handleBack = () => router.back();
 
@@ -24,19 +29,20 @@ export default function ScheduleScreen() {
     router.push('/new-request/create' as any);
   };
 
-  const handleConfirm = () => {
-    // Generate a mock Date based on selection for demo purposes
+  const handleConfirm = async () => {
+    if(!selectedDay||!selectedTime||!request.location){Alert.alert('Location required','Allow location access or select a service location before publishing.');return;}
     const scheduledDate = new Date();
-    scheduledDate.setDate(scheduledDate.getDate() + (DAYS.indexOf(selectedDay || 'Mon') + 1));
+    const today=scheduledDate.getDay();const wanted=DAYS.indexOf(selectedDay)+1;let offset=(wanted-today+7)%7;if(offset===0)offset=7;scheduledDate.setDate(scheduledDate.getDate()+offset);
     if (selectedTime?.includes('8am')) scheduledDate.setHours(9, 0, 0);
     else if (selectedTime?.includes('12pm')) scheduledDate.setHours(14, 0, 0);
     else scheduledDate.setHours(18, 0, 0);
 
-    updateRequest({
-      scheduledDate,
-      status: 'Posted',
-    });
-    router.push('/new-request/success' as any);
+    setPosting(true);
+    const draft={...request,scheduledDate,urgency:'This Week' as const};
+    const result=await publishServiceRequest(draft);setPosting(false);
+    if(result.error||!result.data){Alert.alert('Unable to publish request',result.error?.message||'Please try again.');return;}
+    updateRequest({scheduledDate,status:'Searching',publishedRequestId:result.data.requestId});
+    router.push(`/match/${result.data.requestId}` as never);
   };
 
   const isFormValid = selectedDay && selectedTime;
@@ -139,6 +145,7 @@ export default function ScheduleScreen() {
           label="Post Request" 
           onPress={handleConfirm} 
           disabled={!isFormValid}
+          loading={posting}
           style={{ backgroundColor: Colors.primary }}
           fullWidth
           size="xl"
