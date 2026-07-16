@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { ChevronLeft, CreditCard, Wallet, Banknote, Check, Info, Calendar } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -6,24 +6,30 @@ import { Colors, Radius, Spacing, Elevation, Typography, Layout } from '@/consta
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { paymentMethods, providers } from '@/constants/mockData';
 import { useRequest } from '@/context/RequestContext';
+import { showFeatureLocked } from '@/lib/featureLocks';
+import { fetchProviderById } from '@/services/api';
+import type { ProviderData } from '@/components/ProviderCard';
 
 export default function PaymentScreen() {
   const { request } = useRequest();
-  const [selectedMethod, setSelectedMethod] = useState('visa');
-  const selectedWorker = providers.find((p) => p.id === request.selectedWorkerId) || providers[0];
+  const [selectedMethod, setSelectedMethod] = useState('cash');
+  const [selectedWorker,setSelectedWorker]=useState<ProviderData|null>(null);
+  useEffect(()=>{if(request.selectedWorkerId)void fetchProviderById(request.selectedWorkerId).then(result=>setSelectedWorker(result.data||null));},[request.selectedWorkerId]);
 
   const handleBack = useCallback(() => router.back(), []);
   const handlePay = useCallback(() => {
+    if (selectedMethod === 'gcash') { showFeatureLocked('gcash_payment'); return; }
+    if (selectedMethod === 'visa') { showFeatureLocked('card_payment'); return; }
     // Navigate forward to Live Tracking, using the selected worker or defaulting to p1
-    const workerId = request.selectedWorkerId || 'p1';
+    const bookingId = request.bookingId;
+    if (!bookingId) return;
     
     // Dismiss any underlying modals from the previous flow (e.g. Open Bidding / Schedule)
     // so they are fully unmounted before Live Tracking loads, exactly replicating ASAP's clean transition.
     router.dismissAll();
-    router.replace(`/tracking/${workerId}`);
-  }, [request.selectedWorkerId]);
+    router.replace(`/tracking/${bookingId}`);
+  }, [request.bookingId, selectedMethod]);
 
   // Using a more generalized icon getter that maps to the new visuals
   const getMethodIcon = (type: string) => {
@@ -31,6 +37,8 @@ export default function PaymentScreen() {
     if (type.toLowerCase().includes('cash')) return <Banknote size={24} color={Colors.textPrimary} strokeWidth={2} />;
     return <CreditCard size={24} color={Colors.textPrimary} strokeWidth={2} />;
   };
+
+  if(!selectedWorker)return <View style={styles.container}/>;
 
   return (
     <View style={styles.container}>
@@ -65,11 +73,11 @@ export default function PaymentScreen() {
             
             <View style={styles.summaryRow}>
               <AppText variant="body" color={Colors.textSecondary}>Service Fee (3 hrs)</AppText>
-              <AppText variant="body" weight="semiBold">₱1,500.00</AppText>
+              <AppText variant="body" weight="semiBold">{selectedWorker.price}</AppText>
             </View>
             <View style={[styles.summaryRow, { marginTop: Spacing['2'] }]}>
               <AppText variant="body" color={Colors.textSecondary}>Cleaning Supplies</AppText>
-              <AppText variant="body" weight="semiBold">₱250.00</AppText>
+              <AppText variant="body" weight="semiBold">₱0.00</AppText>
             </View>
             
             <View style={styles.summaryDivider} />
@@ -92,7 +100,7 @@ export default function PaymentScreen() {
                 while mapping their values to the state. */}
             
             <Pressable
-              onPress={() => setSelectedMethod('gcash')}
+              onPress={() => showFeatureLocked('gcash_payment')}
               style={[
                 styles.methodCard,
                 { borderColor: selectedMethod === 'gcash' ? Colors.textPrimary : Colors.border },
@@ -113,7 +121,7 @@ export default function PaymentScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => setSelectedMethod('visa')}
+              onPress={() => showFeatureLocked('card_payment')}
               style={[
                 styles.methodCard,
                 { borderColor: selectedMethod === 'visa' ? Colors.textPrimary : Colors.border },
@@ -165,12 +173,12 @@ export default function PaymentScreen() {
         <View style={styles.securityNote}>
           <Info size={20} color={Colors.success} strokeWidth={2} />
           <AppText variant="bodySm" color={Colors.success} style={{ flex: 1 }}>
-            Online payment will be held and only released after the job is completed.
+            Cash payment is recorded securely and confirmed after service.
           </AppText>
         </View>
         
         <AppButton
-          label="Confirm & Pay ₱1,750.00"
+          label={`Confirm Cash Booking ${selectedWorker.price || ''}`}
           size="xl"
           fullWidth
           onPress={handlePay}
