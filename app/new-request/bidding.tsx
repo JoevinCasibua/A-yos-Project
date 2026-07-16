@@ -7,14 +7,14 @@ import { AppButton } from '@/components/AppButton';
 import { JobSummary } from '@/components/JobSummary';
 import { useRequest } from '@/context/RequestContext';
 import { ChevronLeft } from 'lucide-react-native';
+import { showFeatureLocked } from '@/lib/featureLocks';
 
 export default function OpenBiddingReviewScreen() {
   const router = useRouter();
   const { request, updateRequest } = useRequest();
 
   const handlePostRequest = () => {
-    updateRequest({ status: 'Posted' });
-    router.push('/new-request/success' as any);
+    showFeatureLocked('open_bidding');
   };
 
   return (

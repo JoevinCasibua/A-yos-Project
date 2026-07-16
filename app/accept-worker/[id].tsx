@@ -1,29 +1,41 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, X } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { providers } from '@/constants/mockData';
 import { useRequest } from '@/context/RequestContext';
+import { useEffect, useState } from 'react';
+import { fetchProviderById } from '@/services/api';
+import { selectRecommendedWorker } from '@/services/marketplace';
+import type { ProviderData } from '@/components/ProviderCard';
 
 export default function AcceptWorkerModal() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
-  const { updateRequest } = useRequest();
+  const [provider, setProvider] = useState<ProviderData | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const { request, updateRequest } = useRequest();
+  useEffect(() => { if (id) void fetchProviderById(id).then((result) => setProvider(result.data || null)); }, [id]);
 
-  const handleHire = () => {
-    // Assign worker to request and change status
+  const handleHire = async () => {
+    if (!provider || !request.publishedRequestId) { Alert.alert('Unable to hire worker', 'The published request or worker is unavailable.'); return; }
+    setSubmitting(true);
+    const result = await selectRecommendedWorker(request.publishedRequestId, provider.id);
+    setSubmitting(false);
+    if (result.error || !result.data) { Alert.alert('Unable to hire worker', result.error?.message || 'Please try again.'); return; }
     updateRequest({
       selectedWorkerId: provider.id,
       status: 'Accepted',
+      bookingId: result.data.bookingId,
     });
     // Navigate to payment
     router.replace('/payment' as any);
   };
+
+  if (!provider) return <View style={styles.overlay} />;
 
   const handleCancel = () => {
     router.back();
@@ -72,6 +84,8 @@ export default function AcceptWorkerModal() {
           <AppButton 
             label="Hire Worker" 
             onPress={handleHire} 
+            loading={submitting}
+            disabled={submitting}
             style={styles.actionBtn}
           />
         </View>

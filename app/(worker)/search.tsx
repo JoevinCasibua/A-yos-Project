@@ -6,8 +6,8 @@ import { SearchBar } from '@/components/SearchBar';
 import { Chip } from '@/components/Chip';
 import { JobPostCard } from '@/components/JobPostCard';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { workerJobs, jobComments as initialJobComments } from '@/constants/workerMockData';
 import type { JobOpportunity, JobComment } from '@/constants/workerMockData';
+import { showFeatureLocked } from '@/lib/featureLocks';
 
 const filterOptions = ['All', 'Urgent', 'Nearby', 'High Pay'];
 const sortOptions = ['Nearest', 'Highest Pay', 'Most Recent'];
@@ -17,14 +17,8 @@ export default function WorkerBrowseScreen() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Nearest');
   const [commentSortNewest, setCommentSortNewest] = useState(true);
-  const [allComments, setAllComments] = useState<Record<string, JobComment[]>>(() => {
-    const grouped: Record<string, JobComment[]> = {};
-    initialJobComments.forEach((c) => {
-      if (!grouped[c.jobId]) grouped[c.jobId] = [];
-      grouped[c.jobId].push(c);
-    });
-    return grouped;
-  });
+  const [allComments] = useState<Record<string, JobComment[]>>({});
+  const workerJobs:JobOpportunity[]=[];
 
   const filteredJobs = useMemo(() => {
     let result = [...workerJobs];
@@ -47,20 +41,7 @@ export default function WorkerBrowseScreen() {
   }, [query, activeFilter, sortBy]);
 
   const handleComment = useCallback((jobId: string, text: string, offerMin: string, offerMax: string) => {
-    const newComment: JobComment = {
-      id: `c${Date.now()}`,
-      jobId,
-      author: 'You',
-      avatarUri: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
-      text,
-      offerMin: offerMin ? `$${offerMin}` : undefined,
-      offerMax: offerMax ? `$${offerMax}` : undefined,
-      postedTime: 'Just now',
-    };
-    setAllComments((prev) => ({
-      ...prev,
-      [jobId]: [newComment, ...(prev[jobId] || [])],
-    }));
+    showFeatureLocked('open_bidding');
   }, []);
 
   const handleShare = useCallback((jobId: string) => {

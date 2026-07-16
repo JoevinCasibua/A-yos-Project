@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Calendar, MapPin, Navigation, Tag, Wrench } from 'lucide-react-native';
@@ -7,15 +7,17 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { useRequest } from '@/context/RequestContext';
-import { providers } from '@/constants/mockData';
+import { fetchProviderById } from '@/services/api';
+import type { ProviderData } from '@/components/ProviderCard';
 
 export default function OrderDetailsScreen() {
   const router = useRouter();
   const { request } = useRequest();
 
   // If there's no active booking context, gracefully fallback to the first provider
-  const workerId = request.selectedWorkerId || 'p1';
-  const provider = providers.find((p) => p.id === workerId) || providers[0];
+  const workerId = request.selectedWorkerId;
+  const [provider,setProvider]=useState<ProviderData|null>(null);
+  useEffect(()=>{if(workerId)void fetchProviderById(workerId).then(result=>setProvider(result.data||null));},[workerId]);
 
   const handleBack = () => {
     // Return to the bookings tab
@@ -24,8 +26,10 @@ export default function OrderDetailsScreen() {
 
   const handleTrack = () => {
     // Go to Live Tracking
-    router.push(`/tracking/${workerId}`);
+    if(request.bookingId)router.push(`/tracking/${request.bookingId}`);
   };
+
+  if(!provider)return <View style={styles.container}/>;
 
   return (
     <View style={styles.container}>
@@ -111,10 +115,10 @@ export default function OrderDetailsScreen() {
           <View style={styles.card}>
             <View style={styles.priceRow}>
               <AppText variant="body">Total Amount</AppText>
-              <AppText variant="h3" weight="bold" color={Colors.cta}>₱1,750.00</AppText>
+              <AppText variant="h3" weight="bold" color={Colors.cta}>{provider.price}</AppText>
             </View>
             <AppText variant="caption" color={Colors.success} style={{ textAlign: 'right', marginTop: 4 }}>
-              Payment Confirmed
+              Cash payment status is recorded with the booking
             </AppText>
           </View>
         </View>

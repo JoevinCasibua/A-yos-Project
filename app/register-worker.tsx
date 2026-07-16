@@ -8,6 +8,7 @@ import {
   Keyboard,
   Platform,
   Modal,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import {
@@ -39,6 +40,7 @@ import { AppAutocomplete } from '@/components/AppAutocomplete';
 import { Chip } from '@/components/Chip';
 import { ImageUploadCard } from '@/components/ImageUploadCard';
 import { INDUSTRIES, SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
+import { registerWorker } from '@/services/auth';
 
 const GENDERS: SelectOption[] = [
   { label: 'Male', value: 'male' },
@@ -66,6 +68,7 @@ export default function RegisterWorkerScreen() {
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 1: Account for Ayos
   const [firstName, setFirstName] = useState('');
@@ -135,22 +138,16 @@ export default function RegisterWorkerScreen() {
   };
 
   const validateStep1 = () => {
-    // const e: Record<string, string> = {};
-    // if (!firstName) e.firstName = 'First name is required';
-    // if (!lastName) e.lastName = 'Last name is required';
-    // if (!emailRegex.test(email)) e.email = 'Valid email is required';
-    // if (!phoneRegex.test(phone)) e.phone = 'Valid Philippine number required (e.g. 09123456789)';
-    // if (!birthday) e.birthday = 'Birthday is required';
-    // if (!password) e.password = 'Password is required';
-    // if (password.length < 8) e.password = 'Password must be at least 8 characters';
-    // if (!/[A-Z]/.test(password)) e.password = 'Password must contain at least 1 uppercase letter';
-    // if (!/\d/.test(password)) e.password = 'Password must contain at least 1 number';
-    // if (!/[^A-Za-z0-9]/.test(password)) e.password = 'Password must contain at least 1 special character';
-    // if (password !== confirmPassword) e.confirmPassword = 'Passwords do not match';
-    // setErrors(e);
-    // return Object.keys(e).length === 0;
-    setErrors({});
-    return true;
+    const e: Record<string, string> = {};
+    if (!firstName) e.firstName = 'First name is required';
+    if (!lastName) e.lastName = 'Last name is required';
+    if (!emailRegex.test(email)) e.email = 'Valid email is required';
+    if (!phoneRegex.test(phone)) e.phone = 'Valid Philippine number required';
+    if (!birthday) e.birthday = 'Birthday is required';
+    if (!passwordRegex.test(password)) e.password = 'Use 8+ characters with uppercase, number, and special character';
+    if (password !== confirmPassword) e.confirmPassword = 'Passwords do not match';
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const validateStep2 = () => {
@@ -198,12 +195,16 @@ export default function RegisterWorkerScreen() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!infoAccurate || !agreePrivacy || !agreeTerms) {
       setErrors({ consent: 'Please agree to all required consents' });
       return;
     }
-    setErrors({});
+    if (!frontId || !backId) return;
+    setErrors({}); setIsSubmitting(true);
+    const result = await registerWorker({ email,password,firstName,middleName,lastName,phone,birthday,gender,industry:getIndustryLabel(),skills:getSkillLabels(),employmentType,streetNumber,street,district,city,region,postalCode,idType,frontIdUri:frontId,backIdUri:backId });
+    setIsSubmitting(false);
+    if (result.error) { Alert.alert('Registration failed', result.error.message); return; }
     setShowSuccess(true);
   };
 
@@ -770,6 +771,8 @@ export default function RegisterWorkerScreen() {
           <AppButton
             label="Submit Registration"
             onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={isSubmitting}
             fullWidth
           />
         )}

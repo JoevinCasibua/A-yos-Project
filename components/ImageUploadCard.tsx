@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Image, Alert, ViewStyle, Platform } from 'react-native';
-// Removed expo-image-picker to fix Expo Go crash
-import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react-native';
+import { View, StyleSheet, Pressable, Image, Alert, ViewStyle } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Upload, X } from 'lucide-react-native';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { AppText } from './AppText';
 
@@ -23,10 +23,14 @@ export const ImageUploadCard: React.FC<ImageUploadCardProps> = ({
   const [imageUri, setImageUri] = useState<string | null>(null);
 
   const handleUploadGallery = async () => {
-    // Mock image selection to avoid Expo Go native module errors
-    const mockImageUri = 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800';
-    setImageUri(mockImageUri);
-    onImageSelected(mockImageUri);
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) { Alert.alert('Permission required', 'Allow photo access to select this image.'); return; }
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, quality: 0.85 });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    if (asset.fileSize && asset.fileSize > 10 * 1024 * 1024) { Alert.alert('File too large', 'Choose an image smaller than 10MB.'); return; }
+    setImageUri(asset.uri);
+    onImageSelected(asset.uri);
   };
 
   const handleRemove = () => {

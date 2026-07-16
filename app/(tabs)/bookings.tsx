@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Image } from 'react-native';
 import { ChevronRight, Calendar, Clock, MapPin, Navigation, Wrench } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -8,49 +8,28 @@ import { Chip } from '@/components/Chip';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { AppButton } from '@/components/AppButton';
-import { bookings, providers } from '@/constants/mockData';
-import { useRequest } from '@/context/RequestContext';
+import { fetchBookings } from '@/services/api';
 
-type Booking = typeof bookings[0];
+type Booking = { id:string;providerId:string;providerName:string;category:string;avatarUri:string;date:string;time:string;status:'upcoming'|'completed'|'cancelled';address:string;price:string;rating:number;reviewed?:boolean };
 
 const tabs = ['Upcoming', 'Completed', 'Cancelled'];
 
 export default function BookingsScreen() {
-  const { request } = useRequest();
   const [activeTab, setActiveTab] = useState('Upcoming');
+  const [bookings,setBookings]=useState<Booking[]>([]);
+  useEffect(()=>{void fetchBookings().then((result)=>setBookings(result.data));},[]);
 
   const filteredBookings = useMemo(() => {
-    let mockList: any[] = [];
+    let list: Booking[] = [];
     if (activeTab === 'Upcoming') {
-      mockList = bookings.filter((b) => b.status === 'upcoming');
-      
-      // Inject context request if active
-      if (request.status !== 'Draft') {
-        const isPosted = request.status === 'Posted';
-        const workerInfo = providers.find(p => p.id === request.selectedWorkerId) || providers[0];
-        
-        const isScheduled = request.status === 'Scheduled' && request.scheduledDate;
-        
-        mockList.unshift({
-          id: 'temp-req-1',
-          providerId: isPosted ? '' : workerInfo.id,
-          providerName: isPosted ? 'Looking for workers...' : workerInfo.name,
-          category: request.category || (isPosted ? 'Service Request' : workerInfo.category),
-          date: (isScheduled && request.scheduledDate) ? request.scheduledDate.toLocaleDateString() : 'ASAP',
-          time: (isScheduled && request.scheduledDate) ? request.scheduledDate.toLocaleTimeString() : 'Right now',
-          address: request.location?.address || 'Current Location',
-          price: request.estimatedPriceRange || '$50 - $120',
-          status: isPosted ? 'posted' as any : 'upcoming',
-          reviewed: false,
-          avatarUri: isPosted ? 'https://images.pexels.com/photos/17694086/pexels-photo-17694086.jpeg?auto=compress&cs=tinysrgb&w=200' : workerInfo.avatarUri,
-          hasParts: request.hasParts !== undefined ? request.hasParts : undefined
-        });
-      }
+      list = bookings.filter((b) => b.status === 'upcoming');
     } else if (activeTab === 'Completed') {
-      mockList = bookings.filter((b) => b.status === 'completed');
+      list = bookings.filter((b) => b.status === 'completed');
+    } else if (activeTab === 'Cancelled') {
+      list = bookings.filter((b) => b.status === 'cancelled');
     }
-    return mockList;
-  }, [activeTab, request]);
+    return list;
+  }, [activeTab, bookings]);
 
   const renderItem: ListRenderItem<Booking> = useCallback(
     ({ item }) => (
@@ -64,9 +43,7 @@ export default function BookingsScreen() {
               <AppText variant="caption" color={Colors.textSecondary}>{item.category}</AppText>
             </View>
           </View>
-          {item.status === ('posted' as any) ? (
-            <Badge label="Searching..." variant="warning" />
-          ) : item.status === 'upcoming' ? (
+          {item.status === 'upcoming' ? (
             <Badge label="Upcoming" variant="info" />
           ) : item.reviewed ? (
             <Badge label="Reviewed" variant="success" />
@@ -92,27 +69,17 @@ export default function BookingsScreen() {
         </View>
         
         {/* Replacement Parts Badge */}
-        {(item as any).hasParts !== undefined && (
-          <View style={[styles.detailItem, { marginTop: 4 }]}>
-            <Wrench size={15} color={(item as any).hasParts ? Colors.success : Colors.warning} strokeWidth={2} />
-            <AppText variant="caption" style={{ color: (item as any).hasParts ? Colors.success : Colors.warning }}>
-              {(item as any).hasParts ? 'Customer Has Parts' : 'Needs Parts'}
-            </AppText>
-          </View>
-        )}
 
         {/* Actions */}
         <View style={styles.cardActions}>
           <AppText variant="h4" weight="bold" color={Colors.cta}>{item.price}</AppText>
-          {item.status === ('posted' as any) ? (
-            <AppButton label="View Applicants" size="sm" onPress={() => router.push(`/request/${item.id}` as any)} />
-          ) : item.status === 'upcoming' ? (
+          {item.status === 'upcoming' ? (
             <View style={styles.actionBtns}>
-              <AppButton label="Track" variant="outline" size="sm" onPress={() => router.push(`/tracking/${item.providerId}` as any)} leftIcon={<Navigation size={14} color={Colors.cta} strokeWidth={2} />} />
+              <AppButton label="Track" variant="outline" size="sm" onPress={() => router.push(`/tracking/${item.id}` as any)} leftIcon={<Navigation size={14} color={Colors.cta} strokeWidth={2} />} />
               <AppButton label="View" size="sm" style={{ marginLeft: Spacing['2'] }} onPress={() => router.push(`/provider/${item.providerId}` as any)} />
             </View>
           ) : !item.reviewed ? (
-            <AppButton label="Leave Review" size="sm" onPress={() => router.push(`/review/${item.providerId}` as any)} />
+            <AppButton label="Leave Review" size="sm" onPress={() => router.push(`/review/${item.id}` as any)} />
           ) : (
             <AppButton label="Book Again" variant="outline" size="sm" onPress={() => router.push(`/provider/${item.providerId}` as any)} />
           )}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Image, Pressable, Alert } from 'react-native';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { MapPin, Edit3, Image as ImageIcon, Map as MapIcon, Check, Wallet, Banknote, CreditCard, ChevronLeft, Info } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
@@ -7,6 +8,7 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { JobSummary } from '@/components/JobSummary';
 import { useRequest } from '@/context/RequestContext';
+import { publishServiceRequest } from '@/services/marketplace';
 
 export default function ReviewRequestScreen() {
   const router = useRouter();
@@ -23,21 +25,26 @@ export default function ReviewRequestScreen() {
   ];
 
   useEffect(() => {
-    if (!request.location) {
-      // Mock location immediately to avoid Expo Go native module errors
-      const mockLoc = { latitude: 37.78825, longitude: -122.4324, address: '123 Main St, San Francisco' };
-      setLocation(mockLoc);
-      updateRequest({ location: mockLoc });
-      setIsLoadingLocation(false);
-    }
-  }, []);
+    if (request.location) return;
+    void (async () => {
+      const permission = await Location.requestForegroundPermissionsAsync();
+      if (!permission.granted) { setIsLoadingLocation(false); Alert.alert('Location required', 'Allow location access to publish an ASAP request.'); return; }
+      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const places = await Location.reverseGeocodeAsync(position.coords);
+      const place = places[0];
+      const detected = { latitude: position.coords.latitude, longitude: position.coords.longitude, address: [place?.streetNumber, place?.street, place?.district, place?.city, place?.region].filter(Boolean).join(', ') || 'Current location' };
+      setLocation(detected); updateRequest({ location: detected }); setIsLoadingLocation(false);
+    })().catch(() => { setIsLoadingLocation(false); Alert.alert('Location unavailable', 'Unable to determine your current location.'); });
+  }, [request.location, updateRequest]);
 
   const handleBack = () => router.back();
 
-  const handlePostRequest = () => {
-    updateRequest({ status: 'Posted' });
-    // Go directly to the new radar matching screen
-    router.push('/match/temp-req-1' as any);
+  const handlePostRequest = async () => {
+    if (request.urgency === 'Open Bidding') { const { showFeatureLocked } = await import('@/lib/featureLocks'); showFeatureLocked('open_bidding'); return; }
+    const result = await publishServiceRequest({ ...request, location });
+    if (result.error || !result.data) { Alert.alert('Unable to publish request', result.error?.message || 'Please try again.'); return; }
+    updateRequest({ status: 'Searching', publishedRequestId: result.data.requestId });
+    router.push(`/match/${result.data.requestId}` as never);
   };
 
   const isASAP = request.urgency === 'ASAP';

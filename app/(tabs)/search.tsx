@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem, ScrollView } from 'react-native';
 import { SlidersHorizontal } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -7,7 +7,7 @@ import { AppText } from '@/components/AppText';
 import { SearchBar } from '@/components/SearchBar';
 import { Chip } from '@/components/Chip';
 import { ProviderCard, ProviderData } from '@/components/ProviderCard';
-import { providers } from '@/constants/mockData';
+import { fetchProviders } from '@/services/api';
 
 const filters = ['All', 'Plumbing', 'Electrical', 'HVAC', 'Cleaning', 'Repair'];
 const sortOptions = ['Nearest', 'Top Rated', 'Price: Low to High'];
@@ -16,6 +16,8 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Nearest');
+  const [providers, setProviders] = useState<ProviderData[]>([]);
+  useEffect(()=>{void fetchProviders().then((result)=>setProviders(result.data));},[]);
 
   const filteredProviders = useMemo(() => {
     let result = [...providers];
@@ -37,11 +39,11 @@ export default function SearchScreen() {
     if (sortBy === 'Top Rated') {
       result.sort((a, b) => b.rating - a.rating);
     } else if (sortBy === 'Price: Low to High') {
-      result.sort((a, b) => parseInt(a.price || '0') - parseInt(b.price || '0'));
+      result.sort((a, b) => Number((a.price || '0').replace(/[^0-9.]/g,'')) - Number((b.price || '0').replace(/[^0-9.]/g,'')));
     }
 
     return result;
-  }, [query, activeFilter, sortBy]);
+  }, [query, activeFilter, sortBy, providers]);
 
   const handleProviderPress = useCallback((id: string) => {
     router.push(`/provider/${id}`);

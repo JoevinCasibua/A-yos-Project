@@ -1,26 +1,27 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { ChevronLeft, Star, X } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { providers } from '@/constants/mockData';
+import { useRequest } from '@/context/RequestContext';
+import { submitBookingReview } from '@/services/marketplace';
 
 export default function ReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
+  const { request } = useRequest();
+  const provider = { name: 'Assigned A-yos worker', category: request.category || 'Completed service', avatarUri: '' };
 
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [hoverRating, setHoverRating] = useState(0);
 
   const handleClose = useCallback(() => router.back(), []);
-  const handleSubmit = useCallback(() => {
-    // Navigate forward to Payment Received/Confirmation
-    router.replace('/payment-received');
-  }, []);
+  const handleSubmit = useCallback(async () => {
+    if(!id)return;const result=await submitBookingReview(id,rating,reviewText);if(result.error){Alert.alert('Unable to submit review',result.error.message);return;}router.replace('/payment-received');
+  }, [id,rating,reviewText]);
 
   const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
 
