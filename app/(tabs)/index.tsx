@@ -15,7 +15,10 @@ import { SearchBar } from '@/components/SearchBar';
 import { SectionHeader } from '@/components/SectionHeader';
 import { ProviderCard } from '@/components/ProviderCard';
 import { ServiceCategoryCard } from '@/components/ServiceCategoryCard';
+import { Skeleton } from '@/components/Skeleton';
 import { providers, serviceCategories } from '@/constants/mockData';
+import * as Haptics from 'expo-haptics';
+import { useState, useEffect } from 'react';
 
 
 
@@ -42,6 +45,19 @@ const bgColors: Record<string, string> = {
 };
 
 export default function HomeScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate network fetching delay
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleBellPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Open notifications
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -59,7 +75,7 @@ export default function HomeScreen() {
                 Alex
               </AppText>
             </View>
-            <Pressable style={styles.bell} hitSlop={12}>
+            <Pressable style={styles.bell} hitSlop={12} onPress={handleBellPress}>
               <Bell size={22} color={Colors.textPrimary} strokeWidth={2} />
               <View style={styles.bellDot} />
             </Pressable>
@@ -80,15 +96,23 @@ export default function HomeScreen() {
             contentContainerStyle={styles.categoriesRow}
             style={{ marginTop: Spacing['3'] }}
           >
-            {serviceCategories.map((cat) => (
-              <ServiceCategoryCard
-                key={cat.id}
-                icon={iconMap[cat.icon]}
-                label={cat.label}
-                backgroundColor={bgColors[cat.icon]}
-                style={{ marginRight: Spacing['3'] }}
-              />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <View key={idx} style={{ marginRight: Spacing['3'], alignItems: 'center' }}>
+                  <Skeleton width={100} height={100} borderRadius={Radius.lg} />
+                </View>
+              ))
+            ) : (
+              serviceCategories.map((cat) => (
+                <ServiceCategoryCard
+                  key={cat.id}
+                  icon={iconMap[cat.icon]}
+                  label={cat.label}
+                  backgroundColor={bgColors[cat.icon]}
+                  style={{ marginRight: Spacing['3'] }}
+                />
+              ))
+            )}
           </ScrollView>
         </View>
 
@@ -123,15 +147,21 @@ export default function HomeScreen() {
             onActionPress={() => router.push('/search')}
           />
           <View style={styles.providersGrid}>
-            {providers.slice(0, 4).map((p) => (
-              <ProviderCard
-                key={p.id}
-                provider={p}
-                compact
-                style={{ marginBottom: Spacing['3'] }}
-                onPress={() => router.push(`/provider/${p.id}`)}
-              />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <Skeleton key={idx} width="100%" height={100} borderRadius={Radius.lg} style={{ marginBottom: Spacing['3'] }} />
+              ))
+            ) : (
+              providers.slice(0, 4).map((p) => (
+                <ProviderCard
+                  key={p.id}
+                  provider={p}
+                  compact
+                  style={{ marginBottom: Spacing['3'] }}
+                  onPress={() => router.push(`/provider/${p.id}`)}
+                />
+              ))
+            )}
           </View>
         </View>
 
@@ -143,14 +173,20 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: Spacing['3'], marginTop: Spacing['3'] }}
           >
-            {providers.slice(0, 3).map((p) => (
-              <ProviderCard
-                key={p.id}
-                provider={p}
-                style={{ width: 280 }}
-                onPress={() => router.push(`/provider/${p.id}`)}
-              />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, idx) => (
+                <Skeleton key={idx} width={280} height={130} borderRadius={Radius.lg} />
+              ))
+            ) : (
+              providers.slice(0, 3).map((p) => (
+                <ProviderCard
+                  key={p.id}
+                  provider={p}
+                  style={{ width: 280 }}
+                  onPress={() => router.push(`/provider/${p.id}`)}
+                />
+              ))
+            )}
           </ScrollView>
         </View>
       </ScrollView>

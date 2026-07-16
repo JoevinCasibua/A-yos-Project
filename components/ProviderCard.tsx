@@ -6,6 +6,7 @@ import { AppText } from './AppText';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { RatingStars } from './RatingStars';
+import * as Haptics from 'expo-haptics';
 
 export interface ProviderData {
   id: string;
@@ -34,9 +35,14 @@ export const ProviderCard = React.memo(function ProviderCard({
   style,
   compact = false,
 }: ProviderCardProps) {
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress?.();
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       style={({ pressed }) => [
         styles.card,
         Elevation.sm,

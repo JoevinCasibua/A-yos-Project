@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Colors, Radius, Spacing, Typography, TouchTarget } from '@/constants/theme';
 import { AppText } from './AppText';
+import * as Haptics from 'expo-haptics';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -94,9 +95,20 @@ export const AppButton = React.memo(function AppButton({
     }
   };
 
+  const handlePress = (e: any) => {
+    if (!isDisabled) {
+      if (variant === 'primary' || variant === 'danger') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      } else {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      onPress?.(e);
+    }
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,

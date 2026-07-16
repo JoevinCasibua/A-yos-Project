@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import { ChevronLeft, Phone, MessageCircle, Navigation, Star, Clock, MapPin } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
@@ -27,8 +28,14 @@ export default function TrackingScreen() {
   const provider = providers.find((p) => p.id === id) || providers[0];
   const [currentStep, setCurrentStep] = useState(1);
   const [etaMinutes, setEtaMinutes] = useState(25);
+  const pulseScale = useSharedValue(1);
+  const pulseOpacity = useSharedValue(0.4);
 
   useEffect(() => {
+    // Animate the pulse ring
+    pulseScale.value = withRepeat(withTiming(1.6, { duration: 1500 }), -1, false);
+    pulseOpacity.value = withRepeat(withSequence(withTiming(0, { duration: 1500 }), withTiming(0.4, { duration: 0 })), -1, false);
+
     if (currentStep >= 2) return;
     const timer = setInterval(() => {
       setEtaMinutes((m) => {
@@ -41,6 +48,11 @@ export default function TrackingScreen() {
     }, 60000);
     return () => clearInterval(timer);
   }, [currentStep]);
+
+  const animatedPulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+    opacity: pulseOpacity.value,
+  }));
 
   const handleBack = useCallback(() => router.replace('/order'), []);
   const handleComplete = useCallback(() => {
@@ -67,6 +79,7 @@ export default function TrackingScreen() {
 
       {/* Map Pin Marker */}
       <View style={styles.pinContainer}>
+        <Animated.View style={[styles.pulseRing, animatedPulseStyle]} />
         <View style={styles.providerPin}>
           <Avatar uri={provider.avatarUri} size={44} borderRadius={22} />
           <View style={styles.pinDot} />
@@ -194,6 +207,14 @@ const styles = StyleSheet.create({
   pinContainer: {
     position: 'absolute', top: height * 0.35, left: 0, right: 0,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.cta,
   },
   providerPin: {
     position: 'relative', alignItems: 'center',

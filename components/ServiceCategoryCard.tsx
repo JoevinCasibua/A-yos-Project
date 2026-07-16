@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ViewStyle, Pressable } from 'react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from './AppText';
+import * as Haptics from 'expo-haptics';
 
 interface ServiceCategoryCardProps {
   icon: React.ReactNode;
@@ -20,9 +21,14 @@ export const ServiceCategoryCard = React.memo(function ServiceCategoryCard({
   backgroundColor = Colors.primarySurface,
   iconColor = Colors.cta,
 }: ServiceCategoryCardProps) {
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress?.();
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       style={({ pressed }) => [
         styles.card,
         Elevation.sm,
