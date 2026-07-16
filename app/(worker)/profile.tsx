@@ -1,10 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { ProfileScreen } from '@/components/ProfileScreen';
-import { workerProfile } from '@/constants/workerData';
+import type { WorkerProfile } from '@/constants/workerData';
 import { verificationConfig, workerMenuItems } from '@/constants/workerMockData';
 import { Star } from 'lucide-react-native';
+import { fetchWorkerProfile } from '@/services/api';
+import { signOut } from '@/services/auth';
 
 const menuRoutes: Record<string, () => void> = {
   experience: () => Alert.alert('Work Experience', 'Work history and certifications coming soon.'),
@@ -18,11 +20,12 @@ const menuRoutes: Record<string, () => void> = {
 };
 
 export default function WorkerProfileTabScreen() {
+  const [workerProfile,setWorkerProfile]=useState<WorkerProfile|null>(null);useEffect(()=>{void fetchWorkerProfile().then(result=>setWorkerProfile(result.data));},[]);
   const handleSwitchToUser = useCallback(() => router.replace('/(tabs)'), []);
-  const handleLogout = useCallback(() => router.replace('/'), []);
+  const handleLogout = useCallback(async () => {await signOut();router.replace('/');}, []);
   const handleMenuPress = useCallback((id: string) => { menuRoutes[id]?.(); }, []);
 
-  const verification = verificationConfig[workerProfile.verificationStatus];
+  if(!workerProfile)return null;const verification = verificationConfig[workerProfile.verificationStatus];
 
   return (
     <ProfileScreen
