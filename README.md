@@ -35,24 +35,39 @@ npm run dev
 ```
 app/
 ├── _layout.tsx              # Root layout (Stack)
+├── index.tsx                # Landing page (role selection)
+├── sign-up.tsx              # User registration
+├── register-worker.tsx      # Worker 4-step registration wizard
 ├── (tabs)/
-│   ├── _layout.tsx          # Bottom tab navigation
+│   ├── _layout.tsx          # User bottom tab navigation
 │   ├── index.tsx            # Home screen
 │   ├── search.tsx           # Browse/search providers
 │   ├── bookings.tsx         # My bookings list
 │   ├── reviews.tsx          # Reviews feed
 │   └── profile.tsx          # User profile
+├── (worker)/
+│   ├── _layout.tsx          # Worker bottom tab navigation
+│   ├── index.tsx            # Dashboard
+│   ├── search.tsx           # Job Posts
+│   ├── bookings.tsx         # Worker bookings
+│   ├── reviews.tsx          # Worker reviews
+│   ├── profile.tsx          # Worker profile
+│   └── settings.tsx         # Editable worker settings
 ├── provider/[id].tsx        # Provider profile detail
 ├── new-request/             # New request creation flow
 │   ├── create.tsx           # Input category, photos, parts, description
 │   ├── issue-summary.tsx    # AI summary and Urgency selection
 │   ├── asap.tsx             # ASAP request review
 │   ├── this-week.tsx        # Scheduled (This Week) review and time picker
-│   └── bidding.tsx          # Open Bidding review
+│   ├── bidding.tsx          # Open Bidding review
+│   └── success.tsx          # Booking success screen
+├── accept-worker/[id].tsx   # Accept worker flow
+├── chat/[id].tsx            # Chat screen
 ├── match/[id].tsx           # ASAP radar matching screen
 ├── request/[id].tsx         # Live request details (bids/applicants list)
 ├── booking/[id].tsx         # Traditional schedule booking flow
 ├── payment.tsx              # Payment screen (modal)
+├── payment-received.tsx     # Payment success (modal)
 ├── tracking/[id].tsx        # Live tracking screen
 └── review/[id].tsx          # Rate & review (modal)
 
@@ -61,18 +76,39 @@ components/
 ├── AppButton.tsx            # Button (primary/outline/ghost/danger)
 ├── AppCard.tsx              # Card wrapper
 ├── AppInput.tsx             # Text input with label/error
+├── AppSelect.tsx            # Bottom sheet select
+├── AppAutocomplete.tsx      # Autocomplete with multi-select
 ├── Avatar.tsx               # Profile image
 ├── Badge.tsx                # Status/verified badges
 ├── Chip.tsx                 # Filter chips
+├── ImageUploadCard.tsx      # Image upload component
+├── LocationPicker.tsx       # Location picker
+├── MenuItemRow.tsx          # Menu item row
+├── ProfileScreen.tsx        # Profile screen wrapper
 ├── RatingStars.tsx          # Star rating display
+├── ReviewsTab.tsx           # Reviews tab component
 ├── SearchBar.tsx            # Search input
+├── ScreenHeader.tsx         # Screen header
 ├── SectionHeader.tsx        # Section title + action
+├── StatCard.tsx             # Stat card
 ├── ProviderCard.tsx         # Provider list item
-└── ServiceCategoryCard.tsx  # Category grid icon card
+├── ServiceCategoryCard.tsx  # Category grid icon card
+├── JobPostCard.tsx          # LinkedIn-style job post card
+├── JobSummary.tsx           # Job summary component
+└── StatusTimeline.tsx       # Status timeline component
 
 constants/
 ├── theme.ts                 # Design tokens (colors, spacing, radius, elevation)
-└── mockData.ts              # Mock providers, reviews, bookings, time slots
+├── mockData.ts              # Mock providers, reviews, bookings, time slots
+├── workerData.ts            # Worker profile data
+└── workerMockData.ts        # Worker jobs, comments, skills, industries
+
+context/
+└── RequestContext.tsx        # Request state management
+
+docs/
+├── worker-flow.md           # Worker flow documentation
+└── user-flow.md             # User flow documentation
 
 hooks/
 └── useFrameworkReady.ts     # Expo framework init (required)
@@ -95,13 +131,13 @@ All styling uses centralized design tokens in `constants/theme.ts`. The project 
 
 Colors have been refined for balance and accessibility. Key color tokens (in `constants/theme.ts`):
 
-- **Primary / CTA**: `#0B63D6` (brand blue)
-- **Primary Light**: `#4DA5FF`
+- **Primary / CTA**: `#071022` (dark navy)
+- **Primary Light**: `#1A2B4C`
 - **Success**: `#117A5C`
 - **Warning**: `#F59E0B`
 - **Error**: `#C53030`
 - **Info**: `#0B63D6`
-- **Background**: `#F7F9FC`
+- **Background**: `#F8F9FB`
 - **Surface / Card**: `#FFFFFF`
 - **Border**: `#E6EBF6`
 
@@ -109,9 +145,10 @@ Use these tokens rather than hard-coded colors to maintain consistency and ensur
 
 ## Navigation
 
-- **5 tabs**: Home, Browse, Bookings, Reviews, Profile
-- **Stack screens**: Provider profile, Booking flow, Live tracking
-- **Modals**: Payment, Rate & Review
+- **User Tabs**: Home, Browse, Bookings, Profile
+- **Worker Tabs**: Dashboard, Job Posts, Bookings, Reviews, Profile
+- **Stack screens**: Provider detail, Booking, Payment, Tracking, Chat, Match, Accept Worker, Request Details
+- **Modals**: Payment, Rate & Review, Booking Success
 
 ## Screens
 
@@ -131,6 +168,23 @@ Use these tokens rather than hard-coded colors to maintain consistency and ensur
       - **This Week**: Select Day/Time, then review and post.
       - **Open Bidding**: Direct review, post to receive bids.
 10. **Request Details**: Compact Job Summary display with a list of incoming worker applications/bids for the user to review and hire.
+
+### Worker App Screens
+
+11. **Worker Dashboard**: Stats grid (active jobs, pending, completed, earnings) with active bookings list.
+12. **Job Posts**: LinkedIn-style post cards with image previews, comments, and share. Workers can post offers with description + price range.
+13. **Worker Bookings**: Status-filtered booking list with contextual actions (Start Job, Complete, Contact).
+14. **Worker Reviews**: Rating summary with distribution chart, filterable review list.
+15. **Worker Profile**: Stats, menu items, role switching to user app.
+16. **Worker Settings**: Fully editable worker profile form.
+17. **Worker Registration**: 4-step wizard with industry/skills autocomplete, employment type, and profile setup.
+
+### Shared Screens (User & Worker)
+
+18. **Accept Worker**: Confirm incoming job request from worker.
+19. **Chat**: Message worker/customer before hiring.
+20. **Worker Match (ASAP Radar)**: Live map with pulsing radar animation, sequential worker discovery.
+21. **Booking Success**: Confirmation screen after successful booking.
 
 ## Platform
 
