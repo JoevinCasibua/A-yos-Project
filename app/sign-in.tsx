@@ -1,19 +1,38 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Image, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Home, Mail, Lock, EyeOff, Eye, ArrowRight } from 'lucide-react-native';
 import { Colors, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
+import { requestPasswordReset, signIn } from '@/services/auth';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSignIn = () => {
-    router.replace('/(tabs)');
+  const handleSignIn = async () => {
+    if (!email.trim() || !password) {
+      Alert.alert('Missing information', 'Enter your email and password.');
+      return;
+    }
+    setIsSubmitting(true);
+    const result = await signIn(email, password);
+    setIsSubmitting(false);
+    if (result.error || !result.data) {
+      Alert.alert('Unable to sign in', result.error?.message || 'Please try again.');
+      return;
+    }
+    router.replace(result.data.role === 'admin' ? '/admin' as never : result.data.role === 'worker' ? '/(worker)' : '/(tabs)');
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) { Alert.alert('Email required', 'Enter your email first.'); return; }
+    const result = await requestPasswordReset(email);
+    Alert.alert(result.error ? 'Unable to send reset link' : 'Check your email', result.error?.message || 'A password reset link has been sent.');
   };
 
   const handleRegister = () => {
@@ -70,7 +89,7 @@ export default function SignInScreen() {
             onRightIconPress={() => setShowPassword(!showPassword)}
           />
 
-          <Pressable style={styles.forgotPassword}>
+          <Pressable style={styles.forgotPassword} onPress={handleForgotPassword}>
             <AppText variant="bodySm" weight="semiBold" color={Colors.textPrimary}>
               Forgot Password?
             </AppText>
@@ -79,6 +98,8 @@ export default function SignInScreen() {
           <AppButton
             label="Sign In"
             onPress={handleSignIn}
+            loading={isSubmitting}
+            disabled={isSubmitting}
             fullWidth
             style={styles.primaryButton}
             labelStyle={{ color: Colors.white }}
