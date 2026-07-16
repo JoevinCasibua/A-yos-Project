@@ -9,69 +9,28 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { JobSummary } from '@/components/JobSummary';
 import { ProviderCard } from '@/components/ProviderCard';
-import { providers } from '@/constants/mockData';
 import { useRequest } from '@/context/RequestContext';
+import { fetchRecommendations, type WorkerRecommendation } from '@/services/marketplace';
+import { fetchProviderById } from '@/services/api';
+import type { ProviderData } from '@/components/ProviderCard';
 
 export default function RequestDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { request } = useRequest();
   
-  // Mock applicants data based on providers
-  const [applicants, setApplicants] = useState<any[]>([]);
+  const [applicants, setApplicants] = useState<WorkerRecommendation[]>([]);
+  const [assignedWorker,setAssignedWorker]=useState<ProviderData|null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Only load applicants if the status is Posted
-    if (request.status !== 'Posted') {
-      setIsLoading(false);
-      return;
-    }
-
-    // Simulate waiting for workers
-    const timer = setTimeout(() => {
-      if (request.urgency === 'Open Bidding') {
-        // Mock Bids
-        setApplicants([
-          {
-            ...providers[0],
-            estimatedPrice: '$45',
-            eta: '2 hours',
-            message: 'I can swing by tomorrow morning to fix this! Should be a quick job.',
-          },
-          {
-            ...providers[1],
-            estimatedPrice: '$55',
-            eta: '3-4 hours',
-            message: 'Available anytime this week. I specialize in these types of repairs.',
-          },
-        ]);
-      } else {
-        // Mock standard applicants
-        setApplicants([
-          {
-            ...providers[0],
-            estimatedPrice: '$60/hr',
-            eta: '15 mins away',
-            message: 'Hi! I can repair your issue right now. I have 6 years of experience.',
-          },
-          {
-            ...providers[1],
-            estimatedPrice: '$50/hr',
-            eta: '30 mins away',
-            message: 'Available to help you today! Let me know if you need me.',
-          },
-        ]);
-      }
-      setIsLoading(false);
-    }, 2000); // 2 second delay
-
-    return () => clearTimeout(timer);
-  }, [request.status, request.urgency]);
+    if(request.urgency==='Open Bidding'){setApplicants([]);setIsLoading(false);return;}
+    if(!id){setIsLoading(false);return;}let active=true;void fetchRecommendations(id).then(result=>{if(active){setApplicants(result.data||[]);setIsLoading(false);}});return()=>{active=false;};
+  }, [id,request.urgency]);
+  useEffect(()=>{if(request.selectedWorkerId)void fetchProviderById(request.selectedWorkerId).then(result=>setAssignedWorker(result.data||null));},[request.selectedWorkerId]);
 
   const handleBack = () => router.back();
 
-  const assignedWorker = request.selectedWorkerId ? providers.find(p => p.id === request.selectedWorkerId) : null;
   const isBidding = request.urgency === 'Open Bidding';
 
   return (
@@ -94,7 +53,7 @@ export default function RequestDetailsScreen() {
         </View>
 
         {/* Dynamic State Rendering */}
-        {request.status === 'Posted' ? (
+        {request.status === 'Posted' || request.status === 'Searching' ? (
           <View style={styles.section}>
             <View style={styles.statusAlert}>
               <AppText variant="h4" weight="bold" color={Colors.white}>
@@ -144,7 +103,7 @@ export default function RequestDetailsScreen() {
 
                   <View style={styles.messageBubble}>
                     <AppText variant="bodySm" color={Colors.textSecondary} numberOfLines={2}>
-                      "{applicant.message}"
+                      {applicant.explanation}
                     </AppText>
                   </View>
 
