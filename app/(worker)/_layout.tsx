@@ -72,6 +72,18 @@ export default function WorkerTabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="booking-request/[id]"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="cancel-service/[id]"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
