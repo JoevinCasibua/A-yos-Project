@@ -1,4 +1,4 @@
-# A-yos — Provider Marketplace App
+# A-yos — Provider Marketplace App12
 
 A mobile-first service provider marketplace built with React Native, Expo, and TypeScript. Users can browse service categories, view provider profiles, book appointments, pay securely, track live service status, and leave reviews.
 
@@ -120,7 +120,7 @@ Use these tokens rather than hard-coded colors to maintain consistency and ensur
 3. **Provider Profile** — Cover image, avatar, stats, about, services, reviews preview, contact, book CTA
 4. **Schedule Booking** — Date picker, time slots, address input, notes, price summary
 5. **Payment** — Payment method selection, promo code, order summary, secure CTA
-6. **Live Tracking** — Map background, provider pin, ETA, 5-step tracking timeline, call/message actions
+6. **Live Tracking** — Map background, provider pin, ETA, 5-step tracking timeline, call/message actionss
 7. **My Bookings** — Tab-filtered list (upcoming/completed/cancelled) with contextual actions
 8. **Reviews** — Rating summary with distribution chart, filterable review list, review submission modal
 9. **New Request Flow**:
