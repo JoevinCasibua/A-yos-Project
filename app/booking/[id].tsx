@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { ChevronLeft, Check, MapPin, Clock, Calendar } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -10,22 +10,30 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
 import { useRequest } from '@/context/RequestContext';
-import { providers, weekDays, timeSlots } from '@/constants/mockData';
+import { fetchProviderById } from '@/services/api';
+import type { ProviderData } from '@/components/ProviderCard';
+
+const weekDays=Array.from({length:7},(_,index)=>{const date=new Date();date.setDate(date.getDate()+index);return{id:String(index),day:date.toLocaleDateString('en-PH',{weekday:'narrow'}),date:date.getDate(),today:index===0,fullDate:date};});
+const timeSlots=['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'].map((label,index)=>({id:String(index),label,available:true}));
 
 export default function BookingScreen() {
-  const { request } = useRequest();
+  const { request,updateRequest } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
+  const [provider,setProvider]=useState<ProviderData|null>(null);
+  useEffect(()=>{if(id)void fetchProviderById(id).then((result)=>setProvider(result.data||null));},[id]);
 
   const [selectedDay, setSelectedDay] = useState('2');
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [address, setAddress] = useState('123 Oak Street, Apt 4B');
+  const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
 
   const handleBack = useCallback(() => router.back(), []);
   const handleContinue = useCallback(() => {
-    router.push('/payment');
-  }, []);
+    const day=weekDays.find(item=>item.id===selectedDay)?.fullDate||new Date();const slot=timeSlots.find(item=>item.id===selectedSlot)?.label||'9:00 AM';const [clock,period]=slot.split(' ');let [hours,minutes]=clock.split(':').map(Number);if(period==='PM'&&hours!==12)hours+=12;if(period==='AM'&&hours===12)hours=0;day.setHours(hours,minutes,0,0);
+    updateRequest({selectedWorkerId:id||null,scheduledDate:day,urgency:'This Week',description:notes||request.description});router.push('/new-request/create');
+  }, [id,notes,request.description,selectedDay,selectedSlot,updateRequest]);
+
+  if(!provider)return <View style={styles.container}/>;
 
   return (
     <View style={styles.container}>
@@ -187,16 +195,16 @@ export default function BookingScreen() {
             </View>
             <View style={styles.priceRow}>
               <AppText variant="bodySm" color={Colors.textSecondary}>Booking Fee</AppText>
-              <AppText variant="bodySm" weight="semiBold">$5.00</AppText>
+              <AppText variant="bodySm" weight="semiBold">₱0.00</AppText>
             </View>
             <View style={styles.priceRow}>
               <AppText variant="bodySm" color={Colors.textSecondary}>First-time Discount</AppText>
-              <AppText variant="bodySm" weight="semiBold" color={Colors.success}>-$9.00</AppText>
+              <AppText variant="bodySm" weight="semiBold" color={Colors.success}>₱0.00</AppText>
             </View>
             <View style={styles.priceDivider} />
             <View style={styles.priceRow}>
               <AppText variant="body" weight="bold">Total</AppText>
-              <AppText variant="h4" weight="bold" color={Colors.cta}>$41.00</AppText>
+              <AppText variant="h4" weight="bold" color={Colors.cta}>{provider.price}</AppText>
             </View>
           </View>
         </View>
