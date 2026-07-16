@@ -24,12 +24,12 @@ export default function SignInScreen() {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header Logo */}
-        <View style={styles.header}>
+        <Pressable style={styles.header} onPress={() => router.push('/')}>
           <Home size={24} color={Colors.textPrimary} strokeWidth={2.5} />
           <AppText variant="h4" weight="bold" color={Colors.textPrimary} style={styles.logoText}>
             A-yos
           </AppText>
-        </View>
+        </Pressable>
 
         {/* Title Section */}
         <View style={styles.titleSection}>
