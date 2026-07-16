@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -105,6 +105,17 @@ export default function RegisterWorkerScreen() {
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [keyboardUp, setKeyboardUp] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardUp(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardUp(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const availableSkills = industryValue ? SKILLS_BY_INDUSTRY[industryValue] || [] : [];
 
@@ -758,7 +769,7 @@ export default function RegisterWorkerScreen() {
         {step === 4 && renderStep4()}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: keyboardUp ? 10 : 30 }]}>
         {step < 4 ? (
           <AppButton
             label="Next Step"
@@ -972,7 +983,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: Spacing['4'],
-    paddingBottom: 40,
+    paddingBottom: 10,
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
