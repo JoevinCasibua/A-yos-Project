@@ -9,6 +9,7 @@ import { AppButton } from '@/components/AppButton';
 import { AppCard } from '@/components/AppCard';
 import { Chip } from '@/components/Chip';
 import { useRequest } from '@/context/RequestContext';
+import { analyzeRequest } from '@/services/marketplace';
 
 export default function AISummaryScreen() {
   const router = useRouter();
@@ -20,23 +21,16 @@ export default function AISummaryScreen() {
   const [confidence, setConfidence] = useState(0);
 
   useEffect(() => {
-    // Simulate AI API call
-    const timer = setTimeout(() => {
-      // Dummy response based on context (ideally using real vision model)
-      const mockSummary = request.description
-        ? `Detected: ${request.description}. Requires moderate repair work.`
-        : 'Plumbing leak detected under the sink. Moderate water damage visible.';
-      
-      const mockRecs = request.category ? [request.category, 'Tools required'] : ['Plumbing', 'Wrench needed'];
-      const mockConfidence = 92;
-
-      setEditableSummary(mockSummary);
-      setRecommendations(mockRecs);
-      setConfidence(mockConfidence);
+    let active = true;
+    void analyzeRequest(request.description, request.photos[0]).then((result) => {
+      if (!active) return;
+      const data = result.data;
+      setEditableSummary(data?.summary || request.description);
+      setRecommendations(data?.requiredSkills?.length ? data.requiredSkills : [request.category || data?.suggestedCategory || 'General service']);
+      setConfidence(Math.round((data?.confidence || 0) * 100));
       setIsAnalyzing(false);
-    }, 2500);
-
-    return () => clearTimeout(timer);
+    });
+    return () => { active = false; };
   }, [request.description, request.category]);
 
   const handleNext = () => {
