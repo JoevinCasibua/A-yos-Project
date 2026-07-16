@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -15,7 +15,9 @@ import { SearchBar } from '@/components/SearchBar';
 import { SectionHeader } from '@/components/SectionHeader';
 import { ProviderCard } from '@/components/ProviderCard';
 import { ServiceCategoryCard } from '@/components/ServiceCategoryCard';
-import { providers, serviceCategories } from '@/constants/mockData';
+import type { ProviderData } from '@/components/ProviderCard';
+import { fetchProviders, fetchServiceCategories } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 
 
 
@@ -42,6 +44,10 @@ const bgColors: Record<string, string> = {
 };
 
 export default function HomeScreen() {
+  const { user } = useAuth();
+  const [providers, setProviders] = useState<ProviderData[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<Array<{id:string;label:string;icon:string;color:string}>>([]);
+  useEffect(()=>{void Promise.all([fetchProviders(),fetchServiceCategories()]).then(([providerResult,categoryResult])=>{setProviders(providerResult.data);setServiceCategories(categoryResult.data);});},[]);
   return (
     <View style={styles.container}>
       <ScrollView
@@ -56,7 +62,7 @@ export default function HomeScreen() {
                 Welcome back
               </AppText>
               <AppText variant="h3" weight="bold" style={{ marginTop: 2 }}>
-                Alex
+                {user?.user_metadata?.first_name || 'Customer'}
               </AppText>
             </View>
             <Pressable style={styles.bell} hitSlop={12}>
