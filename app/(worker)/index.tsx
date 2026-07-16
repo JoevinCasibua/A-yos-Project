@@ -1,22 +1,25 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Bell, Clock, CheckCircle2, TrendingUp, DollarSign } from 'lucide-react-native';
+import { Bell } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, IconSize, AvatarSize, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { IncomingJobAlert } from '@/components/IncomingJobAlert';
+import { QuickActionsGrid } from '@/components/QuickActionsGrid';
 import { workerProfile } from '@/constants/workerData';
-import { workerBookings, statusConfig } from '@/constants/workerMockData';
+import { workerBookings, workerJobs, statusConfig } from '@/constants/workerMockData';
 
 const todayStats = [
-  { label: 'Active Jobs', value: '2', icon: Clock, color: Colors.cta, bg: Colors.primarySurface },
-  { label: 'Pending', value: '3', icon: TrendingUp, color: Colors.warning, bg: Colors.warningBg },
-  { label: 'Completed', value: '5', icon: CheckCircle2, color: Colors.success, bg: Colors.successBg },
-  { label: 'Earnings', value: '$180', icon: DollarSign, color: Colors.info, bg: Colors.infoBg },
+  { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress').length.toString() },
+  { label: 'Pending', value: workerBookings.filter((b) => b.status === 'upcoming').length.toString() },
+  { label: 'Completed', value: workerBookings.filter((b) => b.status === 'completed').length.toString() },
+  { label: 'Earnings', value: '$180' },
 ];
 
 const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled');
+const incomingJob = workerJobs[0];
 
 export default function WorkerDashboardScreen() {
   return (
@@ -42,21 +45,37 @@ export default function WorkerDashboardScreen() {
             <Badge label={workerProfile.category} variant="verified" size="md" />
             <Badge label={`${workerProfile.yearsExperience} yrs exp`} variant="neutral" size="md" />
           </View>
-        </View>
 
-        {/* Today's Stats */}
-        <View style={styles.section}>
-          <AppText variant="h4" weight="bold">Today's Overview</AppText>
-          <View style={styles.statsGrid}>
+          {/* Stats inside header */}
+          <View style={styles.statsRow}>
             {todayStats.map((stat) => (
-              <View key={stat.label} style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: stat.bg }]}>
-                  <stat.icon size={IconSize.md} color={stat.color} strokeWidth={2} />
-                </View>
-                <AppText variant="h3" weight="bold" color={stat.color}>{stat.value}</AppText>
-                <AppText variant="caption" color={Colors.textSecondary}>{stat.label}</AppText>
+              <View key={stat.label} style={styles.statItem}>
+                <AppText variant="h4" weight="bold" color={Colors.textPrimary}>
+                  {stat.value}
+                </AppText>
+                <AppText variant="caption" color={Colors.textSecondary}>
+                  {stat.label}
+                </AppText>
               </View>
             ))}
+          </View>
+        </View>
+
+        {/* Incoming Job Alert */}
+        <View style={styles.section}>
+          <IncomingJobAlert
+            service={incomingJob.service}
+            location={incomingJob.location}
+            distance={incomingJob.distance}
+            postedTime={incomingJob.postedTime}
+          />
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <AppText variant="h4" weight="bold">Quick Actions</AppText>
+          <View style={{ marginTop: Spacing['3'] }}>
+            <QuickActionsGrid />
           </View>
         </View>
 
@@ -131,32 +150,21 @@ const styles = StyleSheet.create({
     gap: Spacing['2'],
     marginTop: Spacing['3'],
   },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: Spacing['4'],
+    paddingTop: Spacing['4'],
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
   section: {
     marginTop: Spacing['6'],
     paddingHorizontal: Layout.screenPadding,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: Spacing['3'],
-    gap: Spacing['3'],
-  },
-  statCard: {
-    width: '47%',
-    backgroundColor: Colors.white,
-    borderRadius: Radius.xl,
-    padding: Spacing['4'],
-    alignItems: 'center',
-    gap: Spacing['2'],
-    ...Elevation.sm,
-  },
-  statIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   bookingCard: {
     backgroundColor: Colors.white,
