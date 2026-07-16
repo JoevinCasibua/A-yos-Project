@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Home, Mail, Lock, EyeOff, Eye, ArrowRight } from 'lucide-react-native';
@@ -7,12 +7,20 @@ import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
 import { requestPasswordReset, signIn } from '@/services/auth';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignInScreen() {
+  const { profileError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (profileError) {
+      Alert.alert('Unable to load account', `Authentication succeeded, but your account data could not be loaded: ${profileError}`);
+    }
+  }, [profileError]);
 
   const handleSignIn = async () => {
     if (!email.trim() || !password) {
