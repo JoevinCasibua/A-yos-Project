@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
 import { CalendarDays, Clock, MapPin, Phone, Wrench } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
@@ -7,14 +7,17 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Chip } from '@/components/Chip';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { workerBookings, statusConfig } from '@/constants/workerMockData';
+import { statusConfig } from '@/constants/workerMockData';
 import type { WorkerBooking } from '@/constants/workerMockData';
+import { completeJob, fetchWorkerBookings, startJob } from '@/services/api';
 
 const filterTabs = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 
 export default function WorkerBookingsScreen() {
   const [activeTab, setActiveTab] = useState('Upcoming');
-  const [bookings, setBookings] = useState<WorkerBooking[]>(workerBookings);
+  const [bookings, setBookings] = useState<WorkerBooking[]>([]);
+  const load=useCallback(async()=>{const result=await fetchWorkerBookings();setBookings(result.data);},[]);
+  useEffect(()=>{void load();},[load]);
 
   const filteredBookings = useMemo(() => {
     const statusMap: Record<string, WorkerBooking['status']> = {
@@ -31,24 +34,20 @@ export default function WorkerBookingsScreen() {
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Start',
-        onPress: () => setBookings((prev) =>
-          prev.map((b) => b.id === bookingId ? { ...b, status: 'in_progress' as const } : b),
-        ),
+        onPress: async () => { const result=await startJob(bookingId); if(result.error) Alert.alert('Unable to start job',result.error.message); else void load(); },
       },
     ]);
-  }, []);
+  }, [load]);
 
   const handleCompleteJob = useCallback((bookingId: string) => {
     Alert.alert('Complete Job', 'Mark this job as completed?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Complete',
-        onPress: () => setBookings((prev) =>
-          prev.map((b) => b.id === bookingId ? { ...b, status: 'completed' as const } : b),
-        ),
+        onPress: async () => { const result=await completeJob(bookingId); if(result.error) Alert.alert('Unable to complete job',result.error.message); else void load(); },
       },
     ]);
-  }, []);
+  }, [load]);
 
   const renderItem: ListRenderItem<WorkerBooking> = useCallback(
     ({ item }) => (
