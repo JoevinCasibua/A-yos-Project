@@ -1,6 +1,14 @@
 # A-yos MVP
 
-A-yos is an Expo customer/worker marketplace backed by Supabase Auth, PostgreSQL/PostGIS, private Storage, Realtime, and Edge Functions. The existing customer and worker visual design is preserved. A separate Expo web admin dashboard is available at `/admin`.
+A-yos is an Expo customer/worker marketplace backed by Supabase Auth, PostgreSQL/PostGIS, private Storage, Realtime, and Edge Functions. The existing customer and worker visual design is preserved.
+
+## Tech Stack
+- Languages: TypeScript (primary), JavaScript, Shell, PL/pgSQL
+- Frontend: Expo (React Native) + Expo Router for mobile and web, React 19
+- Maps & Geospatial: MapLibre (maplibre-gl + @maplibre/maplibre-react-native), PostGIS
+- Backend / Database: Supabase (Postgres/PostGIS, Auth, Storage, Realtime, Edge Functions)
+- Client API: @supabase/supabase-js, @supabase/ssr
+- Tooling: TypeScript, ESLint, Prettier, Supabase CLI, Docker (local DB)
 
 ## Local setup
 
@@ -15,9 +23,9 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The checked-in `.env.example` uses the standard local Supabase URL and anonymous key. Never place the service-role key, `GEMINI_API_KEY`, or `OPENROUTESERVICE_API_KEY` in an Expo environment variable.
+The checked-in `.env.example` uses the standard local Supabase URL and anonymous key. Never place the service-role key, `GEMINI_API_KEY`, or `OPENROUTESERVICE_API_KEY` in an Expo environment variable or commit them to source control.
 
-If the CLI reports slow local service health checks on Docker Desktop, use `npm run db:start`; it preserves the containers and lets their health checks finish in the background. Confirm the API, Storage, Realtime, Functions, and Studio URLs with `supabase status`.
+If the CLI reports slow local service health checks on Docker Desktop, use `npm run db:start`; it preserves the containers and lets their health checks finish in the background. Confirm the API, Supabase, and Edge Functions are reachable before continuing.
 
 ## Demo accounts
 
@@ -42,7 +50,7 @@ supabase secrets set GEMINI_API_KEY=your_key GEMINI_MODEL=gemini-3.1-flash-lite
 supabase secrets set OPENROUTESERVICE_API_KEY=your_key
 ```
 
-AI analysis and English–Filipino translation return clearly labeled deterministic fallback output if Gemini is unavailable. Routing returns a labeled straight-line estimate if OpenRouteService is unavailable. Identity documents are never sent to Gemini.
+AI analysis and English–Filipino translation return clearly labeled deterministic fallback output if Gemini is unavailable. Routing returns a labeled straight-line estimate if OpenRouteService is unavailable.
 
 For a hosted project, link the CLI, apply migrations, set function secrets, deploy the three functions, and copy only the hosted project URL and anonymous/publishable key into `.env.local`:
 
@@ -64,8 +72,8 @@ npm run db:test
 supabase db lint
 ```
 
-Native maps use `@maplibre/maplibre-react-native` and require an Expo custom development build. Web uses `maplibre-gl`. Both use OpenFreeMap Liberty with provider attribution. Expo Location captures customer coordinates and one consented worker snapshot when a booking enters `en_route`; it does not continuously track workers.
+Native maps use `@maplibre/maplibre-react-native` and require an Expo custom development build. Web uses `maplibre-gl`. Both use OpenFreeMap Liberty with provider attribution. Expo Location captures native device coordinates when available.
 
 ## MVP boundaries
 
-Cash is the only persisted payment method. Open Bidding, negotiation, chat messages, GCash, and card payments remain visible previews and return `FEATURE_LOCKED`; no tables or fake local success paths exist for them. Customer accounts are active immediately, while ID verification begins as `pending`. Publishing requests and creating bookings require an approved ID.
+Cash is the only persisted payment method. Open Bidding, negotiation, chat messages, GCash, and card payments remain visible previews and return `FEATURE_LOCKED`; no tables or fake local success paths are included for these features.
