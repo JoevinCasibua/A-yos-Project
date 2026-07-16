@@ -308,6 +308,17 @@ export const workerBookings: WorkerBooking[] = [
     status: 'completed',
     price: '$60',
   },
+  {
+    id: 'cancelled-1',
+    customerName: 'Maria Santos',
+    customerAvatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Pipe Repair',
+    date: 'Jul 8, 2024',
+    time: '10:00 AM',
+    address: '456 Oak Avenue',
+    status: 'cancelled',
+    price: '$80',
+  },
 ];
 
 export const statusConfig: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'error' }> = {
@@ -356,6 +367,60 @@ export const INDUSTRIES = [
   { label: 'Appliance Repair', value: 'appliance_repair' },
   { label: 'General Maintenance', value: 'general_maintenance' },
   { label: 'Construction', value: 'construction' },
+];
+
+export interface CancellationReason {
+  id: string;
+  label: string;
+  category: 'customer' | 'worker' | 'job' | 'policy' | 'other';
+  jobStages: ('before_traveling' | 'after_arriving' | 'after_inspecting')[];
+  requiresInput?: boolean;
+}
+
+export const cancellationReasons: CancellationReason[] = [
+  // Customer-related
+  { id: 'cr1', label: 'Customer requested cancellation', category: 'customer', jobStages: ['before_traveling', 'after_arriving', 'after_inspecting'] },
+  { id: 'cr2', label: 'Customer not responding', category: 'customer', jobStages: ['after_arriving'] },
+  { id: 'cr3', label: 'Customer unavailable / not at home', category: 'customer', jobStages: ['after_arriving'] },
+  { id: 'cr4', label: 'Customer provided incorrect address', category: 'customer', jobStages: ['after_arriving'] },
+  { id: 'cr5', label: 'Customer rescheduled', category: 'customer', jobStages: ['before_traveling'] },
+  { id: 'cr6', label: 'Customer refused service upon arrival', category: 'customer', jobStages: ['after_arriving'] },
+  { id: 'cr7', label: 'Customer booked by mistake', category: 'customer', jobStages: ['before_traveling'] },
+  
+  // Worker-related
+  { id: 'wr1', label: 'Personal emergency', category: 'worker', jobStages: ['before_traveling', 'after_arriving', 'after_inspecting'] },
+  { id: 'wr2', label: 'Vehicle breakdown', category: 'worker', jobStages: ['before_traveling'] },
+  { id: 'wr3', label: 'Running significantly late', category: 'worker', jobStages: ['before_traveling'] },
+  { id: 'wr4', label: 'Lacking required tools or materials', category: 'worker', jobStages: ['after_inspecting'] },
+  { id: 'wr5', label: 'Job outside my expertise', category: 'worker', jobStages: ['after_inspecting'] },
+  { id: 'wr6', label: 'Accepted by mistake', category: 'worker', jobStages: ['before_traveling'] },
+  { id: 'wr7', label: 'Scheduling conflict', category: 'worker', jobStages: ['before_traveling'] },
+  { id: 'wr8', label: 'Unable to reach the location', category: 'worker', jobStages: ['before_traveling'] },
+  
+  // Job-related
+  { id: 'jr1', label: 'Job description inaccurate', category: 'job', jobStages: ['after_arriving', 'after_inspecting'] },
+  { id: 'jr2', label: 'Scope of work is different than advertised', category: 'job', jobStages: ['after_inspecting'] },
+  { id: 'jr3', label: 'Safety hazard at the property', category: 'job', jobStages: ['after_arriving', 'after_inspecting'] },
+  { id: 'jr4', label: 'Property inaccessible', category: 'job', jobStages: ['after_arriving'] },
+  { id: 'jr5', label: 'Required parts unavailable', category: 'job', jobStages: ['after_inspecting'] },
+  { id: 'jr6', label: 'Service no longer needed', category: 'job', jobStages: ['after_arriving', 'after_inspecting'] },
+  { id: 'jr7', label: 'Weather conditions (for outdoor work)', category: 'job', jobStages: ['before_traveling'] },
+  
+  // Policy & Safety
+  { id: 'ps1', label: 'Unsafe environment', category: 'policy', jobStages: ['after_arriving'] },
+  { id: 'ps2', label: 'Harassment or abusive behavior', category: 'policy', jobStages: ['after_arriving'] },
+  { id: 'ps3', label: 'Illegal or prohibited request', category: 'policy', jobStages: ['after_arriving'] },
+  { id: 'ps4', label: 'Fraud or suspicious booking', category: 'policy', jobStages: ['after_arriving'] },
+  { id: 'ps5', label: 'Payment issue', category: 'policy', jobStages: ['before_traveling', 'after_arriving'] },
+  
+  // Other
+  { id: 'ot1', label: 'Other (requires explanation)', category: 'other', jobStages: ['before_traveling', 'after_arriving', 'after_inspecting'], requiresInput: true },
+];
+
+export const jobStages = [
+  { label: 'Before Traveling', value: 'before_traveling' as const },
+  { label: 'After Arriving', value: 'after_arriving' as const },
+  { label: 'After Inspecting', value: 'after_inspecting' as const },
 ];
 
 export const SKILLS_BY_INDUSTRY: Record<string, { label: string; value: string }[]> = {

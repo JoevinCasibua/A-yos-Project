@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
 import { CalendarDays, Clock, MapPin, Phone, Wrench } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
@@ -13,7 +14,10 @@ import type { WorkerBooking } from '@/constants/workerMockData';
 const filterTabs = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 
 export default function WorkerBookingsScreen() {
-  const [activeTab, setActiveTab] = useState('Upcoming');
+  const { filter } = useLocalSearchParams<{ filter?: string }>();
+  const [activeTab, setActiveTab] = useState(
+    filter === 'Cancelled' ? 'Cancelled' : 'Upcoming',
+  );
   const [bookings, setBookings] = useState<WorkerBooking[]>(workerBookings);
 
   const filteredBookings = useMemo(() => {
@@ -52,6 +56,10 @@ export default function WorkerBookingsScreen() {
 
   const renderItem: ListRenderItem<WorkerBooking> = useCallback(
     ({ item }) => (
+      <Pressable
+        onPress={() => router.push(`/(worker)/booking-request/${item.id}`)}
+        style={({ pressed }) => [{ opacity: pressed ? 0.96 : 1 }]}
+      >
       <View style={styles.bookingCard}>
         <View style={styles.bookingHeader}>
           <Avatar uri={item.customerAvatar} size={44} />
@@ -114,6 +122,7 @@ export default function WorkerBookingsScreen() {
           </View>
         </View>
       </View>
+      </Pressable>
     ),
     [handleStartJob, handleCompleteJob],
   );

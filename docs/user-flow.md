@@ -1,6 +1,6 @@
 # A-yos — User Flow
 
-This file contains a high-level user-flow diagram for the A-yos **customer-facing** app. For the worker flow, see [worker-flow.md](./worker-flow.md).
+This file contains a high-level user-flow diagram for the A-yos **customer-facing** app. For the worker flow, see [worker-flow.md](./worker-flow.md). For registration and sign-in flows, see [auth-flow.md](./auth-flow.md).
 
 Design target: iPhone 15 / 393×852 dp. Colors and tokens are defined in `constants/theme.ts`.
 

@@ -68,6 +68,7 @@ export default function WorkerDashboardScreen() {
             location={incomingJob.location}
             distance={incomingJob.distance}
             postedTime={incomingJob.postedTime}
+            onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}`)}
           />
         </View>
 
@@ -86,7 +87,7 @@ export default function WorkerDashboardScreen() {
             <Pressable
               key={booking.id}
               style={({ pressed }) => [styles.bookingCard, { opacity: pressed ? 0.95 : 1 }]}
-              onPress={() => router.push('/(worker)/bookings')}
+              onPress={() => router.push(`/(worker)/booking-request/${booking.id}`)}
             >
               <View style={styles.bookingHeader}>
                 <Avatar uri={booking.customerAvatar} size={AvatarSize.small} />
