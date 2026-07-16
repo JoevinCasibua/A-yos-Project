@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Pressable, Dimensions, Alert } from 'react-native';
 import { ChevronLeft, Phone, MessageCircle, Navigation, Star, Clock, MapPin } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
@@ -9,7 +9,11 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
 import { useRequest } from '@/context/RequestContext';
-import { providers } from '@/constants/mockData';
+import { fetchProviderById, subscribeToBooking } from '@/services/api';
+import { confirmBookingComplete, fetchBookingTracking, type RouteResult } from '@/services/marketplace';
+import type { ProviderData } from '@/components/ProviderCard';
+import AyosMap from '@/components/AyosMap';
+import { showFeatureLocked } from '@/lib/featureLocks';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,36 +28,23 @@ const trackingSteps = [
 export default function TrackingScreen() {
   const { request } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
-  const [currentStep, setCurrentStep] = useState(1);
-  const [etaMinutes, setEtaMinutes] = useState(25);
+  const [provider,setProvider]=useState<ProviderData|null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [route,setRoute]=useState<RouteResult|null>(null);
 
   useEffect(() => {
-    if (currentStep >= 2) return;
-    const timer = setInterval(() => {
-      setEtaMinutes((m) => {
-        if (m <= 1) {
-          setCurrentStep(2);
-          return 0;
-        }
-        return m - 1;
-      });
-    }, 60000);
-    return () => clearInterval(timer);
-  }, [currentStep]);
+    if(!id)return;let active=true;const load=async()=>{const result=await fetchBookingTracking(id);if(!active||!result.data)return;const steps:Record<string,number>={scheduled:0,accepted:0,en_route:1,arrived:2,in_progress:3,pending_confirmation:4,completed:4,cancelled:0};setCurrentStep(steps[result.data.status]||0);setRoute(result.data.route);const worker=await fetchProviderById(result.data.workerId);if(active)setProvider(worker.data||null);};void load();const channel=subscribeToBooking(id,()=>void load());return()=>{active=false;void channel.unsubscribe();};
+  }, [id]);
 
   const handleBack = useCallback(() => router.replace('/order'), []);
-  const handleComplete = useCallback(() => {
-    router.push(`/review/${provider.id}`);
-  }, [provider.id]);
+  const handleComplete = useCallback(async () => { if(!id)return;const result=await confirmBookingComplete(id);if(result.error&&result.error.code!=='INVALID_TRANSITION'){Alert.alert('Unable to confirm completion',result.error.message);return;}router.push(`/review/${id}`); }, [id]);
+
+  if(!provider)return <View style={styles.container}/>;
 
   return (
     <View style={styles.container}>
       {/* Map Background */}
-      <Image
-        source={{ uri: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800' }}
-        style={styles.mapImage}
-      />
+      <View style={styles.mapImage}><AyosMap origin={route?.origin} destination={route?.destination} route={route?.geometry}/></View>
       <View style={styles.mapOverlay} />
 
       {/* Top Nav (Standardized Header) */}
@@ -93,7 +84,7 @@ export default function TrackingScreen() {
             <Pressable style={styles.actionBtn}>
               <Phone size={20} color={Colors.cta} strokeWidth={2} />
             </Pressable>
-            <Pressable style={[styles.actionBtn, { marginLeft: Spacing['2'] }]}>
+            <Pressable style={[styles.actionBtn, { marginLeft: Spacing['2'] }]} onPress={()=>showFeatureLocked('chat')}>
               <MessageCircle size={20} color={Colors.cta} strokeWidth={2} />
             </Pressable>
           </View>
