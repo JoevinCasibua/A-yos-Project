@@ -107,6 +107,13 @@ flowchart LR
   class Tabs,WorkerTabs tabgroup;
 ```
 
+## Premium UX Features (Implemented)
+
+To ensure a high-end, native feel, the following UX enhancements have been integrated into the user flow:
+- **Haptic Feedback:** Tactile responses when interacting with buttons, navigation tabs, and cards.
+- **Skeleton Loaders:** Shimmering placeholder components (`react-native-reanimated`) during data fetching on the Home Screen to eliminate layout shift and blank loading states.
+- **Live Map Pulsing:** The Live Tracking screen (`/tracking/:id`) uses an animated pulsing marker to visually communicate real-time updates.
+
 ## User Journey
 
 1. **Launch** → Onboarding (not yet implemented) → Home tab
