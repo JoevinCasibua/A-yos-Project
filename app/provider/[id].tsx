@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -29,17 +29,23 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
 import { SectionHeader } from '@/components/SectionHeader';
-import { providers, reviews } from '@/constants/mockData';
+import { fetchProviderById, fetchReviews } from '@/services/api';
+import type { ProviderData } from '@/components/ProviderCard';
+import type { ReviewData } from '@/constants/workerMockData';
 
 const { width } = Dimensions.get('window');
 
 export default function ProviderProfileScreen() {
   const { id, isApplicant } = useLocalSearchParams<{ id: string, isApplicant?: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
+  const [provider,setProvider]=useState<ProviderData|null>(null);
+  const [reviews,setReviews]=useState<ReviewData[]>([]);
   const [isFav, setIsFav] = React.useState(false);
+  useEffect(()=>{if(!id)return;void Promise.all([fetchProviderById(id),fetchReviews(id)]).then(([p,r])=>{setProvider(p.data||null);setReviews(r.data);});},[id]);
 
   const handleBack = useCallback(() => router.back(), []);
-  const handleBook = useCallback(() => router.push(`/booking/${provider.id}`), [provider.id]);
+  const handleBook = useCallback(() => { if(provider) router.push(`/booking/${provider.id}`); }, [provider]);
+
+  if(!provider) return <View style={styles.container}/>;
 
   return (
     <View style={styles.container}>
@@ -168,15 +174,15 @@ export default function ProviderProfileScreen() {
           <View style={styles.contactList}>
             <View style={styles.contactItem}>
               <View style={styles.contactIcon}><Phone size={18} color={Colors.cta} strokeWidth={2} /></View>
-              <AppText variant="body">+1 (555) 123-4567</AppText>
+              <AppText variant="body">Available after booking confirmation</AppText>
             </View>
             <View style={styles.contactItem}>
               <View style={styles.contactIcon}><Mail size={18} color={Colors.cta} strokeWidth={2} /></View>
-              <AppText variant="body">carlos.mendez@email.com</AppText>
+              <AppText variant="body">Protected contact information</AppText>
             </View>
             <View style={styles.contactItem}>
               <View style={styles.contactIcon}><Globe size={18} color={Colors.cta} strokeWidth={2} /></View>
-              <AppText variant="body">www.carlosmendzplumbing.com</AppText>
+              <AppText variant="body">Verified through A-yos</AppText>
             </View>
           </View>
         </View>
