@@ -4,6 +4,19 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Users from './pages/admin/Users';
+import Workers from './pages/admin/Workers';
+import Bookings from './pages/admin/Bookings';
+import Services from './pages/admin/Services';
+import Payments from './pages/admin/Payments';
+import Reviews from './pages/admin/Reviews';
+import Support from './pages/admin/Support';
+import Reports from './pages/admin/Reports';
+import Analytics from './pages/admin/Analytics';
+import Notifications from './pages/admin/Notifications';
+import AuditLogs from './pages/admin/AuditLogs';
+import Trash from './pages/admin/Trash';
+import Settings from './pages/admin/Settings';
+import Profile from './pages/admin/Profile';
 import Login from './pages/auth/Login';
 
 function App() {
@@ -27,17 +40,19 @@ function App() {
           <Route path="users" element={<Users />} />
           
           {/* Placeholder routes for future modules */}
-          <Route path="workers" element={<div className="p-6">Workers Module (Coming Soon)</div>} />
-          <Route path="bookings" element={<div className="p-6">Bookings Module (Coming Soon)</div>} />
-          <Route path="services" element={<div className="p-6">Services Module (Coming Soon)</div>} />
-          <Route path="payments" element={<div className="p-6">Payments Module (Coming Soon)</div>} />
-          <Route path="reviews" element={<div className="p-6">Reviews Module (Coming Soon)</div>} />
-          <Route path="reports" element={<div className="p-6">Reports Module (Coming Soon)</div>} />
-          <Route path="analytics" element={<div className="p-6">Analytics Module (Coming Soon)</div>} />
-          <Route path="notifications" element={<div className="p-6">Notifications Module (Coming Soon)</div>} />
-          <Route path="auditlogs" element={<div className="p-6">Audit Logs Module (Coming Soon)</div>} />
-          <Route path="settings" element={<div className="p-6">Settings Module (Coming Soon)</div>} />
-          <Route path="profile" element={<div className="p-6">Profile Module (Coming Soon)</div>} />
+          <Route path="workers" element={<Workers />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="services" element={<Services />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="reviews" element={<Reviews />} />
+          <Route path="support" element={<Support />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="auditlogs" element={<AuditLogs />} />
+          <Route path="trash" element={<Trash />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </Router>

@@ -14,7 +14,9 @@ import {
   ShieldAlert, 
   Settings, 
   UserCircle,
-  LogOut
+  LogOut,
+  HeadphonesIcon,
+  Trash2
 } from 'lucide-react';
 
 const AdminSidebar = ({ isOpen }) => {
@@ -26,10 +28,12 @@ const AdminSidebar = ({ isOpen }) => {
     { name: 'Services', icon: <Wrench size={20} />, path: '/admin/services' },
     { name: 'Payments', icon: <CreditCard size={20} />, path: '/admin/payments' },
     { name: 'Reviews', icon: <Star size={20} />, path: '/admin/reviews' },
+    { name: 'Support', icon: <HeadphonesIcon size={20} />, path: '/admin/support' },
     { name: 'Reports', icon: <FileText size={20} />, path: '/admin/reports' },
     { name: 'Analytics', icon: <BarChart3 size={20} />, path: '/admin/analytics' },
     { name: 'Notifications', icon: <Bell size={20} />, path: '/admin/notifications' },
     { name: 'Audit Logs', icon: <ShieldAlert size={20} />, path: '/admin/auditlogs' },
+    { name: 'Trash', icon: <Trash2 size={20} />, path: '/admin/trash' },
     { name: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
     { name: 'Profile', icon: <UserCircle size={20} />, path: '/admin/profile' },
   ];
@@ -39,7 +43,7 @@ const AdminSidebar = ({ isOpen }) => {
       <div className="flex items-center justify-center h-16 border-b border-gray-200">
         <span className="text-xl font-bold text-blue-600">A-yos Admin</span>
       </div>
-      <div className="overflow-y-auto h-[calc(100vh-4rem)]">
+      <div className="overflow-y-auto h-[calc(100vh-4rem)] no-scrollbar">
         <nav className="mt-4 px-4 space-y-1">
           {menuItems.map((item, index) => (
             <NavLink

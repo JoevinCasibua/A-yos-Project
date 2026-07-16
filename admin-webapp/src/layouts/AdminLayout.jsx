@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import CommandPalette from '../components/CommandPalette';
 
 const AdminLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -17,6 +18,8 @@ const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      <CommandPalette />
     </div>
   );
 };

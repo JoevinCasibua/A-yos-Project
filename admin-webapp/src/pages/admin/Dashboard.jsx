@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   DollarSign, Calendar, Users, HardHat, 
   ArrowUpRight, ArrowDownRight, Clock, CheckCircle, Trash2
@@ -9,6 +9,8 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import Skeleton from '../../components/ui/Skeleton';
+import { useFakeLoading } from '../../hooks/useFakeLoading';
 
 // Mock Data
 const revenueData = [
@@ -31,7 +33,7 @@ const bookingsData = [
   { name: 'Sun', completed: 45, cancelled: 2, pending: 9 },
 ];
 
-const recentActivities = [
+const initialActivities = [
   { id: 1, user: 'Sarah Jenkins', action: 'booked a Home Cleaning service', time: '10 mins ago', type: 'booking' },
   { id: 2, user: 'Mike Ross', action: 'registered as a Plumber', time: '1 hour ago', type: 'worker' },
   { id: 3, user: 'Payment of $120', action: 'was successful', time: '2 hours ago', type: 'payment' },
@@ -39,7 +41,14 @@ const recentActivities = [
   { id: 5, user: 'John Doe', action: 'left a 5-star review', time: '5 hours ago', type: 'review' },
 ];
 
-const StatCard = ({ title, value, icon: Icon, trend, trendValue, subtitle }) => (
+const mockNewEvents = [
+  { user: 'New User', action: 'just signed up', type: 'user' },
+  { user: 'James Smith', action: 'booked Electrical Repair', type: 'booking' },
+  { user: 'Payment of $85', action: 'was successful', type: 'payment' },
+  { user: 'Alice Cooper', action: 'left a 4-star review', type: 'review' },
+];
+
+const StatCard = ({ title, value, icon: Icon, trend, trendValue, subtitle, isLoading }) => (
   <Card className="animate-fade-in-up">
     <CardContent className="p-6">
       <div className="flex items-center justify-between space-y-0 pb-2">
@@ -49,20 +58,53 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, subtitle }) => 
         </div>
       </div>
       <div className="flex flex-col mt-2">
-        <div className="text-3xl font-display font-bold text-navy">{value}</div>
-        <p className="text-xs text-gray-500 mt-1 flex items-center">
-          <span className={`flex items-center font-medium mr-2 ${trend === 'up' ? 'text-success' : 'text-danger'}`}>
-            {trend === 'up' ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
-            {trendValue}
-          </span>
-          {subtitle}
-        </p>
+        {isLoading ? (
+          <>
+            <Skeleton className="h-8 w-24 mb-2" />
+            <Skeleton className="h-4 w-32" />
+          </>
+        ) : (
+          <>
+            <div className="text-3xl font-display font-bold text-navy">{value}</div>
+            <p className="text-xs text-gray-500 mt-1 flex items-center">
+              <span className={`flex items-center font-medium mr-2 ${trend === 'up' ? 'text-success' : 'text-danger'}`}>
+                {trend === 'up' ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
+                {trendValue}
+              </span>
+              {subtitle}
+            </p>
+          </>
+        )}
       </div>
     </CardContent>
   </Card>
 );
 
 const Dashboard = () => {
+  const isLoading = useFakeLoading(800);
+  const [activities, setActivities] = useState(initialActivities);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // 30% chance to simulate a new event every 5 seconds
+      if (Math.random() > 0.7) {
+        const randomEvent = mockNewEvents[Math.floor(Math.random() * mockNewEvents.length)];
+        const newActivity = {
+          ...randomEvent,
+          id: Date.now(), // unique ID for key
+          time: 'Just now'
+        };
+        
+        setActivities(prev => {
+          const updated = [newActivity, ...prev].slice(0, 5); // Keep only 5
+          return updated;
+        });
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -86,6 +128,7 @@ const Dashboard = () => {
           trend="up"
           trendValue="20.1%"
           subtitle="from last month"
+          isLoading={isLoading}
         />
         <StatCard 
           title="Active Bookings" 
@@ -94,6 +137,7 @@ const Dashboard = () => {
           trend="up"
           trendValue="15.2%"
           subtitle="from last month"
+          isLoading={isLoading}
         />
         <StatCard 
           title="Total Users" 
@@ -102,6 +146,7 @@ const Dashboard = () => {
           trend="up"
           trendValue="4.1%"
           subtitle="from last month"
+          isLoading={isLoading}
         />
         <StatCard 
           title="Verified Workers" 
@@ -110,6 +155,7 @@ const Dashboard = () => {
           trend="down"
           trendValue="1.2%"
           subtitle="from last month"
+          isLoading={isLoading}
         />
       </div>
 
@@ -121,23 +167,27 @@ const Dashboard = () => {
             <CardDescription>Monthly revenue and profit margins.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 min-h-[300px] pb-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0B63D6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#0B63D6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(value) => `$${value}`} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="#0B63D6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {isLoading ? (
+              <Skeleton className="w-full h-full rounded-lg min-h-[300px]" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0B63D6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#0B63D6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(value) => `$${value}`} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#0B63D6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
@@ -147,21 +197,25 @@ const Dashboard = () => {
             <CardDescription>Booking statuses over the last 7 days.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 min-h-[300px] pb-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={bookingsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
-                <Tooltip 
-                  cursor={{ fill: '#F3F4F6' }}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                <Bar dataKey="completed" stackId="a" fill="#22C55E" radius={[0, 0, 4, 4]} />
-                <Bar dataKey="pending" stackId="a" fill="#F59E0B" />
-                <Bar dataKey="cancelled" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {isLoading ? (
+              <Skeleton className="w-full h-full rounded-lg min-h-[300px]" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={bookingsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                  <Tooltip 
+                    cursor={{ fill: '#F3F4F6' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
+                  <Bar dataKey="completed" stackId="a" fill="#22C55E" radius={[0, 0, 4, 4]} />
+                  <Bar dataKey="pending" stackId="a" fill="#F59E0B" />
+                  <Bar dataKey="cancelled" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -176,12 +230,12 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {recentActivities.map((activity, index) => (
-                <div key={activity.id} className="flex items-start">
+              {activities.map((activity, index) => (
+                <div key={activity.id} className="flex items-start animate-fade-in-up transition-all duration-500">
                   <div className="relative">
-                    <div className="w-2 h-2 mt-2 rounded-full bg-primary ring-4 ring-primary/10"></div>
-                    {index !== recentActivities.length - 1 && (
-                      <div className="absolute top-4 left-1 w-px h-full bg-border -ml-px"></div>
+                    <div className="w-2 h-2 mt-2 rounded-full bg-primary ring-4 ring-primary/10 transition-all duration-300"></div>
+                    {index !== activities.length - 1 && (
+                      <div className="absolute top-4 left-1 w-px h-full bg-border -ml-px transition-all duration-300"></div>
                     )}
                   </div>
                   <div className="ml-4 space-y-1">

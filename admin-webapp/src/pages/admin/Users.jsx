@@ -8,6 +8,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import { useFakeLoading } from '../../hooks/useFakeLoading';
 
 // Mock Data Generator
 const generateUsers = (count) => {
@@ -31,6 +33,7 @@ const generateUsers = (count) => {
 const mockUsers = generateUsers(50);
 
 const Users = () => {
+  const isLoading = useFakeLoading(600);
   const [users, setUsers] = useState(mockUsers);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +121,37 @@ const Users = () => {
                     </div>
                   </TableCell>
                 </TableRow>
+              ) : isLoading ? (
+                // Skeleton Rows
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell className="text-center"><Skeleton className="h-4 w-4 rounded" /></TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Skeleton className="w-10 h-10 rounded-full mr-3 shrink-0" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-20" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                    </TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-10 rounded-md" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
               ) : (
                 currentUsers.map(user => (
                   <TableRow key={user.id}>
