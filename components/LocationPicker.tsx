@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Alert, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
 import { MapPin, Navigation } from 'lucide-react-native';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { AppText } from './AppText';
+import AyosMap from './AyosMap';
 
 export interface AddressDetails {
   streetNumber: string;
@@ -27,13 +27,11 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationDetect
   const handleUseCurrentLocation = async () => {
     setLoading(true);
     try {
-      if (Platform.OS !== 'web') {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permission Denied', 'Location permission is required to detect your address.');
-          setLoading(false);
-          return;
-        }
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required to detect your address.');
+        setLoading(false);
+        return;
       }
 
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
@@ -101,33 +99,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationDetect
 
       {coords && (
         <View style={styles.mapContainer}>
-          {Platform.OS !== 'web' ? (
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: coords.latitude,
-                longitude: coords.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              }}
-              showsUserLocation
-              scrollEnabled={false}
-              zoomEnabled={false}
-            >
-              <Marker coordinate={coords}>
-                <View style={styles.markerContainer}>
-                  <MapPin size={24} color={Colors.primary} fill={Colors.white} />
-                </View>
-              </Marker>
-            </MapView>
-          ) : (
-            <View style={[styles.map, { alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.surfaceLight }]}>
-              <MapPin size={32} color={Colors.primary} fill={Colors.white} />
-              <AppText variant="caption" color={Colors.textSecondary} style={{ marginTop: 8 }}>
-                Map Preview (Native Only)
-              </AppText>
-            </View>
-          )}
+          <AyosMap destination={[coords.longitude, coords.latitude]} interactive={false} />
           <View style={styles.successBadge}>
             <AppText variant="caption" weight="bold" color={Colors.verified}>
               ✓ Location Verified
