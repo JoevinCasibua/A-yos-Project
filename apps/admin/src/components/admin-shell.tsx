@@ -6,9 +6,13 @@ const navigation = [
   ['Workers', '/dashboard/workers'],
   ['Bookings', '/dashboard/bookings'],
   ['Finance', '/dashboard/finance'],
+  ['Reviews', '/dashboard/reviews'],
   ['Support', '/dashboard/support'],
   ['Communication', '/dashboard/communication'],
+  ['Services', '/dashboard/services'],
   ['Reports', '/dashboard/reports'],
+  ['Audit log', '/dashboard/audit'],
+  ['Profile', '/dashboard/profile'],
   ['Settings', '/dashboard/settings'],
   ['Trash', '/dashboard/trash'],
 ] as const;
@@ -37,7 +41,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </button>
         </form>
       </aside>
-      <main className="main">{children}</main>
+      <details className="mobile-navigation">
+        <summary>Menu</summary>
+        <nav>
+          {navigation.map(([label, href]) => (
+            <Link href={href} key={href}>
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </details>
+      <main className="main" id="main-content">
+        {children}
+      </main>
     </div>
   );
 }
