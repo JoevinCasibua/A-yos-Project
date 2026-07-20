@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Search, CalendarDays, Star, User } from 'lucide-react-native';
+import { LayoutDashboard, Search, CalendarDays, Star, User, Wallet } from 'lucide-react-native';
 import { Colors, Typography } from '@/constants/theme';
 
 export default function WorkerTabLayout() {
@@ -41,8 +41,14 @@ export default function WorkerTabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Job Posts',
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} strokeWidth={2} />,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="wallet"
+        options={{
+          title: 'Wallet',
+          tabBarIcon: ({ color, size }) => <Wallet size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
