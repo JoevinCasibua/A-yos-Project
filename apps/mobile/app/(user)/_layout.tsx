@@ -22,8 +22,10 @@ export default function UserLayout() {
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
       <Tabs.Screen name="request" options={{ href: null, title: 'Send request' }} />
       <Tabs.Screen name="ai-assistant" options={{ href: null, title: 'AI Home Assistant' }} />
-      <Tabs.Screen name="alerts" options={{ href: null, title: 'Alerts' }} />
+      <Tabs.Screen name="alerts" options={{ title: 'Alerts' }} />
       <Tabs.Screen name="tracking" options={{ href: null, title: 'Service tracking' }} />
+      <Tabs.Screen name="conversation" options={{ href: null, title: 'Conversation' }} />
+      <Tabs.Screen name="review" options={{ href: null, title: 'Rate and review' }} />
     </Tabs>
   );
 }
