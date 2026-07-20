@@ -1,10 +1,19 @@
 # Project Inspection
 
+> Pre-integration source baseline: Admin/User reference `f28b45dbbadf3b5fc4f4cecd240cb03da50f1d85`; Worker reference `1bdce1cb4f2c7b8f30b29d0381c8fc6c61b16f0e`. The reference applications are visual prototypes containing mock data and simulated interactions; they are not backend authorities. See `UI_COMPONENT_MAPPING.md`, `API_INTEGRATION_MATRIX.md`, `TESTING_REPORT.md`, and `KNOWN_ISSUES.md`.
+
 ## Source inspection
 
-- `SRS.docx` rendered as 25 pages and contains FR-01–FR-104 and NFR-01–NFR-18.
-- `AI workflow.docx` rendered as three pages; administrator, user, and worker workflow images were inspected.
-- `requirements/catalog.json` preserves all 122 canonical requirements.
+- `requirements/catalog.json` preserves FR-01–FR-104 and NFR-01–NFR-18 and is the local requirements authority.
+- The original SRS and workflow source documents cited by older documentation are absent. Their content beyond the catalog is **INSUFFICIENT DATA TO VERIFY**.
+- The Admin/User and Worker reference commits were inspected as visual sources. Their generated data, static datasets, hard-coded OTP, simulated operations, and incompatible routing/map implementations were not copied.
+
+## Integrated result
+
+- `apps/admin` now uses the reference navy/blue shell, responsive navigation, metrics, typed operational sections, forms, tables, badges, skeleton/error states, MFA, protected commands, and signed report downloads.
+- `apps/mobile/app/(user)` now connects discovery, requests/media, matching, conversations/attachments, bookings, tracking, cash confirmation, reviews/media, notifications, addresses, and AI save/continue to Supabase.
+- `apps/mobile/app/(worker)` now connects onboarding, verification documents, matching requests, booking decisions/lifecycle, tracking, cash confirmation, reviews, and professional profile data.
+- Migration `20260720000700_ui_integration_commands.sql` adds only the verified UI integration commands and matching-worker request/media policies. The database model and canonical domain behavior remain unchanged.
 
 ## Approved architecture decisions
 
@@ -20,7 +29,7 @@
 
 - Production credentials, quotas, callback contracts, and acceptance environments for OpenAI, Gemini, OpenRouter, the map gateway/style, translation, push, and production email delivery.
 - Final legal/business content, retention/deletion policy, performance thresholds, browser/device matrix, production project topology, RPO, and RTO.
-- The repository is linked to hosted project `qsurouiyvisykjkgjqmz` (`A-yos`). The secure administrator-bootstrap patch was explicitly approved, applied, and verified there without deleting existing data. A future clean cutover or destructive replacement still requires a backup and migration decision.
+- Local configuration contains hosted project reference `qsurouiyvisykjkgjqmz`. Its current migration, Auth, backup, and data state were not changed or accepted in this integration run; hosted readiness is **INSUFFICIENT DATA TO VERIFY**.
 - For these items: **Insufficient data to verify.**
 
 ## Security controls and risks
