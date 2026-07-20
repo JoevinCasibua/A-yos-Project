@@ -17,7 +17,7 @@
 11. Completed booking uses Cash. User confirms cash paid; worker confirms receipt; success generates receipt and closes payment. Failure allows retry.
 12. Completed-and-paid booking enables star rating, text, images, recommendation, and submitted result, subject to moderation.
 
-Related requirements: FR-01–04, FR-10–18, FR-25–48, FR-49, FR-52–62, FR-73, FR-75–81, FR-89–101, FR-104. **Status:** partial; PostGIS/MapLibre implemented, external route/ETA verification blocked.
+Related requirements: FR-01–04, FR-10–18, FR-25–48, FR-49, FR-52–62, FR-73, FR-75–81, FR-89–101, FR-104. **Status:** connected in Expo; authenticated lifecycle, native device, and external route/ETA acceptance remain unverified.
 
 ## Worker workflow
 
@@ -31,7 +31,7 @@ Related requirements: FR-01–04, FR-10–18, FR-25–48, FR-49, FR-52–62, FR-
 6. Worker confirms cash received. After successful payment, worker sees customer feedback read-only.
 7. Profile maintains professional details. Recommendation priority is administrator-controlled; advertising and premium purchase are excluded.
 
-Related requirements: FR-05–09, FR-15–17, FR-42–43, FR-50–51, FR-58–59, FR-82–88, FR-102–104. **Status:** partial.
+Related requirements: FR-05–09, FR-15–17, FR-42–43, FR-50–51, FR-58–59, FR-82–88, FR-102–104. **Status:** connected in Expo; authenticated lifecycle and native-device acceptance remain unverified.
 
 ## Administrator workflow
 
@@ -47,7 +47,7 @@ Related requirements: FR-05–09, FR-15–17, FR-42–43, FR-50–51, FR-58–59
 8. Operations provides booking details, intervention/resolution, and services management.
 9. Shared controls provide search, filters, pagination, exports, notifications, confirmations, and success/error outcomes.
 
-Related requirements: FR-19–24, FR-31, FR-63–72, FR-74. **Status:** partial.
+Related requirements: FR-19–24, FR-31, FR-63–72, FR-74. **Status:** connected in Next.js; authenticated AAL2 mutation acceptance remains unverified.
 
 ## AI Home Assistant workflow
 
@@ -62,4 +62,4 @@ Related requirements: FR-19–24, FR-31, FR-63–72, FR-74. **Status:** partial.
 
 Retryable OpenAI failures continue to Gemini and then OpenRouter. Authorization, invalid input, safety/refusal, provider credentials, and invalid structured output are final failures. Every attempt is redacted and audited.
 
-Related requirements: FR-11–18, FR-25–31, FR-41–43, FR-57–59, FR-92–98, FR-104. **Status:** analysis/draft implementation and provider-adapter tests complete; saved-analysis continuation is partial; live-provider and end-to-end verification are blocked by credentials.
+Related requirements: FR-11–18, FR-25–31, FR-41–43, FR-57–59, FR-92–98, FR-104. **Status:** analysis, save, and request continuation are connected; live-provider and authenticated end-to-end verification are blocked by credentials/fixtures.
