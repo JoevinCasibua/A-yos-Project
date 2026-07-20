@@ -60,8 +60,8 @@ begin
     raise exception using errcode = '42501', message = 'SERVICE_ROLE_REQUIRED';
   end if;
   delete from private.admin_bootstrap_requests request
-  where request.email = lower(btrim(email))
-    and request.token_hash = cancel_admin_bootstrap.token_hash;
+  where request.email = lower(btrim($1))
+    and request.token_hash = $2;
 end
 $$;
 
