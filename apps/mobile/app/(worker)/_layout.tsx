@@ -20,6 +20,8 @@ export default function WorkerLayout() {
       <Tabs.Screen name="reviews" options={{ title: 'Reviews' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
       <Tabs.Screen name="tracking" options={{ href: null, title: 'Service tracking' }} />
+      <Tabs.Screen name="onboarding" options={{ href: null, title: 'Professional onboarding' }} />
+      <Tabs.Screen name="conversation" options={{ href: null, title: 'Conversation' }} />
     </Tabs>
   );
 }
