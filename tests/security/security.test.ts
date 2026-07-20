@@ -16,11 +16,15 @@ const geospatialSql = readFileSync(
   resolve(root, 'supabase/migrations/20260720000500_geospatial_ai.sql'),
   'utf8',
 );
+const integrationSql = readFileSync(
+  resolve(root, 'supabase/migrations/20260720000700_ui_integration_commands.sql'),
+  'utf8',
+);
 
 describe('cross-cutting security controls', () => {
   it('enables RLS and private realtime/storage authorization', () => {
     expect(securitySql).toContain('enable row level security');
-    expect(securitySql).toContain('alter table realtime.messages enable row level security');
+    expect(securitySql).toContain('create policy realtime_booking_read on realtime.messages');
     expect(securitySql).toMatch(/insert into storage\.buckets\(id,name,public,[^)]+\) values/);
     expect(securitySql.match(/false,\d+,array\[/g)?.length).toBe(6);
   });
@@ -46,5 +50,13 @@ describe('cross-cutting security controls', () => {
       /suitability_score desc, distance_meters asc, recommendation_priority desc/,
     );
     expect(geospatialSql.match(/using gist/g)?.length).toBeGreaterThanOrEqual(4);
+  });
+  it('scopes new UI commands to owners or AAL2 administrators', () => {
+    expect(integrationSql.match(/security definer/g)?.length).toBe(5);
+    expect(integrationSql).toContain('if not public.is_admin(true)');
+    expect(integrationSql).toContain("split_part(p_storage_path, '/', 1) <> auth.uid()::text");
+    expect(integrationSql).toContain('candidate.worker_id = auth.uid()');
+    expect(integrationSql).toContain('storage_matching_worker_request_media_read');
+    expect(integrationSql).toContain('from public, anon');
   });
 });
