@@ -5,3 +5,4 @@ apps/mobile/expo-env.d.ts
 **/dist/**
 **/node_modules/**
 packages/*/lib/**
+test-results/**
