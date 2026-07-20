@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Text } from 'react-native';
 import { Button, Field, Heading, Screen } from '@/components';
 import { useSession } from '@/session';
-import { errorMessage, supabase } from '@/supabase';
+import { errorMessage } from '@/errors';
+import { supabase } from '@/supabase';
 import { colors } from '@/theme';
 
 export default function VerifyPage() {
