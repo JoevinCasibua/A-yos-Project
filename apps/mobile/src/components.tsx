@@ -43,6 +43,7 @@ export function Button({
         variant === 'secondary' && styles.secondary,
         variant === 'danger' && styles.danger,
         pressed && { opacity: 0.75 },
+        props.disabled && styles.disabled,
       ]}
     >
       <Text style={[styles.buttonText, variant !== 'primary' && { color: colors.text }]}>
@@ -51,11 +52,20 @@ export function Button({
     </Pressable>
   );
 }
-export function Field(props: TextInputProps & { label: string }) {
+export function Field({
+  label,
+  accessibilityLabel = label,
+  ...props
+}: TextInputProps & { label: string }) {
   return (
     <View style={styles.field}>
-      <Text style={styles.label}>{props.label}</Text>
-      <TextInput {...props} placeholderTextColor={colors.muted} style={styles.input} />
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        {...props}
+        accessibilityLabel={accessibilityLabel}
+        placeholderTextColor={colors.muted}
+        style={styles.input}
+      />
     </View>
   );
 }
@@ -68,7 +78,7 @@ export function FeatureCard({
   icon: string;
   title: string;
   body: string;
-  onPress?: () => void;
+  onPress?: (() => void) | undefined;
 }) {
   const content = (
     <>
@@ -97,6 +107,28 @@ export function EmptyState({ title, body }: { title: string; body: string }) {
   );
 }
 
+export function DataState({ loading, error }: { loading: boolean; error?: string | undefined }) {
+  if (loading) return <EmptyState title="Loading…" body="Retrieving current platform data." />;
+  if (error) return <EmptyState title="Unable to load" body={error} />;
+  return null;
+}
+
+export function StatusBadge({
+  label,
+  tone = 'info',
+}: {
+  label: string;
+  tone?: 'info' | 'success' | 'warning' | 'danger';
+}) {
+  return (
+    <View style={[styles.badge, styles[`${tone}Badge`]]}>
+      <Text style={[styles.badgeText, styles[`${tone}BadgeText`]]}>
+        {label.replaceAll('_', ' ')}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background, padding: 22, gap: 16 },
   heading: { gap: 7, marginTop: 20, marginBottom: 10 },
@@ -118,6 +150,7 @@ const styles = StyleSheet.create({
   },
   secondary: { backgroundColor: colors.panelSoft, borderWidth: 1, borderColor: colors.border },
   danger: { backgroundColor: '#642d35' },
+  disabled: { opacity: 0.5 },
   buttonText: { color: colors.accentText, fontWeight: '800', fontSize: 15 },
   field: { gap: 7 },
   label: { color: colors.muted, fontSize: 12 },
@@ -152,4 +185,14 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: 'center',
   },
+  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5 },
+  badgeText: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+  infoBadge: { backgroundColor: '#dbeafe' },
+  infoBadgeText: { color: colors.info },
+  successBadge: { backgroundColor: '#d1fae5' },
+  successBadgeText: { color: colors.success },
+  warningBadge: { backgroundColor: '#fef3c7' },
+  warningBadgeText: { color: colors.warning },
+  dangerBadge: { backgroundColor: '#fee2e2' },
+  dangerBadgeText: { color: colors.danger },
 });
