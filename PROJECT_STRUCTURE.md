@@ -19,6 +19,7 @@ A-YOS/
 │   ├── tests/database/         pgTAP security and invariant tests
 │   └── seed.sql                Development-only content and categories
 ├── tests/                      Platform, security, traceability, and E2E suites
+├── playwright.config.ts        Admin and Expo web executable browser smoke configuration
 ├── scripts/                    Bootstrap, traceability, local Supabase, stack, and CI Shell tooling
 ├── infra/admin.Dockerfile      Optional administrator container build
 └── required Markdown files    Synchronized project documentation
