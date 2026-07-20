@@ -4,7 +4,7 @@ import { Tabs, useRouter } from 'expo-router';
 import { theme } from '../../theme';
 import { Search, Calendar, MessageSquare, User, Plus, Home, FileText } from 'lucide-react-native';
 
-const CreateButton = () => {
+const CreateButton = (props: any) => {
   const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -28,10 +28,13 @@ const CreateButton = () => {
 
   return (
     <TouchableOpacity
+      {...props}
       activeOpacity={0.9}
       onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      style={styles.createButtonContainer}
+      onPressOut={(e) => {
+        handlePressOut();
+      }}
+      style={[props.style, styles.createButtonContainer]}
     >
       <Animated.View style={[styles.createButton, { transform: [{ scale: scaleAnim }] }]}>
         <Plus color={theme.colors.surface} size={28} strokeWidth={2.5} />
@@ -64,7 +67,7 @@ export default function TabLayout() {
           fontWeight: '500',
         }
       }}>
-      
+
       <Tabs.Screen
         name="home"
         options={{
@@ -72,7 +75,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
-      
+
       <Tabs.Screen
         name="bookings"
         options={{
@@ -85,7 +88,7 @@ export default function TabLayout() {
         name="create"
         options={{
           title: '',
-          tabBarButton: () => <CreateButton />,
+          tabBarButton: (props) => <CreateButton {...props} />,
         }}
       />
 
@@ -104,7 +107,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
-      
+
     </Tabs>
   );
 }
@@ -114,8 +117,6 @@ const styles = StyleSheet.create({
     top: -15,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 60,
-    height: 60,
   },
   createButton: {
     width: 56,
