@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Pressable, Dimensions, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import { ChevronLeft, Phone, MessageCircle, Navigation, Star, Clock, MapPin } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
 import { useRequest } from '@/context/RequestContext';
-import { fetchProviderById, subscribeToBooking } from '@/services/api';
-import { confirmBookingComplete, fetchBookingTracking, type RouteResult } from '@/services/marketplace';
-import type { ProviderData } from '@/components/ProviderCard';
-import AyosMap from '@/components/AyosMap';
-import { showFeatureLocked } from '@/lib/featureLocks';
+import { providers } from '@/constants/mockData';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,23 +25,47 @@ const trackingSteps = [
 export default function TrackingScreen() {
   const { request } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [provider,setProvider]=useState<ProviderData|null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [route,setRoute]=useState<RouteResult|null>(null);
+  const provider = providers.find((p) => p.id === id) || providers[0];
+  const [currentStep, setCurrentStep] = useState(1);
+  const [etaMinutes, setEtaMinutes] = useState(25);
+  const pulseScale = useSharedValue(1);
+  const pulseOpacity = useSharedValue(0.4);
 
   useEffect(() => {
-    if(!id)return;let active=true;const load=async()=>{const result=await fetchBookingTracking(id);if(!active||!result.data)return;const steps:Record<string,number>={scheduled:0,accepted:0,en_route:1,arrived:2,in_progress:3,pending_confirmation:4,completed:4,cancelled:0};setCurrentStep(steps[result.data.status]||0);setRoute(result.data.route);const worker=await fetchProviderById(result.data.workerId);if(active)setProvider(worker.data||null);};void load();const channel=subscribeToBooking(id,()=>void load());return()=>{active=false;void channel.unsubscribe();};
-  }, [id]);
+    // Animate the pulse ring
+    pulseScale.value = withRepeat(withTiming(1.6, { duration: 1500 }), -1, false);
+    pulseOpacity.value = withRepeat(withSequence(withTiming(0, { duration: 1500 }), withTiming(0.4, { duration: 0 })), -1, false);
+
+    if (currentStep >= 2) return;
+    const timer = setInterval(() => {
+      setEtaMinutes((m) => {
+        if (m <= 1) {
+          setCurrentStep(2);
+          return 0;
+        }
+        return m - 1;
+      });
+    }, 60000);
+    return () => clearInterval(timer);
+  }, [currentStep]);
+
+  const animatedPulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+    opacity: pulseOpacity.value,
+  }));
 
   const handleBack = useCallback(() => router.replace('/order'), []);
-  const handleComplete = useCallback(async () => { if(!id)return;const result=await confirmBookingComplete(id);if(result.error&&result.error.code!=='INVALID_TRANSITION'){Alert.alert('Unable to confirm completion',result.error.message);return;}router.push(`/review/${id}`); }, [id]);
-
-  if(!provider)return <View style={styles.container}/>;
+  const handleComplete = useCallback(() => {
+    router.push(`/review/${provider.id}`);
+  }, [provider.id]);
 
   return (
     <View style={styles.container}>
       {/* Map Background */}
-      <View style={styles.mapImage}><AyosMap origin={route?.origin} destination={route?.destination} route={route?.geometry}/></View>
+      <Image
+        source={{ uri: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800' }}
+        style={styles.mapImage}
+      />
       <View style={styles.mapOverlay} />
 
       {/* Top Nav (Standardized Header) */}
@@ -58,6 +79,7 @@ export default function TrackingScreen() {
 
       {/* Map Pin Marker */}
       <View style={styles.pinContainer}>
+        <Animated.View style={[styles.pulseRing, animatedPulseStyle]} />
         <View style={styles.providerPin}>
           <Avatar uri={provider.avatarUri} size={44} borderRadius={22} />
           <View style={styles.pinDot} />
@@ -84,7 +106,7 @@ export default function TrackingScreen() {
             <Pressable style={styles.actionBtn}>
               <Phone size={20} color={Colors.cta} strokeWidth={2} />
             </Pressable>
-            <Pressable style={[styles.actionBtn, { marginLeft: Spacing['2'] }]} onPress={()=>showFeatureLocked('chat')}>
+            <Pressable style={[styles.actionBtn, { marginLeft: Spacing['2'] }]}>
               <MessageCircle size={20} color={Colors.cta} strokeWidth={2} />
             </Pressable>
           </View>
@@ -185,6 +207,14 @@ const styles = StyleSheet.create({
   pinContainer: {
     position: 'absolute', top: height * 0.35, left: 0, right: 0,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.cta,
   },
   providerPin: {
     position: 'relative', alignItems: 'center',
