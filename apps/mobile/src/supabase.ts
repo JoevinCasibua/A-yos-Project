@@ -21,7 +21,3 @@ export const supabase = createClient<Database>(url, publishableKey, {
   },
   realtime: { params: { eventsPerSecond: 10 } },
 });
-
-export function errorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error && error.message ? error.message : fallback;
-}
