@@ -62,9 +62,11 @@ pnpm functions:check
 pnpm functions:test
 pnpm verify:stack
 pnpm verify
+pnpm test:e2e
 ```
 
 `db:reset`, database tests, type generation, and local Edge Function execution require the Supabase Docker stack.
+`test:e2e` starts or reuses the Admin and Expo web development servers and executes the public fixed-role/auth-boundary smoke suite. Authenticated lifecycle acceptance requires dedicated User, Worker, and AAL2 Admin fixtures.
 
 ## Staging and production
 
