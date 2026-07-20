@@ -58,6 +58,8 @@ const Payments = () => {
   const totalPages = Math.ceil(filteredTxns.length / txnsPerPage);
   const paginatedTxns = filteredTxns.slice((currentPage - 1) * txnsPerPage, currentPage * txnsPerPage);
 
+  const futureMethods = ['GCash (Coming Soon)', 'Maya (Coming Soon)', 'Credit Card (Coming Soon)'];
+
   const stats = [
     { label: 'Total Revenue', value: '$124,500', trend: '+12.5%', icon: <DollarSign className="text-green-500" />, bg: 'bg-green-50', positive: true },
     { label: 'Platform Commission', value: '$18,675', trend: '+15.2%', icon: <TrendingUp className="text-blue-500" />, bg: 'bg-blue-50', positive: true },
@@ -111,6 +113,16 @@ const Payments = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-6 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-gray-700">Future payment methods:</span>
+          {futureMethods.map((method) => (
+            <span key={method} className="rounded-full border border-gray-300 bg-white px-3 py-1 text-sm text-gray-500">{method}</span>
+          ))}
+        </div>
+        <p className="mt-2 text-sm text-gray-500">The current platform only supports cash-based settlement, with future methods disabled until rollout.</p>
       </div>
 
       {/* Filters and Search */}

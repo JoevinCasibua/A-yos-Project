@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { 
   HeadphonesIcon, MessageSquare, Clock, AlertCircle,
   Search, Filter, CheckCircle, MoreVertical, Send,
-  User, Paperclip, X
+  User, Paperclip, X, RotateCcw
 } from 'lucide-react';
 import Drawer from '../../components/ui/Drawer';
 import Pagination from '../../components/ui/Pagination';
+import { useToast } from '../../context/ToastContext';
 
 const generateTickets = (count) => {
   const categories = ['Billing Issue', 'Account Access', 'Worker Complaint', 'Service Dispute', 'Technical Bug'];
@@ -27,6 +28,7 @@ const generateTickets = (count) => {
 const mockTickets = generateTickets(40);
 
 const Support = () => {
+  const toast = useToast();
   const [tickets, setTickets] = useState(mockTickets);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -73,21 +75,29 @@ const Support = () => {
   };
 
   const handleSendReply = () => {
-    if(!replyText.trim()) return;
-    alert(`Reply sent to ${selectedTicket.customer}: ${replyText}`);
+    if (!replyText.trim()) return;
+    toast.success('Reply Sent', `Your note has been queued for ${selectedTicket.customer}.`);
     setReplyText('');
-    
-    if(selectedTicket.status === 'Open') {
-      const updated = tickets.map(t => t.id === selectedTicket.id ? {...t, status: 'Pending'} : t);
+
+    if (selectedTicket.status === 'Open') {
+      const updated = tickets.map((t) => (t.id === selectedTicket.id ? { ...t, status: 'Pending' } : t));
       setTickets(updated);
-      setSelectedTicket({...selectedTicket, status: 'Pending'});
+      setSelectedTicket({ ...selectedTicket, status: 'Pending' });
     }
   };
 
   const markResolved = () => {
-    const updated = tickets.map(t => t.id === selectedTicket.id ? {...t, status: 'Resolved'} : t);
+    const updated = tickets.map((t) => (t.id === selectedTicket.id ? { ...t, status: 'Resolved' } : t));
     setTickets(updated);
-    setSelectedTicket({...selectedTicket, status: 'Resolved'});
+    setSelectedTicket({ ...selectedTicket, status: 'Resolved' });
+    toast.success('Ticket Closed', `${selectedTicket.id} has been marked as resolved.`);
+  };
+
+  const reopenTicket = () => {
+    const updated = tickets.map((t) => (t.id === selectedTicket.id ? { ...t, status: 'Open' } : t));
+    setTickets(updated);
+    setSelectedTicket({ ...selectedTicket, status: 'Open' });
+    toast.info('Ticket Reopened', `${selectedTicket.id} is now open again.`);
   };
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users, HardHat, Calendar, DollarSign, Settings, Star, AlertCircle } from 'lucide-react';
+import { Search, Users, HardHat, Calendar, DollarSign, Settings, Star, AlertCircle, Shield, Clock, RotateCcw } from 'lucide-react';
 
 const CommandPalette = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,8 +38,11 @@ const CommandPalette = () => {
     { id: 'dashboard', title: 'Go to Dashboard', icon: <Search size={16} />, path: '/admin/dashboard' },
     { id: 'users', title: 'Manage Users', icon: <Users size={16} />, path: '/admin/users' },
     { id: 'workers', title: 'Manage Workers', icon: <HardHat size={16} />, path: '/admin/workers' },
+    { id: 'worker-verification', title: 'Worker Verification', icon: <Shield size={16} />, path: '/admin/worker-verification' },
+    { id: 'worker-availability', title: 'Worker Availability', icon: <Clock size={16} />, path: '/admin/worker-availability' },
     { id: 'bookings', title: 'View Bookings', icon: <Calendar size={16} />, path: '/admin/bookings' },
     { id: 'payments', title: 'Payments & Revenue', icon: <DollarSign size={16} />, path: '/admin/payments' },
+    { id: 'refunds', title: 'Refund Management', icon: <RotateCcw size={16} />, path: '/admin/refunds' },
     { id: 'reviews', title: 'Customer Reviews', icon: <Star size={16} />, path: '/admin/reviews' },
     { id: 'settings', title: 'Platform Settings', icon: <Settings size={16} />, path: '/admin/settings' },
   ];

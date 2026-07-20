@@ -17,6 +17,9 @@ import AuditLogs from './pages/admin/AuditLogs';
 import Trash from './pages/admin/Trash';
 import Settings from './pages/admin/Settings';
 import Profile from './pages/admin/Profile';
+import WorkerVerification from './pages/admin/WorkerVerification';
+import WorkerAvailability from './pages/admin/WorkerAvailability';
+import Refunds from './pages/admin/Refunds';
 import Login from './pages/auth/Login';
 
 function App() {
@@ -41,9 +44,12 @@ function App() {
           
           {/* Placeholder routes for future modules */}
           <Route path="workers" element={<Workers />} />
+          <Route path="worker-verification" element={<WorkerVerification />} />
+          <Route path="worker-availability" element={<WorkerAvailability />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="services" element={<Services />} />
           <Route path="payments" element={<Payments />} />
+          <Route path="refunds" element={<Refunds />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="support" element={<Support />} />
           <Route path="reports" element={<Reports />} />

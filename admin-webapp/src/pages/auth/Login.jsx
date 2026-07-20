@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
 
 const Login = () => {
   const [email, setEmail] = useState('admin@a-yos.com');
@@ -14,6 +15,11 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState(false);
 
   const from = location.state?.from?.pathname || '/admin/dashboard';
 
@@ -32,11 +38,27 @@ const Login = () => {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    setForgotLoading(true);
+    setTimeout(() => {
+      setForgotLoading(false);
+      setForgotSuccess(true);
+    }, 1500);
+  };
+
+  const closeForgotModal = () => {
+    setIsForgotOpen(false);
+    setForgotEmail('');
+    setForgotSuccess(false);
+    setForgotLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex bg-background font-sans">
       {/* Left Side - Brand/Illustration */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-navy overflow-hidden">
-        {/* Abstract Background Elements */}
         <div className="absolute inset-0 z-0">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-navy opacity-50"></div>
           <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/30 blur-3xl"></div>
@@ -126,9 +148,13 @@ const Login = () => {
                 <input type="checkbox" className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm font-medium text-primary hover:text-blue-700 transition-colors">
+              <button
+                type="button"
+                onClick={() => setIsForgotOpen(true)}
+                className="text-sm font-medium text-primary hover:text-blue-700 transition-colors"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             <Button type="submit" className="w-full mt-6" size="lg" isLoading={isLoading}>
@@ -145,6 +171,57 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <Modal isOpen={isForgotOpen} onClose={closeForgotModal} title="Reset Password" maxWidth="max-w-md">
+        {forgotSuccess ? (
+          <div className="text-center py-6">
+            <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle size={24} className="text-success" />
+            </div>
+            <h3 className="text-lg font-bold text-navy mb-2">Check Your Email</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              We've sent a password reset link to <span className="font-medium text-navy">{forgotEmail}</span>. 
+              Please check your inbox and follow the instructions.
+            </p>
+            <button
+              onClick={closeForgotModal}
+              className="w-full px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Back to Sign In
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <div>
+              <p className="text-gray-500 text-sm mb-4">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="admin@a-yos.com"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                icon={Mail}
+                required
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={closeForgotModal}
+                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <ArrowLeft size={16} className="mr-2" /> Back
+              </button>
+              <Button type="submit" className="flex-1" isLoading={forgotLoading}>
+                Send Reset Link
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 };

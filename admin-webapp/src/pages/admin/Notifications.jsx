@@ -31,6 +31,7 @@ const Notifications = () => {
   const [filterType, setFilterType] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ title: '', audience: 'Everyone', channel: 'Push Notification', message: '', sendMode: 'immediate' });
 
   const notifsPerPage = 10;
 
@@ -202,20 +203,20 @@ const Notifications = () => {
         <form className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Campaign Title</label>
-            <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500" placeholder="e.g. Summer Promo" />
+            <input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500" placeholder="e.g. Summer Promo" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Target Audience</label>
-              <select className="w-full border border-gray-300 rounded-lg px-3 py-2">
-                <option>All Users</option>
+              <select value={formData.audience} onChange={(e) => setFormData({ ...formData, audience: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                <option>Everyone</option>
+                <option>Users Only</option>
                 <option>Workers Only</option>
-                <option>Customers Only</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Channel</label>
-              <select className="w-full border border-gray-300 rounded-lg px-3 py-2">
+              <select value={formData.channel} onChange={(e) => setFormData({ ...formData, channel: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
                 <option>Push Notification</option>
                 <option>Email</option>
                 <option>SMS</option>
@@ -224,13 +225,21 @@ const Notifications = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Message Content</label>
-            <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500" placeholder="Type your message here..."></textarea>
+            <textarea value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500" placeholder="Type your message here..."></textarea>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Option</label>
+            <select value={formData.sendMode} onChange={(e) => setFormData({ ...formData, sendMode: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+              <option value="immediate">Send Immediately</option>
+              <option value="scheduled">Schedule for Later</option>
+              <option value="draft">Save as Draft</option>
+            </select>
           </div>
           <div className="pt-4 border-t border-gray-200 flex justify-end gap-3">
             <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700">Cancel</button>
-            <button type="button" className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700">Save as Draft</button>
+            <button type="button" onClick={() => setFormData({ ...formData, sendMode: 'draft' })} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700">Save as Draft</button>
             <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center">
-              <Send size={16} className="mr-2" /> Send Now
+              <Send size={16} className="mr-2" /> {formData.sendMode === 'scheduled' ? 'Schedule' : 'Send Now'}
             </button>
           </div>
         </form>

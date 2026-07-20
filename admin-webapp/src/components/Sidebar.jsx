@@ -27,7 +27,10 @@ import {
   PieChart,
   MessageSquare,
   Activity,
-  Megaphone
+  Megaphone,
+  Shield,
+  Clock,
+  RotateCcw
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -44,6 +47,8 @@ const navigationGroups = [
     items: [
       { name: 'Users', to: '/admin/users', icon: User },
       { name: 'Workers', to: '/admin/workers', icon: Briefcase },
+      { name: 'Worker Verification', to: '/admin/worker-verification', icon: Shield },
+      { name: 'Worker Availability', to: '/admin/worker-availability', icon: Clock },
     ]
   },
   {
@@ -53,6 +58,7 @@ const navigationGroups = [
       { name: 'Bookings', to: '/admin/bookings', icon: Calendar },
       { name: 'Services', to: '/admin/services', icon: Wrench },
       { name: 'Payments', to: '/admin/payments', icon: CreditCard },
+      { name: 'Refunds', to: '/admin/refunds', icon: RotateCcw },
     ]
   },
   {

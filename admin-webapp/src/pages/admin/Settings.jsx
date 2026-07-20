@@ -33,10 +33,12 @@ const Settings = () => {
 
   const tabs = [
     { id: 'general', label: 'General', icon: <Globe size={18} /> },
+    { id: 'booking', label: 'Booking Rules', icon: <SettingsIcon size={18} /> },
     { id: 'security', label: 'Security & Auth', icon: <Shield size={18} /> },
     { id: 'payments', label: 'Payments & Fees', icon: <CreditCard size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
-    { id: 'integrations', label: 'Integrations', icon: <Database size={18} /> },
+    { id: 'ai', label: 'AI Matching', icon: <Database size={18} /> },
+    { id: 'appearance', label: 'Appearance', icon: <SettingsIcon size={18} /> },
   ];
 
   return (
@@ -208,7 +210,75 @@ const Settings = () => {
             )}
 
             {/* Other tabs would go here, omitting for brevity in demo */}
-            {(activeTab === 'notifications' || activeTab === 'integrations') && (
+            {activeTab === 'booking' && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Booking Rules</label>
+                  <textarea rows={4} defaultValue="Bookings require confirmation within 15 minutes, and cancellations within 2 hours are eligible for refunds." className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Cancellation Policy</label>
+                  <textarea rows={4} defaultValue="Customers can cancel up to 2 hours before a scheduled service. Same-day cancellations may incur a fee." className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500" />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'notifications' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Notifications</label>
+                    <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
+                      <option>Enabled</option>
+                      <option>Disabled</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Push Notifications</label>
+                    <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
+                      <option>Enabled</option>
+                      <option>Disabled</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'ai' && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">AI Matching Threshold</label>
+                  <input type="range" min="0" max="100" defaultValue="75" className="w-full" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Recommendation Strategy</label>
+                  <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
+                    <option>Balanced</option>
+                    <option>Speed First</option>
+                    <option>Quality First</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'appearance' && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                  <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
+                    <option>Light</option>
+                    <option>Dark</option>
+                    <option>Auto</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Branding</label>
+                  <textarea rows={4} defaultValue="A-yos Admin • Professional service operations dashboard" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500" />
+                </div>
+              </div>
+            )}
+
+            {(activeTab !== 'general' && activeTab !== 'booking' && activeTab !== 'security' && activeTab !== 'payments' && activeTab !== 'notifications' && activeTab !== 'ai' && activeTab !== 'appearance') && (
               <div className="py-12 text-center text-gray-500">
                 <SettingsIcon size={48} className="mx-auto mb-4 text-gray-300" />
                 <p>Configuration options for {activeTab} will appear here.</p>

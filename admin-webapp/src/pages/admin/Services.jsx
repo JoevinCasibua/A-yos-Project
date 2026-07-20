@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Search, Filter, Plus, Edit2, Trash2, 
+  Search, Filter, Plus, Edit2, Trash2, RotateCcw,
   Copy, Layers, ArrowUpRight, ArrowDownRight,
   Wrench, Box, CheckCircle, XCircle
 } from 'lucide-react';
@@ -20,6 +20,7 @@ const initialServices = [
 
 const Services = () => {
   const [services, setServices] = useState(initialServices);
+  const [deletedCategories, setDeletedCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,9 +62,15 @@ const Services = () => {
   };
 
   const handleDelete = (id) => {
-    if(window.confirm('Are you sure you want to delete this service?')) {
-      setServices(services.filter(s => s.id !== id));
+    const service = services.find((s) => s.id === id);
+    if (window.confirm(`Archive ${service?.name}?`)) {
+      setDeletedCategories((prev) => [...prev, service.category]);
+      setServices(services.filter((s) => s.id !== id));
     }
+  };
+
+  const handleRestoreCategory = (category) => {
+    setDeletedCategories((prev) => prev.filter((item) => item !== category));
   };
 
   const handleDuplicate = (service) => {
@@ -92,7 +99,7 @@ const Services = () => {
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Services Catalog</h1>
-          <p className="text-gray-500 mt-1">Manage the services offered by workers on the platform</p>
+          <p className="text-gray-500 mt-1">Manage service categories, availability, and administrative controls.</p>
         </div>
         <button 
           onClick={handleOpenAddModal}
@@ -101,6 +108,19 @@ const Services = () => {
           <Plus size={18} className="mr-2" /> Add Service
         </button>
       </div>
+
+      {deletedCategories.length > 0 && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold">Restorable categories:</span>
+            {deletedCategories.map((category) => (
+              <button key={category} onClick={() => handleRestoreCategory(category)} className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-white px-2 py-1">
+                <RotateCcw size={14} /> {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
