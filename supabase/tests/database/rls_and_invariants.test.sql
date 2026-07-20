@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(26);
+select plan(34);
 select has_extension('postgis','PostGIS is enabled');
 select has_table('public','accounts','accounts exists');
 select has_table('public','bookings','bookings exists');
@@ -17,6 +17,11 @@ select has_function('public','set_worker_service_area',array['numeric','numeric'
 select has_function('public','set_address_location',array['uuid','numeric','numeric'],'address location RPC exists');
 select has_function('public','get_booking_tracking',array['uuid','integer'],'authorized tracking RPC exists');
 select has_function('public','persist_ai_analysis',array['uuid','text','text','text','text','text','text','text','jsonb','jsonb'],'atomic AI persistence RPC exists');
+select has_function('public','admin_create_notification',array['notification_audience','text','text','text','timestamptz'],'protected notification command exists');
+select has_function('public','admin_upsert_service_category',array['uuid','text','text','boolean'],'protected category command exists');
+select has_function('public','attach_request_media',array['uuid','text','text','integer'],'request media attachment command exists');
+select has_function('public','attach_review_media',array['uuid','text','text','integer'],'review media attachment command exists');
+select has_function('public','save_ai_analysis',array['uuid'],'AI save command exists');
 select ok((select relrowsecurity from pg_class where oid='public.accounts'::regclass),'accounts RLS enabled');
 select ok((select relrowsecurity from pg_class where oid='public.payments'::regclass),'payments RLS enabled');
 select ok((select relrowsecurity from pg_class where oid='public.ai_analysis_attempts'::regclass),'AI attempts RLS enabled');
@@ -24,6 +29,9 @@ select is((select count(*) from pg_class c join pg_namespace n on n.oid=c.relnam
 select is((select count(*)::integer from storage.buckets where public=false),6,'all six application buckets are private');
 select is(has_table_privilege('authenticated','public.bookings','insert'),false,'authenticated clients cannot insert bookings directly');
 select is((select count(*) from information_schema.routine_privileges where specific_schema='public' and grantee in ('anon','PUBLIC') and privilege_type='EXECUTE' and routine_name in ('transition_booking','confirm_cash_payment','review_worker_verification','read_job_batch')),0::bigint,'anonymous roles cannot execute sensitive RPCs');
+select is((select count(*) from information_schema.routine_privileges where specific_schema='public' and grantee in ('anon','PUBLIC') and privilege_type='EXECUTE' and routine_name in ('admin_create_notification','admin_upsert_service_category','attach_request_media','attach_review_media','save_ai_analysis')),0::bigint,'anonymous roles cannot execute UI integration commands');
+select is((select count(*) from pg_policies where schemaname='public' and policyname in ('matching_worker_request_read','matching_worker_request_media_read')),2::bigint,'matching-worker request policies exist');
+select is((select count(*) from pg_policies where schemaname='storage' and policyname='storage_matching_worker_request_media_read'),1::bigint,'matching workers can read only attached request-media objects');
 select has_trigger('auth','users','provision_account_after_auth_insert','Auth users provision immutable application accounts');
 select has_trigger('auth','users','activate_account_after_email_confirmation','email confirmation activates pending accounts');
 select throws_ok($$select public.permanently_delete(gen_random_uuid())$$,'42501','PERMANENT_DELETION_BLOCKED','permanent deletion fails closed');
