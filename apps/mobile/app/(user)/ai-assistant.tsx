@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, Text } from 'react-native';
 import { Button, FeatureCard, Field, Heading } from '@/components';
-import { analyzeIssue, uploadPrivateObject } from '@/repository';
+import { analyzeIssue, saveAiAnalysis, uploadPrivateObject } from '@/repository';
 import { useSession } from '@/session';
 import { colors } from '@/theme';
 
@@ -22,7 +22,9 @@ export default function AiAssistantPage() {
   const [description, setDescription] = useState('');
   const [draft, setDraft] = useState('');
   const [result, setResult] = useState<AiAnalysisResult>();
+  const [analysisId, setAnalysisId] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const submit = async (inputType: AiInputType, text?: string, storagePath?: string) => {
     setBusy(true);
@@ -34,6 +36,8 @@ export default function AiAssistantPage() {
         ...(storagePath ? { storagePath } : {}),
       });
       setResult(response.result);
+      setAnalysisId(response.analysisId);
+      setSaved(false);
       setDraft(response.result.requestDraft);
     } catch (error) {
       Alert.alert(
@@ -178,9 +182,32 @@ export default function AiAssistantPage() {
           <Text style={{ color: colors.muted, fontSize: 12 }}>Editable request draft</Text>
           <Field label="Review and edit" multiline value={draft} onChangeText={setDraft} />
           <Button
+            title={saved ? 'Analysis saved ✓' : 'Save analysis'}
+            variant="secondary"
+            disabled={busy || saved || !analysisId}
+            onPress={() => {
+              if (!analysisId) return;
+              setBusy(true);
+              void saveAiAnalysis(analysisId)
+                .then(() => setSaved(true))
+                .catch((error: unknown) =>
+                  Alert.alert(
+                    'Save unavailable',
+                    error instanceof Error ? error.message : 'The analysis could not be saved.',
+                  ),
+                )
+                .finally(() => setBusy(false));
+            }}
+          />
+          <Button
             title="Use draft in request"
             disabled={draft.trim().length < 10}
-            onPress={() => router.push({ pathname: '/(user)/request', params: { draft } })}
+            onPress={() =>
+              router.push({
+                pathname: '/(user)/request',
+                params: { draft, aiAnalysisId: analysisId },
+              })
+            }
           />
         </>
       ) : null}
