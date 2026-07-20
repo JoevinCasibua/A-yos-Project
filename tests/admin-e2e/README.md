@@ -1,3 +1,3 @@
 # Administrator E2E tests
 
-Reserved for browser-driven authentication, worker review, bookings, finance, support, communication, reports, settings, Trash, and Restore scenarios. Execution requires a migrated database, bootstrap administrator, and browser acceptance environment.
+`public-auth.spec.ts` executes the public administrator sign-in and protected-route redirect checks. Authenticated mutation scenarios require a migrated database, an AAL2 bootstrap administrator fixture, and a browser acceptance environment.
