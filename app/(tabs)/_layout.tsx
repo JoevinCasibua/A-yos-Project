@@ -1,100 +1,133 @@
-import React from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
-import { Tabs } from 'expo-router';
-import { Home, Search, CalendarDays, User, Plus } from 'lucide-react-native';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import React, { useRef } from 'react';
+import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import { theme } from '@/constants/theme';
+import { Search, Calendar, MessageSquare, User, Plus, Home, FileText } from 'lucide-react-native';
 
-const tabIcons: Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>> = {
-  index: Home,
-  search: Search,
-  bookings: CalendarDays,
-  profile: User,
-};
+const CreateButton = () => {
+  const router = useRouter();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
-const tabLabels: Record<string, string> = {
-  index: 'Home',
-  search: 'Browse',
-  bookings: 'Bookings',
-  profile: 'Profile',
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.9,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+    // Navigate immediately to request creation flow
+    router.push('/new-request/create');
+  };
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={styles.createButtonContainer}
+    >
+      <Animated.View style={[styles.createButton, { transform: [{ scale: scaleAnim }] }]}>
+        <Plus color={theme.colors.surface} size={28} strokeWidth={2.5} />
+      </Animated.View>
+    </TouchableOpacity>
+  );
 };
 
 export default function TabLayout() {
-  const router = require('expo-router').useRouter();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: true,
-        tabBarActiveTintColor: Colors.navActive,
-        tabBarInactiveTintColor: Colors.navInactive,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: Colors.navBackground,
-          borderTopWidth: 1,
-          borderTopColor: Colors.border,
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
-          paddingTop: 8,
-        },
-        tabBarItemStyle: {
-          paddingVertical: 0,
-          marginVertical: 0,
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.border,
+          height: theme.layout.bottomNavHeight,
+          paddingBottom: theme.spacing.sm,
+          paddingTop: theme.spacing.xs,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
         },
         tabBarLabelStyle: {
-          fontSize: Typography.xs,
-          fontWeight: '600',
-          marginTop: 2,
-        },
-      }}
-    >
+          fontSize: 10,
+          fontWeight: '500',
+        }
+      }}>
+      
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: tabLabels.index,
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} strokeWidth={2} />,
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: tabLabels.search,
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} strokeWidth={2} />,
-        }}
-      />
-      <Tabs.Screen
-        name="request-action"
-        options={{
-          title: 'New',
-          tabBarIcon: ({ color, size }) => <Plus size={size} color={color} strokeWidth={2.5} />,
-        }}
-        listeners={() => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            router.push('/new-request/create');
-          },
-        })}
-      />
+      
       <Tabs.Screen
         name="bookings"
         options={{
-          title: tabLabels.bookings,
-          tabBarIcon: ({ color, size }) => <CalendarDays size={size} color={color} strokeWidth={2} />,
+          title: 'Activity',
+          tabBarIcon: ({ color, size }) => <FileText color={color} size={size} />,
         }}
       />
+
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: '',
+          tabBarButton: () => <CreateButton />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: 'Messages',
+          tabBarIcon: ({ color, size }) => <MessageSquare color={color} size={size} />,
+        }}
+      />
+
       <Tabs.Screen
         name="profile"
         options={{
-          title: tabLabels.profile,
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
+          title: 'Account',
+          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
-      <Tabs.Screen
-        name="reviews"
-        options={{
-          href: null,
-        }}
-      />
+      
     </Tabs>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  createButtonContainer: {
+    top: -15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 60,
+    height: 60,
+  },
+  createButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#0B63D6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#0B63D6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+});

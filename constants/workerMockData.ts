@@ -496,3 +496,68 @@ export const SKILLS_BY_INDUSTRY: Record<string, { label: string; value: string }
     { label: 'Demolition', value: 'demolition' },
   ],
 };
+
+export type TransactionStatus = 'completed' | 'pending' | 'failed';
+
+export interface WalletTransaction {
+  id: string;
+  date: string;
+  label: string;
+  sub: string;
+  credit: boolean;
+  amount: string;
+  status: TransactionStatus;
+}
+
+export interface BarDatum {
+  day: string;
+  val: number;
+}
+
+export interface PayoutMethod {
+  id: string;
+  label: string;
+  color: string;
+  account: string;
+}
+
+export interface WorkerPerformance {
+  completionRate: number;
+  onTimeArrival: number;
+  repeatClients: number;
+}
+
+export const walletTransactions: WalletTransaction[] = [
+  { id: 'tx1', date: 'Oct 14', label: 'Plumbing Repair', sub: 'Mario Rossi', credit: true, amount: '₱1,250', status: 'completed' },
+  { id: 'tx2', date: 'Oct 14', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱125', status: 'completed' },
+  { id: 'tx3', date: 'Oct 13', label: 'Electrical Inspection', sub: 'Luigi Verdi', credit: true, amount: '₱800', status: 'completed' },
+  { id: 'tx4', date: 'Oct 13', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱80', status: 'completed' },
+  { id: 'tx5', date: 'Oct 12', label: 'AC Cleaning', sub: 'Pedro', credit: true, amount: '₱1,500', status: 'completed' },
+  { id: 'tx6', date: 'Oct 12', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱150', status: 'completed' },
+  { id: 'tx7', date: 'Oct 11', label: 'Payout — GCash', sub: 'GCash', credit: false, amount: '-₱5,000', status: 'completed' },
+  { id: 'tx8', date: 'Oct 10', label: 'Painting Service', sub: 'Sofia', credit: true, amount: '₱2,000', status: 'completed' },
+  { id: 'tx9', date: 'Oct 10', label: 'Carpentry', sub: 'Miguel', credit: true, amount: '₱950', status: 'pending' },
+  { id: 'tx10', date: 'Oct 09', label: 'Payout — BPI', sub: 'BPI', credit: false, amount: '-₱8,000', status: 'completed' },
+];
+
+export const walletBarData: BarDatum[] = [
+  { day: 'Mon', val: 750 },
+  { day: 'Tue', val: 1200 },
+  { day: 'Wed', val: 890 },
+  { day: 'Thu', val: 2160 },
+  { day: 'Fri', val: 1450 },
+  { day: 'Sat', val: 1800 },
+  { day: 'Sun', val: 675 },
+];
+
+export const walletPayoutMethods: PayoutMethod[] = [
+  { id: 'gcash', label: 'GCash', color: '#0052cc', account: '0917******' },
+  { id: 'bank', label: 'BPI Savings', color: '#ed1c24', account: '****0012' },
+  { id: 'paypal', label: 'PayPal', color: '#003087', account: 'juan@email.com' },
+];
+
+export const walletPerformance: WorkerPerformance = {
+  completionRate: 98,
+  onTimeArrival: 95,
+  repeatClients: 72,
+};

@@ -1,180 +1,144 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
-import { ChevronLeft, Star, X } from 'lucide-react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
-import { AppText } from '@/components/AppText';
-import { AppButton } from '@/components/AppButton';
-import { Avatar } from '@/components/Avatar';
-import { providers } from '@/constants/mockData';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Screen } from '@/components/layout/Screen';
+import { Button } from '@/components/buttons/Button';
+import { TextInput } from '@/components/inputs/TextInput';
+import { theme } from '@/constants/theme';
+import { ArrowLeft, Star, UploadCloud, X } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ReviewScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
-
+  const router = useRouter();
+  const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [rating, setRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
-  const [hoverRating, setHoverRating] = useState(0);
+  const [review, setReview] = useState('');
+  const [recommend, setRecommend] = useState(true);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleClose = useCallback(() => router.back(), []);
-  const handleSubmit = useCallback(() => {
-    // Navigate forward to Payment Received/Confirmation
-    router.replace('/payment-received');
-  }, []);
+  const handleSubmit = () => {
+    if (rating === 0) {
+      alert('Please provide a rating');
+      return;
+    }
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      // Navigate to Home or Bookings
+      router.replace('/(tabs)/home');
+    }, 1500);
+  };
 
-  const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+  const handleMockUpload = () => {
+    if (photos.length < 3) {
+      setPhotos([...photos, `review_photo_${photos.length + 1}`]);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleClose} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
-        </Pressable>
-        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Rate & Review</AppText>
+    <Screen safeArea scrollable>
+      <View style={[styles.header, { paddingHorizontal: theme.layout.screenPadding }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <ArrowLeft color={theme.colors.textPrimary} size={24} />
+        </TouchableOpacity>
+        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Rate Service</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Provider Card */}
-        <View style={styles.providerCard}>
-          <Avatar uri={provider.avatarUri} size={64} />
-          <View style={styles.providerInfo}>
-            <AppText variant="h4" weight="bold">{provider.name}</AppText>
-            <AppText variant="caption" color={Colors.textSecondary}>{provider.category}</AppText>
-          </View>
+      <View style={styles.content}>
+        <View style={styles.workerInfo}>
+          <View style={styles.avatarPlaceholder} />
+          <Text style={[theme.typography.h3, { marginBottom: theme.spacing.xs }]}>Mario Rossi</Text>
+          <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>Plumbing Service • Oct 24</Text>
         </View>
 
-        {/* Star Rating */}
-        <View style={styles.ratingSection}>
-          <AppText variant="body" weight="semiBold" align="center">How was your experience?</AppText>
-          <View style={styles.starsRow}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Pressable
-                key={star}
-                onPress={() => setRating(star)}
-                onHoverIn={() => setHoverRating(star)}
-                onHoverOut={() => setHoverRating(0)}
-                style={styles.starBtn}
-                accessibilityLabel={`${star} star${star > 1 ? 's' : ''}`}
-                accessibilityRole="button"
-              >
-                <Star
-                  size={40}
-                  color={Colors.star}
-                  fill={(hoverRating || rating) >= star ? Colors.star : 'transparent'}
-                  strokeWidth={2}
-                />
-              </Pressable>
-            ))}
-          </View>
-          {rating > 0 && (
-            <AppText variant="body" weight="semiBold" color={Colors.cta} align="center" style={{ marginTop: Spacing['2'] }}>
-              {ratingLabels[rating]}
-            </AppText>
+        <Text style={[theme.typography.h4, styles.sectionTitle]}>How was the service?</Text>
+        <View style={styles.starsContainer}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <TouchableOpacity key={star} onPress={() => setRating(star)} style={styles.starBtn}>
+              <Star 
+                color={star <= rating ? theme.colors.warning : theme.colors.border} 
+                size={40} 
+                fill={star <= rating ? theme.colors.warning : 'transparent'} 
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={[theme.typography.h4, styles.sectionTitle]}>Write a Review</Text>
+        <TextInput
+          placeholder="Share your experience (optional)"
+          multiline
+          numberOfLines={4}
+          value={review}
+          onChangeText={setReview}
+          style={styles.textArea}
+          textAlignVertical="top"
+        />
+
+        <Text style={[theme.typography.h4, styles.sectionTitle]}>Add Photos (Optional)</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoScroll}>
+          {photos.length < 3 && (
+            <TouchableOpacity style={styles.uploadBtn} onPress={handleMockUpload}>
+              <UploadCloud color={theme.colors.primary} size={32} />
+            </TouchableOpacity>
           )}
-        </View>
+          {photos.map((photo, index) => (
+            <View key={index} style={styles.photoPreview}>
+              <View style={styles.mockImg} />
+              <TouchableOpacity style={styles.removePhotoBtn} onPress={() => setPhotos(photos.filter((_, i) => i !== index))}>
+                <X color={theme.colors.surface} size={14} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
 
-        {/* Review Text */}
-        <View style={styles.reviewSection}>
-          <AppText variant="body" weight="semiBold">Write a Review</AppText>
-          <View style={styles.textAreaContainer}>
-            <TextInput
-              style={styles.textArea}
-              value={reviewText}
-              onChangeText={setReviewText}
-              placeholder="Share details about the service quality, professionalism, and your overall experience..."
-              placeholderTextColor={Colors.textTertiary}
-              multiline
-              numberOfLines={6}
-              textAlignVertical="top"
-              maxLength={500}
-            />
-            <AppText variant="caption" color={Colors.textTertiary} style={styles.charCount}>
-              {reviewText.length}/500
-            </AppText>
+        <View style={styles.recommendContainer}>
+          <View style={{ flex: 1, paddingRight: theme.spacing.md }}>
+            <Text style={theme.typography.h4}>Recommend Worker</Text>
+            <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>
+              Would you recommend this professional to others?
+            </Text>
           </View>
-        </View>
-
-        {/* Quick Tags */}
-        <View style={styles.tagsSection}>
-          <AppText variant="body" weight="semiBold">Quick Feedback</AppText>
-          <View style={styles.tagsGrid}>
-            {['Punctual', 'Professional', 'Fair Price', 'Clean Work', 'Friendly', 'Knowledgeable'].map((tag) => (
-              <Pressable
-                key={tag}
-                style={({ pressed }) => [
-                  styles.tag,
-                  { opacity: pressed ? 0.7 : 1 },
-                ]}
-              >
-                <AppText variant="caption" weight="medium" color={Colors.cta}>{tag}</AppText>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        {/* Submit */}
-        <View style={styles.submitSection}>
-          <AppButton
-            label="Submit Review"
-            size="lg"
-            fullWidth
-            onPress={handleSubmit}
-            disabled={rating === 0}
-            leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
+          <Switch 
+            value={recommend}
+            onValueChange={setRecommend}
+            trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+            thumbColor={theme.colors.surface}
           />
         </View>
-      </ScrollView>
-    </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Button 
+          title="Submit Review" 
+          onPress={handleSubmit} 
+          disabled={rating === 0}
+          loading={loading}
+          fullWidth 
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Layout.screenPadding,
-    paddingTop: 60,
-    paddingBottom: Spacing[4],
-    backgroundColor: Colors.background,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  providerCard: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing['4'],
-    marginHorizontal: Spacing['4'], marginTop: Spacing['5'],
-    backgroundColor: Colors.white, borderRadius: Radius.xl, padding: Spacing['4'],
-    ...Elevation.sm,
-  },
-  providerInfo: { flex: 1 },
-  ratingSection: { marginTop: Spacing['8'], paddingHorizontal: Spacing['4'] },
-  starsRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing['3'], marginTop: Spacing['4'] },
-  starBtn: { padding: Spacing['1'] },
-  reviewSection: { marginTop: Spacing['8'], paddingHorizontal: Spacing['4'] },
-  textAreaContainer: {
-    backgroundColor: Colors.white, borderRadius: Radius.lg, borderWidth: 1.5,
-    borderColor: Colors.border, padding: Spacing['4'], marginTop: Spacing['3'],
-  },
-  textArea: {
-    fontSize: 15, color: Colors.textPrimary, minHeight: 120,
-    padding: 0, textAlignVertical: 'top',
-  },
-  charCount: { alignSelf: 'flex-end', marginTop: Spacing['2'] },
-  tagsSection: { marginTop: Spacing['6'], paddingHorizontal: Spacing['4'] },
-  tagsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing['2'], marginTop: Spacing['3'] },
-  tag: {
-    backgroundColor: Colors.primarySurface, paddingHorizontal: Spacing['4'],
-    paddingVertical: Spacing['2'], borderRadius: Radius.full, borderWidth: 1.5, borderColor: Colors.primaryBorder,
-  },
-  submitSection: { marginTop: Spacing['8'], paddingHorizontal: Spacing['4'] },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md },
+  backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
+  content: { flex: 1, paddingVertical: theme.spacing.lg },
+  workerInfo: { alignItems: 'center', marginBottom: theme.spacing.xxxl },
+  avatarPlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: theme.colors.border, marginBottom: theme.spacing.md },
+  sectionTitle: { marginBottom: theme.spacing.sm },
+  starsContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: theme.spacing.xxxl },
+  starBtn: { padding: theme.spacing.xs, marginHorizontal: theme.spacing.xs },
+  textArea: { minHeight: 100, backgroundColor: theme.colors.surface, marginBottom: theme.spacing.xl },
+  photoScroll: { flexDirection: 'row', marginBottom: theme.spacing.xl, flexGrow: 0 },
+  uploadBtn: { width: 80, height: 80, borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.colors.primary, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.infoBackground, marginRight: theme.spacing.md },
+  photoPreview: { width: 80, height: 80, borderRadius: theme.radius.md, marginRight: theme.spacing.md, position: 'relative' },
+  mockImg: { flex: 1, borderRadius: theme.radius.md, backgroundColor: theme.colors.border },
+  removePhotoBtn: { position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: 12, backgroundColor: theme.colors.error, justifyContent: 'center', alignItems: 'center' },
+  recommendContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: theme.spacing.lg, backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, marginBottom: theme.spacing.xxxl, ...theme.shadows.sm },
+  footer: { paddingVertical: theme.spacing.md },
 });

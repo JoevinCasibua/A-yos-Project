@@ -1,283 +1,215 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Image, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-// Removed expo-image-picker to fix Expo Go crash
-import { Camera, Image as ImageIcon, X, ChevronLeft, CircleCheck, Circle } from 'lucide-react-native';
-import { Colors, Spacing, Layout, Typography, Radius } from '@/constants/theme';
-import { AppText } from '@/components/AppText';
-import { AppInput } from '@/components/AppInput';
-import { AppButton } from '@/components/AppButton';
-import { Chip } from '@/components/Chip';
-import { useRequest } from '@/context/RequestContext';
+import { Screen } from '@/components/layout/Screen';
+import { Button } from '@/components/buttons/Button';
+import { TextInput } from '@/components/inputs/TextInput';
+import { theme } from '@/constants/theme';
+import { ArrowLeft, X, Wrench, Droplets, Zap, Paintbrush, MapPin, Navigation, Camera, Mic, Settings, Info } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 
-const CATEGORIES = ['Plumbing', 'Electrical', 'Carpentry', 'Appliance', 'Painting', 'Other'];
+const CATEGORIES = [
+  { id: '1', name: 'Plumbing', icon: Droplets },
+  { id: '2', name: 'Electrical', icon: Zap },
+  { id: '3', name: 'Carpentry', icon: Wrench },
+  { id: '4', name: 'Painting', icon: Paintbrush },
+];
 
 export default function CreateRequestScreen() {
   const router = useRouter();
-  const { request, updateRequest } = useRequest();
+  const insets = useSafeAreaInsets();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [address, setAddress] = useState('123 Main St, Makati City');
+  const [description, setDescription] = useState('');
   
-  const [photos, setPhotos] = useState<string[]>(request.photos || []);
-  const [description, setDescription] = useState(request.description || '');
-  const [category, setCategory] = useState(request.category || '');
-  const [hasParts, setHasParts] = useState<boolean | null>(request.hasParts !== undefined ? request.hasParts : null);
-  const [partsDescription, setPartsDescription] = useState(request.partsDescription || '');
-
-  const pickImage = async (useCamera: boolean) => {
-    if (photos.length >= 5) {
-      Alert.alert('Limit Reached', 'You can only add up to 5 photos.');
-      return;
-    }
-
-    // Mock image selection to avoid Expo Go native module errors
-    const mockImageUri = 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800';
-    setPhotos((prev) => [...prev, mockImageUri]);
-  };
-
-  const removePhoto = (index: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
-  };
+  const [cameraPhoto, setCameraPhoto] = useState<string | null>(null);
+  const [voiceRecord, setVoiceRecord] = useState<string | null>(null);
 
   const handleNext = () => {
-    updateRequest({ photos, description, category, hasParts, partsDescription });
-    router.push('/new-request/issue-summary' as any);
+    if (!selectedCategory || !description || !address) {
+      alert('Please select a service, specify a location, and describe the issue.');
+      return;
+    }
+    // In a real app, we would pass state via a store or params
+    router.push('/new-request/issue-summary');
   };
 
-  const isNextDisabled = description.trim().length === 0 || hasParts === null;
+  const handleCameraClick = () => {
+    setCameraPhoto('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400&auto=format&fit=crop'); // Mock broken pipe photo
+  };
+
+  const handleVoiceClick = () => {
+    setVoiceRecord('https://images.unsplash.com/photo-1614227361719-75a8de789243?q=80&w=400&auto=format&fit=crop'); // Audio waveform mock
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
-        </Pressable>
-        <AppText variant="h4" weight="bold" style={styles.headerTitle}>New Request</AppText>
+    <Screen safeArea scrollable>
+      <View style={[styles.header, { paddingHorizontal: theme.layout.screenPadding }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <ArrowLeft color={theme.colors.textPrimary} size={24} />
+        </TouchableOpacity>
+        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>A-yos AI</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={styles.content}>
+        <Text style={[theme.typography.h2, styles.title]}>What do you need help with?</Text>
         
-        {/* Photo Section */}
-        <View style={styles.section}>
-          <AppText variant="h3" style={styles.sectionTitle}>Photos ({photos.length}/5)</AppText>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoScroll}>
-            {photos.map((uri, index) => (
-              <View key={index} style={styles.photoContainer}>
-                <Image source={{ uri }} style={styles.photo} />
-                <Pressable style={styles.removePhotoBtn} onPress={() => removePhoto(index)}>
-                  <X size={16} color={Colors.white} />
-                </Pressable>
-              </View>
-            ))}
-            
-            {photos.length < 5 && (
-              <View style={styles.addPhotoButtons}>
-                <Pressable style={styles.addBtn} onPress={() => pickImage(true)}>
-                  <Camera size={24} color={Colors.cta} />
-                  <AppText variant="caption" style={{ color: Colors.cta, marginTop: 4 }}>Camera</AppText>
-                </Pressable>
-                <Pressable style={styles.addBtn} onPress={() => pickImage(false)}>
-                  <ImageIcon size={24} color={Colors.cta} />
-                  <AppText variant="caption" style={{ color: Colors.cta, marginTop: 4 }}>Gallery</AppText>
-                </Pressable>
-              </View>
-            )}
-          </ScrollView>
+        {/* Categories */}
+        <Text style={[theme.typography.label, styles.sectionTitle]}>Select Service</Text>
+        <View style={styles.categoriesRow}>
+          {CATEGORIES.map(cat => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.id;
+            return (
+              <TouchableOpacity 
+                key={cat.id} 
+                style={[styles.categoryItemRow, isSelected && styles.categoryItemSelected]}
+                onPress={() => setSelectedCategory(cat.id)}
+              >
+                <Icon color={isSelected ? theme.colors.primary : theme.colors.textSecondary} size={24} />
+                <Text style={[theme.typography.caption, { color: isSelected ? theme.colors.primary : theme.colors.textSecondary, marginTop: theme.spacing.xs, fontSize: 10, textAlign: 'center' }]} numberOfLines={1}>
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* Description Section */}
-        <View style={styles.section}>
-          <AppText variant="h3" style={styles.sectionTitle}>What needs fixing?</AppText>
-          <AppInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Describe the issue in detail..."
-            multiline
-            numberOfLines={4}
-            style={styles.textArea}
-          />
-        </View>
+        {/* Camera */}
+        <Text style={[theme.typography.label, styles.sectionTitle]}>Camera</Text>
+        {cameraPhoto ? (
+          <View style={styles.mediaPreview}>
+            <Image source={cameraPhoto} style={styles.mediaImg} contentFit="cover" />
+            <TouchableOpacity style={styles.removeMediaBtn} onPress={() => setCameraPhoto(null)}>
+              <X color={theme.colors.surface} size={16} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.mediaUploadBtn} onPress={handleCameraClick}>
+            <Camera color={theme.colors.primary} size={32} />
+            <Text style={[theme.typography.caption, { color: theme.colors.primary, marginTop: theme.spacing.xs }]}>Take Photo</Text>
+          </TouchableOpacity>
+        )}
 
-        {/* Category Section */}
-        <View style={styles.section}>
-          <AppText variant="h3" style={styles.sectionTitle}>Category (Optional)</AppText>
-          <View style={styles.chipContainer}>
-            {CATEGORIES.map((cat) => (
-              <Chip
-                key={cat}
-                label={cat}
-                selected={category === cat}
-                onPress={() => setCategory(category === cat ? '' : cat)}
-                style={styles.chip}
-              />
-            ))}
+        {/* Voice */}
+        <Text style={[theme.typography.label, styles.sectionTitle, { marginTop: theme.spacing.lg }]}>Voice</Text>
+        {voiceRecord ? (
+          <View style={styles.mediaPreview}>
+            <Image source={voiceRecord} style={styles.mediaImg} contentFit="cover" />
+            <View style={styles.voiceLabelOverlay}>
+              <Text style={{color: 'white', fontWeight: 'bold'}}>Voice Content: 0:14s</Text>
+            </View>
+            <TouchableOpacity style={styles.removeMediaBtn} onPress={() => setVoiceRecord(null)}>
+              <X color={theme.colors.surface} size={16} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.mediaUploadBtn} onPress={handleVoiceClick}>
+            <Mic color={theme.colors.primary} size={32} />
+            <Text style={[theme.typography.caption, { color: theme.colors.primary, marginTop: theme.spacing.xs }]}>Record Voice</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Description */}
+        <Text style={[theme.typography.label, styles.sectionTitle, { marginTop: theme.spacing.lg }]}>Describe the problem</Text>
+        <TextInput
+          placeholder="e.g. The sink is leaking under the cabinet..."
+          multiline
+          numberOfLines={4}
+          value={description}
+          onChangeText={setDescription}
+          style={styles.textArea}
+          textAlignVertical="top"
+        />
+
+        {/* Location Picker */}
+        <View style={styles.locationHeaderRow}>
+          <Text style={[theme.typography.label, styles.sectionTitle, { marginBottom: 0 }]}>Service Location</Text>
+          <View style={styles.locationControls}>
+            <TouchableOpacity style={styles.currentLocationBtn}>
+              <Navigation color={theme.colors.primary} size={14} />
+              <Text style={[theme.typography.caption, { color: theme.colors.primary, marginLeft: 4, fontWeight: '600' }]}>Use Current</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.gearBtn} onPress={() => router.push('/new-request/radius-config')}>
+              <Settings color={theme.colors.textSecondary} size={20} />
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Replacement Parts Section */}
-        <View style={styles.section}>
-          <AppText variant="h3" style={styles.sectionTitle}>Replacement Parts</AppText>
-          <AppText variant="body" color={Colors.textSecondary} style={{ marginBottom: Spacing[3] }}>
-            Do you already have the replacement parts needed for this service?
-          </AppText>
-
-          <Pressable 
-            style={[styles.optionCard, hasParts === true && styles.optionCardSelected]}
-            onPress={() => setHasParts(true)}
-          >
-            {hasParts === true ? <CircleCheck size={24} color={Colors.primary} /> : <Circle size={24} color={Colors.border} />}
-            <View style={styles.optionContent}>
-              <AppText variant="body" weight="semiBold" color={hasParts === true ? Colors.primary : Colors.textPrimary}>I Have the Parts</AppText>
-              <AppText variant="caption" color={Colors.textSecondary}>I already have the replacement parts needed for this service.</AppText>
-            </View>
-          </Pressable>
-
-          <Pressable 
-            style={[styles.optionCard, hasParts === false && styles.optionCardSelected]}
-            onPress={() => {
-              setHasParts(false);
-              setPartsDescription('');
-            }}
-          >
-            {hasParts === false ? <CircleCheck size={24} color={Colors.primary} /> : <Circle size={24} color={Colors.border} />}
-            <View style={styles.optionContent}>
-              <AppText variant="body" weight="semiBold" color={hasParts === false ? Colors.primary : Colors.textPrimary}>I Need the Service Provider to Bring the Parts</AppText>
-              <AppText variant="caption" color={Colors.textSecondary}>I don't have the required parts and would like the service provider to bring them if needed.</AppText>
-            </View>
-          </Pressable>
-
-          {hasParts === true && (
-            <View style={{ marginTop: Spacing[3] }}>
-              <AppInput
-                label="Parts Description (Optional)"
-                placeholder="Example: Kitchen faucet, LED bulb, Aircon capacitor, Door lock"
-                value={partsDescription}
-                onChangeText={setPartsDescription}
-              />
-            </View>
-          )}
+        <View style={styles.mockMiniMap}>
+          <View style={styles.mapGridPattern} />
+          <MapPin color={theme.colors.error} size={32} style={styles.mapPin} />
+          <View style={styles.mapOverlay} />
         </View>
+        <TextInput
+          placeholder="Enter complete address"
+          value={address}
+          onChangeText={setAddress}
+          style={styles.addressInput}
+        />
 
-      </ScrollView>
+        {/* AI Workflow Info */}
+        <View style={styles.infoCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.sm }}>
+            <Info color={theme.colors.primary} size={16} />
+            <Text style={[theme.typography.label, { marginLeft: 8, color: theme.colors.primary }]}>How A-yos AI Works</Text>
+          </View>
+          <View style={{ marginLeft: 24 }}>
+            <Text style={[theme.typography.caption, styles.infoBullet]}>• Customer uploads a photo of the problem</Text>
+            <Text style={[theme.typography.caption, styles.infoBullet]}>• Customer records or enters a spoken or written description</Text>
+            <Text style={[theme.typography.caption, styles.infoBullet]}>• AI identifies the likely issue</Text>
+            <Text style={[theme.typography.caption, styles.infoBullet]}>• AI shows urgency, possible cause, suggested service category, estimated cost, and safety advice</Text>
+            <Text style={[theme.typography.caption, styles.infoBullet]}>• AI creates an editable request draft</Text>
+            <Text style={[theme.typography.caption, styles.infoBullet]}>• Customer can save the draft and continue later</Text>
+          </View>
+        </View>
+      </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
-        <AppButton 
-          label="Next" 
+        <Button 
+          title="Continue" 
           onPress={handleNext} 
-          disabled={isNextDisabled}
+          disabled={!selectedCategory || description.length < 5 || address.length < 5}
+          fullWidth 
         />
       </View>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Layout.screenPadding,
-    paddingTop: 60, // Safe area approx
-    paddingBottom: Spacing[4],
-    backgroundColor: Colors.background,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  scrollContent: {
-    padding: Layout.screenPadding,
-    paddingBottom: 40,
-  },
-  section: {
-    marginBottom: Layout.sectionSpacing,
-  },
-  sectionTitle: {
-    marginBottom: Spacing[3],
-    fontWeight: '600',
-  },
-  photoScroll: {
-    gap: Spacing[3],
-    paddingVertical: 4,
-  },
-  photoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    overflow: 'hidden',
-    position: 'relative',
-    marginRight: Spacing[3],
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-  },
-  removePhotoBtn: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 12,
-    padding: 4,
-  },
-  addPhotoButtons: {
-    flexDirection: 'row',
-    gap: Spacing[3],
-  },
-  addBtn: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: Colors.cta,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surfaceCard,
-  },
-  textArea: {
-    height: 120,
-    textAlignVertical: 'top',
-  },
-  chipContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing[2],
-  },
-  chip: {
-    marginBottom: Spacing[2],
-  },
-  footer: {
-    padding: Layout.screenPadding,
-    backgroundColor: Colors.surfaceCard,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  optionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing[4],
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.md,
-    marginBottom: Spacing[3],
-    backgroundColor: Colors.white,
-  },
-  optionCardSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: `${Colors.primary}10`,
-  },
-  optionContent: {
-    flex: 1,
-    marginLeft: Spacing[3],
-  }
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md },
+  backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
+  content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingVertical: theme.spacing.xl },
+  title: { marginBottom: theme.spacing.xl, color: theme.colors.textPrimary },
+  sectionTitle: { marginBottom: theme.spacing.sm, color: theme.colors.textPrimary },
+  
+  categoriesRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.xl },
+  categoryItemRow: { width: '23%', height: 80, backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.border },
+  categoryItemSelected: { borderColor: theme.colors.primary, backgroundColor: theme.colors.infoBackground },
+
+  mediaUploadBtn: { width: '100%', height: 80, borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.colors.primary, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.infoBackground, marginBottom: theme.spacing.sm },
+  mediaPreview: { width: '100%', height: 120, borderRadius: theme.radius.md, position: 'relative', overflow: 'hidden', marginBottom: theme.spacing.sm },
+  mediaImg: { width: '100%', height: '100%', backgroundColor: theme.colors.border },
+  voiceLabelOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8, backgroundColor: 'rgba(0,0,0,0.5)' },
+  removeMediaBtn: { position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: theme.colors.error, justifyContent: 'center', alignItems: 'center' },
+
+  textArea: { minHeight: 100, backgroundColor: theme.colors.surface, marginBottom: theme.spacing.xl },
+
+  locationHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.sm },
+  locationControls: { flexDirection: 'row', alignItems: 'center' },
+  currentLocationBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.infoBackground, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginRight: theme.spacing.sm },
+  gearBtn: { padding: 4 },
+  
+  mockMiniMap: { height: 140, backgroundColor: '#e2e8f0', borderRadius: theme.radius.lg, marginBottom: theme.spacing.md, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  mapGridPattern: { position: 'absolute', width: '150%', height: '150%', borderWidth: 1, borderColor: '#cbd5e1', opacity: 0.5, borderRadius: 20 },
+  mapPin: { zIndex: 2 },
+  mapOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, backgroundColor: 'rgba(255,255,255,0.4)' },
+  addressInput: { backgroundColor: theme.colors.surface, marginBottom: theme.spacing.xl },
+
+  infoCard: { backgroundColor: theme.colors.infoBackground, borderRadius: theme.radius.lg, padding: theme.spacing.md, marginBottom: theme.spacing.md },
+  infoBullet: { color: theme.colors.textSecondary, marginBottom: 4, lineHeight: 18 },
+
+  footer: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
 });

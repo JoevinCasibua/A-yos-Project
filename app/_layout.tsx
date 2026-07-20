@@ -1,37 +1,36 @@
-import { useEffect } from 'react';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { Colors } from '@/constants/theme';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { RequestProvider } from '@/context/RequestContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StatusBar } from 'expo-status-bar';
+import { theme } from '@/constants/theme';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+
+// Prevent auto hide while checking auth state
+SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
-  useFrameworkReady();
+  
+  useEffect(() => {
+    // Hide splash screen after initialization
+    SplashScreen.hideAsync();
+  }, []);
 
   return (
-    <SafeAreaProvider>
-      <RequestProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" options={{ headerShown: false, animation: 'slide_from_left' }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-          <Stack.Screen name="sign-up" options={{ headerShown: false }} />
-          <Stack.Screen name="register-worker" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="new-request" options={{ headerShown: false }} />
-          <Stack.Screen name="(worker)" options={{ headerShown: false }} />
-          <Stack.Screen name="provider/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
-          <Stack.Screen name="booking/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
-          <Stack.Screen name="payment" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="payment-received" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="order" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="tracking/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
-          <Stack.Screen name="review/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
-          <Stack.Screen name="+not-found" options={{ headerShown: false }} />
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ 
+          headerShown: false,
+          contentStyle: { backgroundColor: theme.colors.background }
+        }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
         </Stack>
-      </RequestProvider>
-      <StatusBar style="dark" backgroundColor={Colors.white} />
-    </SafeAreaProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

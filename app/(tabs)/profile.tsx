@@ -1,41 +1,133 @@
-import React, { useCallback } from 'react';
-import { Alert } from 'react-native';
-import { router } from 'expo-router';
-import { ProfileScreen } from '@/components/ProfileScreen';
-import { userMenuItems } from '@/constants/workerMockData';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Screen } from '@/components/layout/Screen';
+import { Button } from '@/components/buttons/Button';
+import { theme } from '@/constants/theme';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const menuRoutes: Record<string, () => void> = {
-  payment: () => router.push('/payment'),
-  notifications: () => Alert.alert('Notifications', 'Notification settings coming soon.'),
-  addresses: () => Alert.alert('Saved Addresses', 'Address management coming soon.'),
-  favorites: () => Alert.alert('Favorites', 'Favorites list coming soon.'),
-  rewards: () => Alert.alert('Rewards & Points', 'Rewards program coming soon.'),
-  privacy: () => Alert.alert('Privacy & Security', 'Privacy settings coming soon.'),
-  help: () => Alert.alert('Help & Support', 'Support center coming soon.'),
-  settings: () => Alert.alert('Settings', 'App settings coming soon.'),
-};
+import { ChevronRight, Shield, Bell, CreditCard, Settings, HelpCircle, LogOut, MapPin, Heart, BookOpen, Fingerprint, Wallet, ArrowLeftRight } from 'lucide-react-native';
+import { Image } from 'expo-image';
 
-export default function ProfileScreenTab() {
-  const handleSwitchToWorker = useCallback(() => router.replace('/(worker)'), []);
-  const handleLogout = useCallback(() => router.replace('/'), []);
-  const handleMenuPress = useCallback((id: string) => { menuRoutes[id]?.(); }, []);
+const SETTINGS_SECTIONS = [
+  {
+    title: 'Account',
+    items: [
+      { id: 'personal', title: 'Personal Information', icon: Fingerprint, route: '/(tabs)/profile' },
+      { id: 'addresses', title: 'Saved Addresses', icon: MapPin, route: '/(tabs)/profile' },
+      { id: 'favorites', title: 'Favorite Workers', icon: Heart, route: '/(tabs)/profile' },
+    ]
+  },
+  {
+    title: 'Payments',
+    items: [
+      { id: 'payment-methods', title: 'Payment Methods', icon: CreditCard, route: '/(tabs)/profile' },
+      { id: 'history', title: 'Payment History', icon: BookOpen, route: '/(tabs)/profile' },
+    ]
+  },
+  {
+    title: 'Preferences',
+    items: [
+      { id: 'budget', title: 'Budget & Price Range', icon: Wallet, route: '/new-request/budget-config' },
+      { id: 'notifications', title: 'Notifications', icon: Bell, route: '/(tabs)/profile' },
+      { id: 'appearance', title: 'App Appearance', icon: Settings, route: '/(tabs)/profile' },
+    ]
+  },
+  {
+    title: 'Support & Legal',
+    items: [
+      { id: 'help', title: 'Help Center', icon: HelpCircle, route: '/(tabs)/profile' },
+      { id: 'privacy', title: 'Privacy Policy', icon: Shield, route: '/(tabs)/profile' },
+    ]
+  },
+];
+
+export default function ProfileScreen() {
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const handleLogout = () => {
+    logout();
+    router.replace('/');
+  };
+
+  const handleSwitchToWorker = () => {
+    router.replace('/(worker)');
+  };
 
   return (
-    <ProfileScreen
-      avatarUri="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
-      name="Alex Johnson"
-      subtitle="alex.johnson@email.com"
-      badge={{ label: 'Gold Member', variant: 'verified' }}
-      stats={[
-        { value: '12', label: 'Bookings' },
-        { value: '5', label: 'Reviews' },
-        { value: '340', label: 'Points' },
-      ]}
-      menuItems={userMenuItems}
-      devLabel="For Development Testing"
-      onSwitchAccount={handleSwitchToWorker}
-      onLogout={handleLogout}
-      onMenuItemPress={handleMenuPress}
-    />
+    <Screen safeArea scrollable>
+      <View style={styles.header}>
+        <Text style={theme.typography.h2}>Profile</Text>
+      </View>
+      
+      <View style={styles.content}>
+        <View style={styles.userInfo}>
+          <Image 
+            source="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop" 
+            style={styles.avatar} 
+            contentFit="cover" 
+          />
+          <Text style={theme.typography.h3}>{user?.name || 'Juan Dela Cruz'}</Text>
+          <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{user?.email || 'juan.delacruz@example.com'}</Text>
+          <View style={styles.verifiedBadge}>
+            <Text style={[theme.typography.caption, { color: theme.colors.success }]}>✓ Verified User</Text>
+          </View>
+        </View>
+
+        {SETTINGS_SECTIONS.map(section => (
+          <View key={section.title} style={styles.section}>
+            <Text style={[theme.typography.h4, styles.sectionTitle]}>{section.title}</Text>
+            <View style={styles.card}>
+              {section.items.map((item, index) => {
+                const Icon = item.icon;
+                const isLast = index === section.items.length - 1;
+                return (
+                  <TouchableOpacity key={item.id} style={[styles.settingItem, !isLast && styles.borderBottom]} onPress={() => router.push(item.route as any)}>
+                    <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.primary}15` }]}>
+                      <Icon color={theme.colors.primary} size={20} />
+                    </View>
+                    <Text style={[theme.typography.body1, styles.settingText]}>{item.title}</Text>
+                    <ChevronRight color={theme.colors.textTertiary} size={20} />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ))}
+
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <LogOut color={theme.colors.error} size={20} />
+          <Text style={[theme.typography.button, { color: theme.colors.error, marginLeft: theme.spacing.sm }]}>Log Out</Text>
+        </TouchableOpacity>
+
+        <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.lg }]}>
+          For Development Testing
+        </Text>
+        <TouchableOpacity style={styles.switchBtn} onPress={handleSwitchToWorker}>
+          <ArrowLeftRight color={theme.colors.primary} size={20} />
+          <Text style={[theme.typography.button, { color: theme.colors.primary, marginLeft: theme.spacing.sm }]}>Switch to Worker</Text>
+        </TouchableOpacity>
+      </View>
+    </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
+  content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxxl },
+  userInfo: { alignItems: 'center', marginVertical: theme.spacing.xl },
+  avatar: { width: 88, height: 88, borderRadius: 44, backgroundColor: theme.colors.border, marginBottom: theme.spacing.sm },
+  verifiedBadge: { backgroundColor: `${theme.colors.success}15`, paddingHorizontal: 8, paddingVertical: 4, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs },
+  section: { marginBottom: theme.spacing.xl },
+  sectionTitle: { marginBottom: theme.spacing.md, marginLeft: theme.spacing.xs },
+  card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, ...theme.shadows.sm, overflow: 'hidden' },
+  settingItem: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
+  borderBottom: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
+  iconContainer: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
+  settingText: { flex: 1 },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing.md, backgroundColor: `${theme.colors.error}10`, borderRadius: theme.radius.md, marginTop: theme.spacing.md },
+  switchBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing.md, backgroundColor: `${theme.colors.primary}08`, borderRadius: theme.radius.md, marginTop: theme.spacing.sm, marginBottom: theme.spacing.xxxl },
+});

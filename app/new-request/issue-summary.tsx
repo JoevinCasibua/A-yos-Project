@@ -1,222 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Bot, CheckCircle, AlertTriangle, ChevronLeft } from 'lucide-react-native';
-import { Colors, Layout, Spacing } from '@/constants/theme';
-import { AppText } from '@/components/AppText';
-import { AppInput } from '@/components/AppInput';
-import { AppButton } from '@/components/AppButton';
-import { AppCard } from '@/components/AppCard';
-import { Chip } from '@/components/Chip';
-import { useRequest } from '@/context/RequestContext';
+import { Screen } from '@/components/layout/Screen';
+import { Button } from '@/components/buttons/Button';
+import { theme } from '@/constants/theme';
+import { ArrowLeft, Sparkles, CheckCircle2, MapPin, Calendar, Clock, DollarSign, PenTool } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function AISummaryScreen() {
+export default function IssueSummaryScreen() {
   const router = useRouter();
-  const { request, updateRequest } = useRequest();
-  
-  const [isAnalyzing, setIsAnalyzing] = useState(true);
-  const [editableSummary, setEditableSummary] = useState('');
-  const [recommendations, setRecommendations] = useState<string[]>([]);
-  const [confidence, setConfidence] = useState(0);
+  const insets = useSafeAreaInsets();
+  const [analyzing, setAnalyzing] = useState(true);
 
-  useEffect(() => {
-    // Simulate AI API call
-    const timer = setTimeout(() => {
-      // Dummy response based on context (ideally using real vision model)
-      const mockSummary = request.description
-        ? `Detected: ${request.description}. Requires moderate repair work.`
-        : 'Plumbing leak detected under the sink. Moderate water damage visible.';
-      
-      const mockRecs = request.category ? [request.category, 'Tools required'] : ['Plumbing', 'Wrench needed'];
-      const mockConfidence = 92;
-
-      setEditableSummary(mockSummary);
-      setRecommendations(mockRecs);
-      setConfidence(mockConfidence);
-      setIsAnalyzing(false);
-    }, 2500);
-
+  // Simulate AI Analysis delay
+  React.useEffect(() => {
+    const timer = setTimeout(() => setAnalyzing(false), 2000);
     return () => clearTimeout(timer);
-  }, [request.description, request.category]);
-
-  const handleNext = () => {
-    updateRequest({
-      aiSummary: editableSummary,
-      aiRecommendations: recommendations,
-      confidenceScore: confidence,
-    });
-    router.push('/new-request/urgency' as any);
-  };
-
-  if (isAnalyzing) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <AppText variant="h3" style={{ marginTop: Spacing[4], textAlign: 'center' }}>
-          Analyzing your issue...
-        </AppText>
-        <AppText variant="body" style={{ color: Colors.textSecondary, marginTop: Spacing[2], textAlign: 'center' }}>
-          Our AI is reviewing your photos and description to find the right fix.
-        </AppText>
-      </View>
-    );
-  }
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
-        </Pressable>
-        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Issue Summary</AppText>
+    <Screen safeArea scrollable>
+      <View style={[styles.header, { paddingHorizontal: theme.layout.screenPadding }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <ArrowLeft color={theme.colors.textPrimary} size={24} />
+        </TouchableOpacity>
+        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Summary</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        
-        <AppCard style={styles.card}>
-          <View style={styles.headerRow}>
-            <Bot size={24} color={Colors.primary} />
-            <AppText variant="h3" style={styles.cardTitle}>AI Assessment</AppText>
-            <View style={styles.confidenceBadge}>
-              <CheckCircle size={14} color={Colors.success} />
-              <AppText variant="caption" style={styles.confidenceText}>
-                {confidence}% match
-              </AppText>
+      <View style={styles.content}>
+        {analyzing ? (
+          <View style={styles.analyzingContainer}>
+            <Sparkles color={theme.colors.primary} size={48} style={styles.sparkleIcon} />
+            <Text style={[theme.typography.h3, { marginBottom: theme.spacing.sm }]}>Analyzing your request...</Text>
+            <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, textAlign: 'center', marginBottom: theme.spacing.xl }]}>
+              Our AI is reviewing your description and photos to determine the best approach and estimate costs.
+            </Text>
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          </View>
+        ) : (
+          <View style={styles.summaryContainer}>
+            <View style={styles.successHeader}>
+              <CheckCircle2 color={theme.colors.success} size={48} />
+              <Text style={[theme.typography.h2, { marginTop: theme.spacing.md }]}>Analysis Complete</Text>
             </View>
-          </View>
 
-          <AppText variant="body" style={styles.label}>Generated Summary (Editable)</AppText>
-          <AppInput
-            value={editableSummary}
-            onChangeText={setEditableSummary}
-            multiline
-            numberOfLines={4}
-            style={styles.textArea}
-          />
+            <View style={styles.card}>
+              <Text style={[theme.typography.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>Issue Identified</Text>
+              <Text style={[theme.typography.body1, { marginBottom: theme.spacing.md }]}>Leaking P-trap under the kitchen sink.</Text>
 
-          <AppText variant="body" style={styles.label}>AI Recommendations</AppText>
-          <View style={styles.chipContainer}>
-            {recommendations.map((rec, index) => (
-              <Chip key={index} label={rec} style={styles.chip} />
-            ))}
-          </View>
-          
-          <View style={styles.disclaimerRow}>
-            <AlertTriangle size={16} color={Colors.warning} />
-            <AppText variant="caption" style={styles.disclaimerText}>
-              Review the summary above. You can edit it to provide more accurate details to workers.
-            </AppText>
-          </View>
-        </AppCard>
+              <Text style={[theme.typography.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>Estimated Repair Time</Text>
+              <Text style={[theme.typography.body1, { marginBottom: theme.spacing.md }]}>1 - 2 hours</Text>
 
-      </ScrollView>
+              <Text style={[theme.typography.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>Recommended Action</Text>
+              <Text style={theme.typography.body1}>Requires replacement of the PVC P-trap assembly and resealing of the drain joint.</Text>
+            </View>
+
+          </View>
+        )}
+      </View>
 
       <View style={styles.footer}>
-        <AppButton 
-          label="Continue" 
-          onPress={handleNext} 
-          disabled={editableSummary.trim().length === 0}
+        <Button 
+          title="Continue to AI Matching" 
+          onPress={() => router.push('/new-request/matching')} 
+          disabled={analyzing}
+          fullWidth 
         />
       </View>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Layout.screenPadding,
-    paddingTop: 60,
-    paddingBottom: Spacing[4],
-    backgroundColor: Colors.background,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Layout.screenPadding,
-    backgroundColor: Colors.background,
-  },
-  scrollContent: {
-    padding: Layout.screenPadding,
-  },
-  card: {
-    padding: Layout.cardPadding,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing[4],
-  },
-  cardTitle: {
-    flex: 1,
-    marginLeft: Spacing[2],
-    fontWeight: '600',
-  },
-  confidenceBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.successBg,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  confidenceText: {
-    color: Colors.success,
-    fontWeight: '600',
-  },
-  label: {
-    fontWeight: '500',
-    marginBottom: Spacing[2],
-    marginTop: Spacing[4],
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  chipContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing[2],
-  },
-  chip: {
-    backgroundColor: Colors.surfaceLight,
-  },
-  disclaimerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: Colors.warningBg,
-    padding: Spacing[3],
-    borderRadius: 8,
-    marginTop: Spacing[5],
-    gap: Spacing[2],
-  },
-  disclaimerText: {
-    flex: 1,
-    color: Colors.warning,
-    lineHeight: 18,
-  },
-  footer: {
-    padding: Layout.screenPadding,
-    backgroundColor: Colors.surfaceCard,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md },
+  backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
+  content: { flex: 1, paddingVertical: theme.spacing.xl, justifyContent: 'center' },
+  analyzingContainer: { alignItems: 'center', paddingHorizontal: theme.spacing.xl },
+  sparkleIcon: { marginBottom: theme.spacing.lg },
+  summaryContainer: { flex: 1, justifyContent: 'flex-start' },
+  successHeader: { alignItems: 'center', marginBottom: theme.spacing.xxl },
+  card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.sm },
+  footer: { paddingVertical: theme.spacing.md },
 });

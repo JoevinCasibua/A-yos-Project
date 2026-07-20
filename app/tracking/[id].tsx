@@ -1,234 +1,145 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
-import { ChevronLeft, Phone, MessageCircle, Navigation, Star, Clock, MapPin } from 'lucide-react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
-import { AppText } from '@/components/AppText';
-import { AppButton } from '@/components/AppButton';
-import { Avatar } from '@/components/Avatar';
-import { Badge } from '@/components/Badge';
-import { RatingStars } from '@/components/RatingStars';
-import { useRequest } from '@/context/RequestContext';
-import { providers } from '@/constants/mockData';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Screen } from '@/components/layout/Screen';
+import { Button } from '@/components/buttons/Button';
+import { theme } from '@/constants/theme';
+import { ArrowLeft, Phone, MessageSquare, MapPin, CheckCircle2, Circle } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width, height } = Dimensions.get('window');
-
-const trackingSteps = [
-  { id: 0, label: 'Provider Assigned', desc: 'Carlos has accepted your request', icon: 'check' },
-  { id: 1, label: 'On the Way', desc: 'Heading to your location', icon: 'navigation' },
-  { id: 2, label: 'Arrived', desc: 'Provider has arrived at your address', icon: 'pin' },
-  { id: 3, label: 'Service in Progress', desc: 'Work is underway', icon: 'wrench' },
-  { id: 4, label: 'Completed', desc: 'Service finished — please review', icon: 'star' },
+const TIMELINE_STEPS = [
+  { id: '1', title: 'Provider Accepted', subtitle: '10:00 AM' },
+  { id: '2', title: 'Preparing tools', subtitle: '10:05 AM' },
+  { id: '3', title: 'En Route', subtitle: '10:15 AM - Provider is on the way' },
+  { id: '4', title: 'Arrived', subtitle: 'Provider has arrived at the location' },
+  { id: '5', title: 'In Progress', subtitle: 'Service has started' },
+  { id: '6', title: 'Completed', subtitle: 'Service finished' },
 ];
 
 export default function TrackingScreen() {
-  const { request } = useRequest();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const provider = providers.find((p) => p.id === id) || providers[0];
-  const [currentStep, setCurrentStep] = useState(1);
-  const [etaMinutes, setEtaMinutes] = useState(25);
+  const router = useRouter();
+  const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
+  const [currentStep, setCurrentStep] = useState(2); // Mock: Currently En Route
 
-  useEffect(() => {
-    if (currentStep >= 2) return;
-    const timer = setInterval(() => {
-      setEtaMinutes((m) => {
-        if (m <= 1) {
-          setCurrentStep(2);
-          return 0;
-        }
-        return m - 1;
-      });
-    }, 60000);
-    return () => clearInterval(timer);
-  }, [currentStep]);
-
-  const handleBack = useCallback(() => router.replace('/order'), []);
-  const handleComplete = useCallback(() => {
-    router.push(`/review/${provider.id}`);
-  }, [provider.id]);
+  const handleComplete = () => {
+    // In a real app, this would be updated via backend websocket
+    router.push(`/payment/${id}`);
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Map Background */}
-      <Image
-        source={{ uri: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800' }}
-        style={styles.mapImage}
-      />
-      <View style={styles.mapOverlay} />
-
-      {/* Top Nav (Standardized Header) */}
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
-        </Pressable>
-        <AppText variant="h4" weight="bold" style={styles.headerTitle}>Live Tracking</AppText>
+    <Screen safeArea backgroundColor={theme.colors.surface}>
+      <View style={[styles.header, { paddingHorizontal: theme.layout.screenPadding }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <ArrowLeft color={theme.colors.textPrimary} size={24} />
+        </TouchableOpacity>
+        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Live Tracking</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Map Pin Marker */}
-      <View style={styles.pinContainer}>
-        <View style={styles.providerPin}>
-          <Avatar uri={provider.avatarUri} size={44} borderRadius={22} />
-          <View style={styles.pinDot} />
+      <View style={styles.content}>
+        {/* Mock Map Area */}
+        <View style={styles.mapContainer}>
+          <View style={styles.mockMap}>
+            <MapPin color={theme.colors.error} size={32} style={styles.mapIcon} />
+            <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
+              Map tracking will be displayed here
+            </Text>
+          </View>
+          
+          <View style={styles.etaBadge}>
+            <Text style={[theme.typography.h4, { color: theme.colors.primary }]}>15 Min</Text>
+            <Text style={theme.typography.caption}>ETA</Text>
+          </View>
         </View>
+
+        {/* Worker Info */}
+        <View style={styles.workerContainer}>
+          <View style={styles.workerInfo}>
+            <View style={styles.avatarPlaceholder} />
+            <View>
+              <Text style={theme.typography.h4}>Mario Rossi</Text>
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>Plumber</Text>
+            </View>
+          </View>
+          <View style={styles.actions}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Phone color={theme.colors.primary} size={20} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push(`/messages/chat?id=${id}`)}>
+              <MessageSquare color={theme.colors.primary} size={20} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        {/* Timeline */}
+        <ScrollView style={styles.timelineScroll} showsVerticalScrollIndicator={false}>
+          <Text style={[theme.typography.h3, { marginBottom: theme.spacing.md }]}>Status</Text>
+          <View style={styles.timeline}>
+            {TIMELINE_STEPS.map((step, index) => {
+              const isCompleted = index <= currentStep;
+              const isCurrent = index === currentStep;
+              const isLast = index === TIMELINE_STEPS.length - 1;
+
+              return (
+                <View key={step.id} style={styles.timelineItem}>
+                  <View style={styles.timelineLineContainer}>
+                    {isCompleted ? (
+                      <CheckCircle2 color={theme.colors.primary} size={20} />
+                    ) : (
+                      <Circle color={theme.colors.border} size={20} />
+                    )}
+                    {!isLast && (
+                      <View style={[styles.timelineLine, { backgroundColor: isCompleted ? theme.colors.primary : theme.colors.border }]} />
+                    )}
+                  </View>
+                  <View style={styles.timelineTextContainer}>
+                    <Text style={[theme.typography.h4, { color: isCurrent ? theme.colors.primary : theme.colors.textPrimary, opacity: isCompleted ? 1 : 0.5 }]}>
+                      {step.title}
+                    </Text>
+                    <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, opacity: isCompleted ? 1 : 0.5 }]}>
+                      {step.subtitle}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </ScrollView>
       </View>
 
-      {/* Bottom Sheet */}
-      <View style={styles.bottomSheet}>
-        {/* Handle */}
-        <View style={styles.sheetHandle} />
-
-        {/* Provider Info */}
-        <View style={styles.providerRow}>
-          <Avatar uri={provider.avatarUri} size={56} />
-          <View style={styles.providerInfo}>
-            <View style={styles.nameRow}>
-              <AppText variant="h4" weight="bold">{provider.name}</AppText>
-              {provider.verified && <Badge label="Verified" variant="verified" />}
-            </View>
-            <AppText variant="caption" color={Colors.textSecondary}>{provider.category}</AppText>
-            <RatingStars rating={provider.rating} size={13} showValue reviewCount={provider.reviewCount} />
-          </View>
-          <View style={styles.actionBtns}>
-            <Pressable style={styles.actionBtn}>
-              <Phone size={20} color={Colors.cta} strokeWidth={2} />
-            </Pressable>
-            <Pressable style={[styles.actionBtn, { marginLeft: Spacing['2'] }]}>
-              <MessageCircle size={20} color={Colors.cta} strokeWidth={2} />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Replacement Parts Status */}
-        {request.hasParts !== null && request.hasParts !== undefined && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: Spacing['4'] }}>
-            <View style={{ 
-              backgroundColor: request.hasParts ? `${Colors.success}15` : `${Colors.warning}15`, 
-              paddingHorizontal: Spacing['3'], 
-              paddingVertical: Spacing['1'], 
-              borderRadius: Radius.full 
-            }}>
-              <AppText variant="caption" weight="semiBold" style={{ color: request.hasParts ? Colors.success : Colors.warning }}>
-                {request.hasParts ? '🟢 Customer Has Parts' : '🟠 Needs Parts'}
-              </AppText>
-            </View>
-          </View>
-        )}
-
-        {/* Tracking Steps */}
-        <View style={styles.stepsContainer}>
-          {trackingSteps.map((step, idx) => {
-            const isDone = idx < currentStep;
-            const isActive = idx === currentStep;
-            const isLast = idx === trackingSteps.length - 1;
-
-            return (
-              <View key={step.id} style={styles.stepRow}>
-                <View style={styles.stepLeft}>
-                  <View style={[
-                    styles.stepCircle,
-                    {
-                      backgroundColor: isDone || isActive ? Colors.cta : Colors.surfaceLight,
-                      borderColor: isDone || isActive ? Colors.cta : Colors.border,
-                    },
-                  ]}>
-                    {isDone ? (
-                      <View style={styles.checkDot} />
-                    ) : isActive ? (
-                      <Navigation size={14} color={Colors.white} strokeWidth={2.5} />
-                    ) : null}
-                  </View>
-                  {!isLast && (
-                    <View style={[styles.stepLine, { backgroundColor: isDone ? Colors.cta : Colors.border }]} />
-                  )}
-                </View>
-                <View style={[styles.stepContent, { paddingBottom: isLast ? 0 : Spacing['4'] }]}>
-                  <AppText
-                    variant="bodySm"
-                    weight={isDone || isActive ? 'bold' : 'medium'}
-                    color={isDone || isActive ? Colors.textPrimary : Colors.textSecondary}
-                  >
-                    {step.label}
-                  </AppText>
-                  <AppText variant="caption" color={Colors.textTertiary} style={{ marginTop: 2 }}>
-                    {step.desc}
-                  </AppText>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* CTA */}
-        <AppButton
-          label="Evaluate Worker"
-          size="lg"
-          fullWidth
-          onPress={handleComplete}
-          leftIcon={<Star size={18} color={Colors.white} strokeWidth={2} />}
+      <View style={styles.footer}>
+        <Button 
+          title="Simulate Job Completion" 
+          onPress={handleComplete} 
+          fullWidth 
         />
       </View>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  mapImage: { width: '100%', height: '100%', resizeMode: 'cover', position: 'absolute' },
-  mapOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(245,246,250,0.3)' },
-  header: {
-    position: 'absolute', top: 0, left: 0, right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing[4],
-    paddingTop: 60,
-    paddingBottom: Spacing[4],
-    backgroundColor: Colors.background,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  pinContainer: {
-    position: 'absolute', top: height * 0.35, left: 0, right: 0,
-    alignItems: 'center',
-  },
-  providerPin: {
-    position: 'relative', alignItems: 'center',
-    ...Elevation.lg,
-  },
-  pinDot: {
-    width: 10, height: 10, borderRadius: 5, backgroundColor: Colors.cta,
-    marginTop: -4, borderWidth: 2, borderColor: Colors.white,
-  },
-  bottomSheet: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: Colors.white, borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl,
-    paddingHorizontal: Spacing['4'], paddingTop: Spacing['3'], paddingBottom: Spacing['6'],
-    ...Elevation.xl,
-  },
-  sheetHandle: {
-    width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border,
-    alignSelf: 'center', marginBottom: Spacing['4'],
-  },
-  providerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
-  providerInfo: { flex: 1 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['2'], flexWrap: 'wrap' },
-  actionBtns: { flexDirection: 'row' },
-  actionBtn: {
-    width: 44, height: 44, borderRadius: Radius.lg, backgroundColor: Colors.primarySurface,
-    alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.primaryBorder,
-  },
-  stepsContainer: { marginTop: Spacing['5'] },
-  stepRow: { flexDirection: 'row' },
-  stepLeft: { alignItems: 'center' },
-  stepCircle: {
-    width: 28, height: 28, borderRadius: 14, borderWidth: 2,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  checkDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: Colors.white },
-  stepLine: { width: 2, flex: 1, minHeight: 28, marginTop: 2 },
-  stepContent: { flex: 1, marginLeft: Spacing['3'] },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
+  backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
+  content: { flex: 1 },
+  mapContainer: { height: 250, position: 'relative' },
+  mockMap: { flex: 1, backgroundColor: theme.colors.borderLight, justifyContent: 'center', alignItems: 'center' },
+  mapIcon: { opacity: 0.5 },
+  etaBadge: { position: 'absolute', bottom: theme.spacing.md, right: theme.spacing.md, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.lg, alignItems: 'center', ...theme.shadows.md },
+  workerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.lg },
+  workerInfo: { flexDirection: 'row', alignItems: 'center' },
+  avatarPlaceholder: { width: 48, height: 48, borderRadius: 24, backgroundColor: theme.colors.border, marginRight: theme.spacing.md },
+  actions: { flexDirection: 'row' },
+  iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.infoBackground, justifyContent: 'center', alignItems: 'center', marginLeft: theme.spacing.sm },
+  divider: { height: 1, backgroundColor: theme.colors.borderLight, marginHorizontal: theme.spacing.lg },
+  timelineScroll: { flex: 1, padding: theme.spacing.lg },
+  timeline: { paddingBottom: theme.spacing.xxxl },
+  timelineItem: { flexDirection: 'row', minHeight: 60 },
+  timelineLineContainer: { alignItems: 'center', width: 24, marginRight: theme.spacing.md },
+  timelineLine: { width: 2, flex: 1, marginVertical: 4 },
+  timelineTextContainer: { flex: 1, paddingBottom: theme.spacing.lg },
+  footer: { padding: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
 });

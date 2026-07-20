@@ -802,7 +802,7 @@ export default function RegisterWorkerScreen() {
               label="Go to Sign In"
               onPress={() => {
                 setShowSuccess(false);
-                router.replace('/sign-in');
+                router.replace('/(auth)/login');
               }}
               fullWidth
             />
