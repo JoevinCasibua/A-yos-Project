@@ -2,8 +2,8 @@ import { LoginForm } from './login-form';
 
 export default function LoginPage() {
   return (
-    <main className="login-shell">
-      <section className="login-card">
+    <main className="auth-page">
+      <section className="auth-card">
         <div className="brand">
           <div className="brand-mark">A</div>
           <div>
