@@ -13,6 +13,7 @@
     "format:check": "prettier --check .",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "test:e2e": "playwright test",
     "typecheck": "turbo run typecheck",
     "verify": "pnpm verify:stack && pnpm format:check && pnpm lint && pnpm typecheck && pnpm functions:check && pnpm functions:test && pnpm test && pnpm traceability:check && pnpm build",
     "verify:stack": "bash scripts/verify-stack.sh",
@@ -32,13 +33,14 @@
   },
   "devDependencies": {
     "@eslint/js": "9.38.0",
+    "@playwright/test": "^1.61.1",
     "@types/node": "24.10.0",
     "eslint": "9.38.0",
     "prettier": "3.6.2",
+    "supabase": "2.109.1",
     "tsx": "4.20.6",
     "turbo": "2.5.8",
     "typescript": "5.9.3",
-    "supabase": "2.109.1",
     "typescript-eslint": "8.46.2",
     "vitest": "4.1.10"
   },
