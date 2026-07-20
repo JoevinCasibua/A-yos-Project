@@ -4,6 +4,7 @@ dist/
 .next/
 .expo/
 coverage/
+test-results/
 *.log
 .env
 .env.*
