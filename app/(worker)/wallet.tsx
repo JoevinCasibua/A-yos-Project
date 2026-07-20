@@ -20,7 +20,9 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   ChevronDown,
+  ChevronRight,
 } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout, Typography } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -74,9 +76,10 @@ export default function WalletScreen() {
   const stats = periodStats[period];
 
   const filteredTransactions = useMemo(() => {
-    if (txFilter === 'credit') return walletTransactions.filter((t) => t.credit);
-    if (txFilter === 'debit') return walletTransactions.filter((t) => !t.credit);
-    return walletTransactions;
+    let filtered = walletTransactions;
+    if (txFilter === 'credit') filtered = filtered.filter((t) => t.credit);
+    if (txFilter === 'debit') filtered = filtered.filter((t) => !t.credit);
+    return filtered.slice(0, 3);
   }, [txFilter]);
 
   const maxBarWidth = screenWidth - Layout.screenPadding * 2 - 60;
@@ -239,6 +242,15 @@ export default function WalletScreen() {
               </View>
             ))}
           </View>
+
+          {/* See All */}
+          <Pressable
+            style={styles.seeAllBtn}
+            onPress={() => router.push('/(worker)/transactions-history')}
+          >
+            <AppText variant="bodySm" weight="bold" color={Colors.info}>See All Transactions</AppText>
+            <ChevronRight size={16} color={Colors.info} />
+          </Pressable>
         </View>
 
         {/* Performance Card */}
@@ -514,6 +526,14 @@ const styles = StyleSheet.create({
   txTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   txBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   txStatus: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+
+  // See All
+  seeAllBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: Spacing['2'], paddingVertical: Spacing['3'],
+    backgroundColor: Colors.white, borderRadius: Radius.xl,
+    borderWidth: 1, borderColor: Colors.borderLight,
+  },
 
   // Performance card
   perfCard: {
