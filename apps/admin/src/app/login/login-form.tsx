@@ -12,15 +12,22 @@ export function LoginForm() {
     setPending(true);
     setError(undefined);
     const data = new FormData(event.currentTarget);
-    const response = await fetch(factorId ? '/api/auth/mfa' : '/api/auth/sign-in', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(
-        factorId
-          ? { factorId, code: data.get('code') }
-          : { email: data.get('email'), password: data.get('password') },
-      ),
-    });
+    let response: Response;
+    try {
+      response = await fetch(factorId ? '/api/auth/mfa' : '/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(
+          factorId
+            ? { factorId, code: data.get('code') }
+            : { email: data.get('email'), password: data.get('password') },
+        ),
+      });
+    } catch {
+      setPending(false);
+      setError('Network connection failed.');
+      return;
+    }
     const result = (await response.json()) as {
       error?: string;
       mfaRequired?: boolean;
