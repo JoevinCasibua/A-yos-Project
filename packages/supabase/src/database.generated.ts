@@ -1805,6 +1805,36 @@ export type Database = {
     };
     Functions: {
       admin_bootstrap_status: { Args: { email: string }; Returns: Json };
+      admin_create_notification: {
+        Args: {
+          p_audience: Database['public']['Enums']['notification_audience'];
+          p_body: string;
+          p_category: string;
+          p_scheduled_at?: string;
+          p_title: string;
+        };
+        Returns: {
+          audience: Database['public']['Enums']['notification_audience'] | null;
+          body: string;
+          category: string;
+          created_at: string;
+          id: string;
+          read_at: string | null;
+          recipient_id: string | null;
+          scheduled_at: string | null;
+          sent_at: string | null;
+          source_key: string | null;
+          status: Database['public']['Enums']['notification_status'];
+          title: string;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'notifications';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       admin_set_setting: {
         Args: { setting_key: string; setting_value: Json };
         Returns: {
@@ -1846,9 +1876,74 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      admin_upsert_service_category: {
+        Args: {
+          p_category_id: string;
+          p_description: string;
+          p_is_active: boolean;
+          p_name: string;
+        };
+        Returns: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'service_categories';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       archive_job: {
         Args: { message_id: number; queue_name: string };
         Returns: boolean;
+      };
+      attach_request_media: {
+        Args: {
+          p_byte_size: number;
+          p_content_type: string;
+          p_service_request_id: string;
+          p_storage_path: string;
+        };
+        Returns: {
+          byte_size: number;
+          content_type: string;
+          created_at: string;
+          id: string;
+          service_request_id: string;
+          storage_path: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'request_media';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      attach_review_media: {
+        Args: {
+          p_byte_size: number;
+          p_content_type: string;
+          p_review_id: string;
+          p_storage_path: string;
+        };
+        Returns: {
+          byte_size: number;
+          content_type: string;
+          id: string;
+          review_id: string;
+          storage_path: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'review_media';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       cancel_admin_bootstrap: {
         Args: { email: string; token_hash: string };
@@ -2167,6 +2262,36 @@ export type Database = {
         SetofOptions: {
           from: '*';
           to: 'worker_verifications';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      save_ai_analysis: {
+        Args: { p_analysis_id: string };
+        Returns: {
+          account_id: string;
+          created_at: string;
+          detected_issue: string | null;
+          estimated_cost_maximum: number | null;
+          estimated_cost_minimum: number | null;
+          id: string;
+          idempotency_key: string | null;
+          input_storage_path: string | null;
+          input_type: string;
+          possible_cause: string | null;
+          provider: string;
+          provider_model: string | null;
+          provider_reference: string | null;
+          request_draft: string | null;
+          safety_advice: string | null;
+          saved: boolean;
+          severity: string | null;
+          suggested_category_name: string | null;
+          transcript: string | null;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'ai_analyses';
           isOneToOne: true;
           isSetofReturn: false;
         };
