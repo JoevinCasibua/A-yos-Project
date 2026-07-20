@@ -1,0 +1,7 @@
+apps/admin/next-env.d.ts
+apps/mobile/expo-env.d.ts
+**/.next/**
+**/.expo/**
+**/dist/**
+**/node_modules/**
+packages/*/lib/**
