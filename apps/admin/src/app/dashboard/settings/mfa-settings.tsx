@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 export function MfaSettings({ enabled }: { enabled: boolean }) {
+  const [isEnabled, setIsEnabled] = useState(enabled);
   const [enrollment, setEnrollment] = useState<{
     factorId: string;
     qrCode: string;
@@ -34,14 +35,17 @@ export function MfaSettings({ enabled }: { enabled: boolean }) {
     });
     const result = (await response.json()) as { error?: string };
     setMessage(response.ok ? 'TOTP is enabled.' : (result.error ?? 'Verification failed.'));
-    if (response.ok) setEnrollment(undefined);
+    if (response.ok) {
+      setEnrollment(undefined);
+      setIsEnabled(true);
+    }
   }
   return (
     <section className="card">
       <span className="eyebrow">Administrator security</span>
       <h3>Authenticator-app MFA</h3>
       <p className="lede">{message}</p>
-      {!enabled && !enrollment ? (
+      {!isEnabled && !enrollment ? (
         <button className="button" type="button" onClick={() => void enroll()}>
           Enroll TOTP
         </button>
