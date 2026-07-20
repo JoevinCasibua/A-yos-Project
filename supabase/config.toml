@@ -1,34 +1,77 @@
-project_id = "ayos-local"
+project_id = "a-yos"
+
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "graphql_public"]
+schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
 [db]
-port = 54322
+port = 54332
 shadow_port = 54320
-major_version = 15
+major_version = 17
+
 [db.seed]
 enabled = true
 sql_paths = ["./seed.sql"]
+
 [realtime]
 enabled = true
+
 [studio]
 enabled = true
 port = 54323
+
+[local_smtp]
+enabled = true
+port = 54324
+
 [storage]
 enabled = true
-file_size_limit = "20MiB"
+file_size_limit = "15MiB"
+
 [auth]
 enabled = true
-site_url = "http://localhost:8081"
-additional_redirect_urls = ["ayos://**", "http://localhost:8081/**"]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["ayos://**", "http://localhost:3000/**", "http://localhost:8081/**"]
+jwt_expiry = 900
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
 enable_signup = true
+
 [auth.email]
 enable_signup = true
-enable_confirmations = false
+double_confirm_changes = true
+enable_confirmations = true
+otp_length = 6
+otp_expiry = 600
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
 [edge_runtime]
 enabled = true
 policy = "per_worker"
+
 [analytics]
 enabled = false
+
+[functions.ai-analyze]
+verify_jwt = true
+
+[functions.maps]
+verify_jwt = true
+
+[functions.provider-operation]
+verify_jwt = true
+
+[functions.report-export]
+verify_jwt = true
+
+[functions.queue-consumer]
+verify_jwt = false
+
+[functions.auth-sign-in]
+verify_jwt = false
