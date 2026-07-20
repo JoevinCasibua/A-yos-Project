@@ -45,6 +45,12 @@ export default function WorkerTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="verification"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="transactions-history"
         options={{
           href: null,

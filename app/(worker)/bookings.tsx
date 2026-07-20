@@ -1,19 +1,20 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ListRenderItem, Pressable, Alert } from 'react-native';
 import { CalendarDays, Clock, MapPin, Phone, Wrench } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Chip } from '@/components/Chip';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { workerBookings, statusConfig } from '@/constants/workerMockData';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
 const filterTabs = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 
 export default function WorkerBookingsScreen() {
+  const insets = useSafeAreaInsets();
   const { filter } = useLocalSearchParams<{ filter?: string }>();
   const [activeTab, setActiveTab] = useState(
     filter === 'Cancelled' ? 'Cancelled' : 'Upcoming',
@@ -130,8 +131,10 @@ export default function WorkerBookingsScreen() {
   const keyExtractor = useCallback((item: WorkerBooking) => item.id, []);
 
   return (
-    <View style={styles.container}>
-      <ScreenHeader title="My Bookings" />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <Text style={theme.typography.h2}>My Bookings</Text>
+      </View>
       <FlatList
         data={filteredBookings}
         renderItem={renderItem}
@@ -166,6 +169,7 @@ export default function WorkerBookingsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   tabRow: { flexDirection: 'row', gap: Spacing['2'], marginTop: Spacing['3'], marginBottom: Spacing['3'] },
   listContent: { padding: Spacing['4'], paddingBottom: 100 },
   bookingCard: {

@@ -8,6 +8,7 @@ import {
   ChevronRight, User, Wrench, MapPin, Briefcase,
   Wallet, Clock, Bell, Settings, HelpCircle, Shield,
   LogOut, ArrowLeftRight, Star, CheckCircle,
+  BadgeCheck, ArrowUpFromLine, PlusCircle,
 } from 'lucide-react-native';
 import { workerProfile } from '@/constants/workerData';
 
@@ -19,6 +20,7 @@ const MENU_SECTIONS = [
       { id: 'industry', title: 'Industry & Skills', icon: Wrench },
       { id: 'areas', title: 'Service Areas', icon: MapPin },
       { id: 'portfolio', title: 'Portfolio', icon: Briefcase },
+      { id: 'verification', title: 'Verification', icon: BadgeCheck },
     ],
   },
   {
@@ -26,6 +28,8 @@ const MENU_SECTIONS = [
     items: [
       { id: 'payout-methods', title: 'Payout Methods', icon: Wallet },
       { id: 'payout-history', title: 'Payout History', icon: Clock },
+      { id: 'topup-methods', title: 'Top-Up Methods', icon: ArrowUpFromLine },
+      { id: 'topup-history', title: 'Top-Up History', icon: PlusCircle },
     ],
   },
   {
@@ -47,7 +51,11 @@ const MENU_SECTIONS = [
 export default function WorkerProfileScreen() {
   const router = useRouter();
 
-  const handleItemPress = () => {
+  const handleItemPress = (id: string) => {
+    if (id === 'verification') {
+      router.push('/(worker)/verification');
+      return;
+    }
     Alert.alert('Coming Soon', 'This feature is under development.');
   };
 
@@ -111,7 +119,7 @@ export default function WorkerProfileScreen() {
                   <TouchableOpacity
                     key={item.id}
                     style={[styles.settingItem, !isLast && styles.borderBottom]}
-                    onPress={handleItemPress}
+                    onPress={() => handleItemPress(item.id)}
                   >
                     <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.primary}15` }]}>
                       <Icon color={theme.colors.primary} size={20} />

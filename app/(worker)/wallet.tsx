@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   ScrollView,
   Pressable,
@@ -23,12 +24,12 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, Layout, Typography } from '@/constants/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors, Radius, Spacing, Elevation, Layout, Typography, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Badge } from '@/components/Badge';
 import { Chip } from '@/components/Chip';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import {
   walletTransactions,
   walletBarData,
@@ -62,6 +63,7 @@ const statusColor = (s: TransactionStatus) => {
 };
 
 export default function WalletScreen() {
+  const insets = useSafeAreaInsets();
   const [period, setPeriod] = useState<Period>('week');
   const [txFilter, setTxFilter] = useState<TxFilter>('all');
   const [showPayout, setShowPayout] = useState(false);
@@ -85,8 +87,10 @@ export default function WalletScreen() {
   const maxBarWidth = screenWidth - Layout.screenPadding * 2 - 60;
 
   return (
-    <View style={styles.container}>
-      <ScreenHeader title="Earnings" />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <Text style={theme.typography.h2}>Earnings</Text>
+      </View>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -469,6 +473,7 @@ export default function WalletScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   scrollView: { flex: 1 },
   scrollContent: { padding: Layout.screenPadding, paddingBottom: Spacing['10'], gap: Spacing['4'] },
 

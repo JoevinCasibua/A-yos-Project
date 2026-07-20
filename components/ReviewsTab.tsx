@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, ListRenderItem, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ListRenderItem, Pressable } from 'react-native';
 import { Star, ThumbsUp } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { RatingStars } from '@/components/RatingStars';
@@ -11,12 +11,11 @@ import type { ReviewData } from '@/constants/workerMockData';
 const filterOptions = ['All', '5 Stars', '4 Stars', '3 Stars', 'Recent'];
 
 interface ReviewsTabProps {
-  title: string;
   reviews: ReviewData[];
   headerComponent?: React.ReactNode;
 }
 
-export function ReviewsTab({ title, reviews, headerComponent }: ReviewsTabProps) {
+export function ReviewsTab({ reviews, headerComponent }: ReviewsTabProps) {
   const [activeFilter, setActiveFilter] = useState('All');
   const [likedReviews, setLikedReviews] = useState<Set<string>>(new Set());
 
@@ -90,75 +89,64 @@ export function ReviewsTab({ title, reviews, headerComponent }: ReviewsTabProps)
   const keyExtractor = useCallback((item: ReviewData) => item.id, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <AppText variant="h2" weight="bold">{title}</AppText>
-      </View>
-      <FlatList
-        data={filteredReviews}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: Spacing['3'] }} />}
-        ListHeaderComponent={
-          <View>
-            {headerComponent}
-            {/* Rating Summary */}
-            <View style={styles.summaryCard}>
-              <View style={styles.summaryLeft}>
-                <AppText variant="h1" weight="bold" color={Colors.cta}>{avgRating}</AppText>
-                <RatingStars rating={parseFloat(avgRating)} size={16} />
-                <AppText variant="caption" color={Colors.textSecondary} style={{ marginTop: Spacing['1'] }}>
-                  {reviews.length} reviews
-                </AppText>
-              </View>
-              <View style={styles.summaryRight}>
-                {[5, 4, 3, 2, 1].map((star) => (
-                  <View key={star} style={styles.distRow}>
-                    <AppText variant="caption" color={Colors.textSecondary} style={{ width: 24 }}>{star}</AppText>
-                    <Star size={12} color={Colors.star} fill={Colors.star} strokeWidth={0} />
-                    <View style={styles.distBar}>
-                      <View style={[
-                        styles.distFill,
-                        {
-                          width: `${(ratingDistribution[star] / reviews.length) * 100}%`,
-                          backgroundColor: Colors.cta,
-                        },
-                      ]} />
-                    </View>
-                    <AppText variant="caption" color={Colors.textTertiary} style={{ width: 24 }}>{ratingDistribution[star]}</AppText>
-                  </View>
-                ))}
-              </View>
+    <FlatList
+      data={filteredReviews}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.listContent}
+      ItemSeparatorComponent={() => <View style={{ height: Spacing['3'] }} />}
+      ListHeaderComponent={
+        <View>
+          {headerComponent}
+          {/* Rating Summary */}
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryLeft}>
+              <AppText variant="h1" weight="bold" color={Colors.cta}>{avgRating}</AppText>
+              <RatingStars rating={parseFloat(avgRating)} size={16} />
+              <AppText variant="caption" color={Colors.textSecondary} style={{ marginTop: Spacing['1'] }}>
+                {reviews.length} reviews
+              </AppText>
             </View>
-
-            {/* Filter */}
-            <View style={styles.filterRow}>
-              {filterOptions.map((f) => (
-                <Chip
-                  key={f}
-                  label={f}
-                  selected={activeFilter === f}
-                  onPress={() => setActiveFilter(f)}
-                  size="sm"
-                />
+            <View style={styles.summaryRight}>
+              {[5, 4, 3, 2, 1].map((star) => (
+                <View key={star} style={styles.distRow}>
+                  <AppText variant="caption" color={Colors.textSecondary} style={{ width: 24 }}>{star}</AppText>
+                  <Star size={12} color={Colors.star} fill={Colors.star} strokeWidth={0} />
+                  <View style={styles.distBar}>
+                    <View style={[
+                      styles.distFill,
+                      {
+                        width: `${(ratingDistribution[star] / reviews.length) * 100}%`,
+                        backgroundColor: Colors.cta,
+                      },
+                    ]} />
+                  </View>
+                  <AppText variant="caption" color={Colors.textTertiary} style={{ width: 24 }}>{ratingDistribution[star]}</AppText>
+                </View>
               ))}
             </View>
           </View>
-        }
-      />
-    </View>
+
+          {/* Filter */}
+          <View style={styles.filterRow}>
+            {filterOptions.map((f) => (
+              <Chip
+                key={f}
+                label={f}
+                selected={activeFilter === f}
+                onPress={() => setActiveFilter(f)}
+                size="sm"
+              />
+            ))}
+          </View>
+        </View>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    backgroundColor: Colors.white, paddingHorizontal: Spacing['4'],
-    paddingTop: Spacing['16'], paddingBottom: Spacing['3'],
-    borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
-  },
   listContent: { padding: Spacing['4'], paddingBottom: 100 },
   summaryCard: {
     flexDirection: 'row', backgroundColor: Colors.white, borderRadius: Radius.xl,
