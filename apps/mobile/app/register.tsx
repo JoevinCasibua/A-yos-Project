@@ -3,7 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
 import { Button, Field, Heading } from '@/components';
-import { errorMessage, supabase } from '@/supabase';
+import { errorMessage } from '@/errors';
+import { supabase } from '@/supabase';
 import { colors } from '@/theme';
 
 export default function RegisterPage() {
