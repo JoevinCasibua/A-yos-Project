@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import Modal from '../../components/ui/Modal';
 import Pagination from '../../components/ui/Pagination';
+import { useToast } from '../../context/ToastContext';
 
 const initialServices = [
   { id: 'SRV-001', name: 'Plumbing Repair', category: 'Plumbing', price: 85, duration: '2 hours', workers: 12, bookings: 342, status: 'Active' },
@@ -19,14 +20,16 @@ const initialServices = [
 ];
 
 const Services = () => {
+  const toast = useToast();
   const [services, setServices] = useState(initialServices);
   const [deletedCategories, setDeletedCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState('add');
   const [currentService, setCurrentService] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ open: false, type: '', id: null, name: '' });
 
   const servicesPerPage = 8;
 
@@ -63,10 +66,17 @@ const Services = () => {
 
   const handleDelete = (id) => {
     const service = services.find((s) => s.id === id);
-    if (window.confirm(`Archive ${service?.name}?`)) {
+    setDeleteModal({ open: true, type: 'service', id, name: service?.name || id });
+  };
+
+  const confirmDelete = () => {
+    if (deleteModal.type === 'service') {
+      const service = services.find((s) => s.id === deleteModal.id);
       setDeletedCategories((prev) => [...prev, service.category]);
-      setServices(services.filter((s) => s.id !== id));
+      setServices(services.filter((s) => s.id !== deleteModal.id));
+      toast.info('Service Deleted', `${deleteModal.name} has been removed.`);
     }
+    setDeleteModal({ open: false, type: '', id: null, name: '' });
   };
 
   const handleRestoreCategory = (category) => {
@@ -82,14 +92,17 @@ const Services = () => {
       workers: 0
     };
     setServices([...services, newService]);
+    toast.success('Service Duplicated', `${newService.name} has been added.`);
   };
 
   const handleSave = (e) => {
     e.preventDefault();
     if (modalMode === 'add') {
       setServices([...services, { ...currentService, id: `SRV-00${services.length + 1}`, bookings: 0, workers: 0 }]);
+      toast.success('Service Created', `${currentService.name} has been added.`);
     } else {
       setServices(services.map(s => s.id === currentService.id ? currentService : s));
+      toast.success('Service Updated', `${currentService.name} has been saved.`);
     }
     setIsModalOpen(false);
   };
@@ -359,6 +372,21 @@ const Services = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={deleteModal.open} onClose={() => setDeleteModal({ open: false, type: '', id: null, name: '' })} title={`Delete ${deleteModal.type === 'service' ? 'Service' : 'Category'}`}>
+        <div className="text-center pb-2">
+          <AlertCircle className="h-12 w-12 text-danger mx-auto mb-3" />
+          <p className="text-gray-600 text-sm">
+            Are you sure you want to delete <strong className="text-navy">{deleteModal.name}</strong>?
+            {deleteModal.type === 'category' && <span className="block mt-1 text-warning text-xs">This may affect associated services.</span>}
+          </p>
+          <div className="flex gap-3 mt-6">
+            <button onClick={() => setDeleteModal({ open: false, type: '', id: null, name: '' })} className="flex-1 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button onClick={confirmDelete} className="flex-1 px-4 py-2.5 bg-danger text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">Delete</button>
+          </div>
+        </div>
       </Modal>
 
     </div>

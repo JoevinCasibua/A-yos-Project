@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { 
   Bell, Send, Filter, Search, Copy, Trash2, 
   Mail, MessageSquare, Smartphone, CheckCircle, 
-  XCircle, Clock
+  XCircle, Clock, AlertCircle
 } from 'lucide-react';
 import Modal from '../../components/ui/Modal';
 import Pagination from '../../components/ui/Pagination';
+import { useToast } from '../../context/ToastContext';
 
 const generateNotifications = (count) => {
   const types = ['Email', 'SMS', 'Push'];
@@ -26,11 +27,13 @@ const generateNotifications = (count) => {
 const mockNotifications = generateNotifications(40);
 
 const Notifications = () => {
+  const toast = useToast();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
   const [formData, setFormData] = useState({ title: '', audience: 'Everyone', channel: 'Push Notification', message: '', sendMode: 'immediate' });
 
   const notifsPerPage = 10;
@@ -68,9 +71,13 @@ const Notifications = () => {
   };
 
   const handleDelete = (id) => {
-    if(window.confirm('Delete this notification?')) {
-      setNotifications(notifications.filter(n => n.id !== id));
-    }
+    setDeleteModal({ open: true, id });
+  };
+
+  const confirmDelete = () => {
+    setNotifications(notifications.filter(n => n.id !== deleteModal.id));
+    toast.info('Notification Deleted', 'The notification has been removed.');
+    setDeleteModal({ open: false, id: null });
   };
 
   return (
@@ -243,6 +250,18 @@ const Notifications = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={deleteModal.open} onClose={() => setDeleteModal({ open: false, id: null })} title="Delete Notification">
+        <div className="text-center pb-2">
+          <AlertCircle className="h-12 w-12 text-danger mx-auto mb-3" />
+          <p className="text-gray-600 text-sm">Are you sure you want to delete this notification? This action cannot be undone.</p>
+          <div className="flex gap-3 mt-6">
+            <button onClick={() => setDeleteModal({ open: false, id: null })} className="flex-1 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button onClick={confirmDelete} className="flex-1 px-4 py-2.5 bg-danger text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">Delete</button>
+          </div>
+        </div>
       </Modal>
 
     </div>

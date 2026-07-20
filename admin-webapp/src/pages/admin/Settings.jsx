@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { 
-  Settings as SettingsIcon, Globe, Shield, 
-  CreditCard, Bell, Database, Mail, Smartphone,
-  Save, CheckCircle
+  Settings as SettingsIcon, Globe, Shield, Palette,
+  CreditCard, Bell, Database, Upload,
+  Save, CheckCircle, Image
 } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 
 const Settings = () => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('general');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -22,11 +24,10 @@ const Settings = () => {
     e.preventDefault();
     setIsSaving(true);
     setSaveSuccess(false);
-    
-    // Simulate API call
     setTimeout(() => {
       setIsSaving(false);
       setSaveSuccess(true);
+      toast.success('Settings Saved', 'Your configuration has been updated successfully.');
       setTimeout(() => setSaveSuccess(false), 3000);
     }, 800);
   };
@@ -38,7 +39,7 @@ const Settings = () => {
     { id: 'payments', label: 'Payments & Fees', icon: <CreditCard size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { id: 'ai', label: 'AI Matching', icon: <Database size={18} /> },
-    { id: 'appearance', label: 'Appearance', icon: <SettingsIcon size={18} /> },
+    { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> },
   ];
 
   return (
@@ -264,16 +265,82 @@ const Settings = () => {
             {activeTab === 'appearance' && (
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
-                  <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
-                    <option>Light</option>
-                    <option>Dark</option>
-                    <option>Auto</option>
-                  </select>
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Brand Logo</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-xl bg-primary flex items-center justify-center text-white font-display font-bold text-2xl">
+                      A
+                    </div>
+                    <div>
+                      <button className="flex items-center px-4 py-2 border border-border rounded-lg text-sm font-medium text-navy hover:bg-gray-50 transition-colors">
+                        <Upload size={15} className="mr-2" /> Upload Logo
+                      </button>
+                      <p className="text-xs text-gray-500 mt-1">Recommended: 256×256px PNG or SVG</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Branding</label>
-                  <textarea rows={4} defaultValue="A-yos Admin • Professional service operations dashboard" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500" />
+
+                <div className="border-t border-border pt-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Color Scheme</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {[
+                      { label: 'Primary Color', value: '#0B63D6', desc: 'Buttons, links, accents' },
+                      { label: 'Accent Color', value: '#22C55E', desc: 'Success states' },
+                      { label: 'Danger Color', value: '#EF4444', desc: 'Errors, warnings' },
+                    ].map(({ label, value, desc }) => (
+                      <div key={label}>
+                        <label className="block text-xs font-medium text-gray-700 mb-1.5">{label}</label>
+                        <div className="flex items-center gap-2">
+                          <input type="color" defaultValue={value} className="w-10 h-8 rounded cursor-pointer border border-border" />
+                          <span className="text-sm text-gray-500">{value}</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">{desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-border pt-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Typography</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Display Font</label>
+                      <select className="w-full border border-border rounded-lg px-4 py-2 focus:ring-primary/20 focus:border-primary focus:outline-none">
+                        <option>Poppins</option>
+                        <option>Inter</option>
+                        <option>Outfit</option>
+                        <option>Plus Jakarta Sans</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Body Font</label>
+                      <select className="w-full border border-border rounded-lg px-4 py-2 focus:ring-primary/20 focus:border-primary focus:outline-none">
+                        <option>Inter</option>
+                        <option>Roboto</option>
+                        <option>Open Sans</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-border pt-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Interface Mode</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['Light', 'Dark', 'System'].map(mode => (
+                      <label key={mode} className={`cursor-pointer border-2 rounded-lg p-4 flex flex-col items-center gap-1 transition-colors ${mode === 'Light' ? 'border-primary bg-primary/5' : 'border-border hover:border-gray-300'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${mode === 'Dark' ? 'bg-gray-900 text-white' : mode === 'System' ? 'bg-gradient-to-br from-white to-gray-900 border border-border' : 'bg-white border border-border text-gray-700'}`}>
+                          {mode.charAt(0)}
+                        </div>
+                        <span className="text-xs font-medium text-navy">{mode}</span>
+                        <input type="radio" name="mode" defaultChecked={mode === 'Light'} className="sr-only" />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-border pt-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-1">Admin Panel Branding</h3>
+                  <p className="text-xs text-gray-500 mb-3">Custom tagline shown in the login screen.</p>
+                  <textarea rows={2} defaultValue="A-yos Admin • Professional service operations dashboard" className="w-full border border-border rounded-lg px-4 py-2 focus:ring-primary/20 focus:border-primary focus:outline-none text-sm resize-none" />
                 </div>
               </div>
             )}

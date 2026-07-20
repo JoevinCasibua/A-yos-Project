@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   HeadphonesIcon, MessageSquare, Clock, AlertCircle,
   Search, Filter, CheckCircle, MoreVertical, Send,
-  User, Paperclip, X, RotateCcw
+  User, Paperclip, X, ArrowUpCircle
 } from 'lucide-react';
 import Drawer from '../../components/ui/Drawer';
 import Pagination from '../../components/ui/Pagination';
@@ -76,7 +76,7 @@ const Support = () => {
 
   const handleSendReply = () => {
     if (!replyText.trim()) return;
-    toast.success('Reply Sent', `Your note has been queued for ${selectedTicket.customer}.`);
+    toast.success('Reply Sent', `Your reply to ${selectedTicket.customer} has been sent.`);
     setReplyText('');
 
     if (selectedTicket.status === 'Open') {
@@ -90,7 +90,21 @@ const Support = () => {
     const updated = tickets.map((t) => (t.id === selectedTicket.id ? { ...t, status: 'Resolved' } : t));
     setTickets(updated);
     setSelectedTicket({ ...selectedTicket, status: 'Resolved' });
-    toast.success('Ticket Closed', `${selectedTicket.id} has been marked as resolved.`);
+    toast.success('Ticket Resolved', `Ticket ${selectedTicket.id} has been marked as resolved.`);
+  };
+
+  const escalateTicket = () => {
+    const updated = tickets.map(t => t.id === selectedTicket.id ? {...t, priority: 'High'} : t);
+    setTickets(updated);
+    setSelectedTicket({...selectedTicket, priority: 'High'});
+    toast.warning('Ticket Escalated', `Ticket ${selectedTicket.id} has been escalated to High priority.`);
+  };
+
+  const closeTicket = () => {
+    const updated = tickets.map(t => t.id === selectedTicket.id ? {...t, status: 'Closed'} : t);
+    setTickets(updated);
+    setSelectedTicket({...selectedTicket, status: 'Closed'});
+    toast.info('Ticket Closed', `Ticket ${selectedTicket.id} has been closed.`);
   };
 
   const reopenTicket = () => {
@@ -288,16 +302,19 @@ const Support = () => {
               {selectedTicket.status === 'Resolved' || selectedTicket.status === 'Closed' ? (
                 <div className="text-center py-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-gray-500 font-medium">This ticket is {selectedTicket.status.toLowerCase()}.</p>
-                  <button className="mt-2 text-sm text-blue-600 font-medium hover:underline">Reopen Ticket</button>
+                  <button onClick={reopenTicket} className="mt-2 text-sm text-blue-600 font-medium hover:underline">Reopen Ticket</button>
                 </div>
               ) : (
                 <>
-                  <div className="flex gap-2 mb-3">
-                    <button onClick={markResolved} className="text-xs font-medium bg-green-50 text-green-700 px-3 py-1.5 rounded border border-green-200 hover:bg-green-100">
-                      <CheckCircle size={12} className="inline mr-1" /> Mark Resolved
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <button onClick={markResolved} className="text-xs font-medium bg-green-50 text-green-700 px-3 py-1.5 rounded border border-green-200 hover:bg-green-100 flex items-center">
+                      <CheckCircle size={12} className="mr-1" /> Mark Resolved
                     </button>
-                    <button className="text-xs font-medium bg-gray-50 text-gray-700 px-3 py-1.5 rounded border border-gray-200 hover:bg-gray-100">
-                      Escalate
+                    <button onClick={escalateTicket} className="text-xs font-medium bg-red-50 text-red-700 px-3 py-1.5 rounded border border-red-200 hover:bg-red-100 flex items-center">
+                      <ArrowUpCircle size={12} className="mr-1" /> Escalate
+                    </button>
+                    <button onClick={closeTicket} className="text-xs font-medium bg-gray-100 text-gray-700 px-3 py-1.5 rounded border border-gray-200 hover:bg-gray-200 flex items-center">
+                      <X size={12} className="mr-1" /> Close Ticket
                     </button>
                   </div>
                   <div className="relative">
