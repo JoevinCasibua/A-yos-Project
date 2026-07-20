@@ -25,7 +25,8 @@ const generateWorkers = (count) => {
     verified: Math.random() > 0.3,
     location: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami'][Math.floor(Math.random() * 5)],
     registeredDate: new Date(Date.now() - Math.random() * 10000000000).toISOString().split('T')[0],
-    earnings: Math.floor(Math.random() * 50000)
+    earnings: Math.floor(Math.random() * 50000),
+    availability: ['Online', 'Offline', 'Busy'][Math.floor(Math.random() * 3)]
   }));
 };
 
@@ -41,6 +42,10 @@ const Workers = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [workerToDelete, setWorkerToDelete] = useState(null);
   const [actionMenuOpenId, setActionMenuOpenId] = useState(null);
+  const [activeTab, setActiveTab] = useState('all');
+  const [isRemarksModalOpen, setIsRemarksModalOpen] = useState(false);
+  const [remarks, setRemarks] = useState('');
+  const [workerToReview, setWorkerToReview] = useState(null);
 
   const workersPerPage = 10;
 
@@ -50,7 +55,8 @@ const Workers = () => {
                           w.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           w.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'All' || w.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    const matchesTab = activeTab === 'all' || (activeTab === 'review' && !w.verified);
+    return matchesSearch && matchesStatus && matchesTab;
   });
 
   const totalPages = Math.ceil(filteredWorkers.length / workersPerPage);
@@ -91,6 +97,30 @@ const Workers = () => {
     setActionMenuOpenId(null);
   };
 
+  const approveWorker = (worker) => {
+    setWorkers(workers.map(w => w.id === worker.id ? { ...w, verified: true, status: 'Active' } : w));
+    setActionMenuOpenId(null);
+  };
+
+  const openRemarksModal = (worker) => {
+    setWorkerToReview(worker);
+    setRemarks('');
+    setIsRemarksModalOpen(true);
+    setActionMenuOpenId(null);
+  };
+
+  const submitRemarks = () => {
+    // In real app, send remarks to backend
+    setIsRemarksModalOpen(false);
+    alert(`Requested documents for ${workerToReview.name}. Remarks: ${remarks}`);
+  };
+
+  const toggleAvailability = (worker) => {
+    const nextAvailability = worker.availability === 'Online' ? 'Busy' : worker.availability === 'Busy' ? 'Offline' : 'Online';
+    setWorkers(workers.map(w => w.id === worker.id ? { ...w, availability: nextAvailability } : w));
+    setActionMenuOpenId(null);
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -116,6 +146,27 @@ const Workers = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-4 border-b border-gray-200">
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 ${activeTab === 'all' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
+        >
+          All Workers
+        </button>
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 flex items-center ${activeTab === 'review' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => { setActiveTab('review'); setCurrentPage(1); }}
+        >
+          Review Queue 
+          {workers.filter(w => !w.verified).length > 0 && (
+            <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${activeTab === 'review' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+              {workers.filter(w => !w.verified).length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Filters and Search */}
@@ -221,6 +272,23 @@ const Workers = () => {
                       <button onClick={() => handleViewDetails(worker)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
                         <Eye size={16} className="mr-2 text-gray-400" /> View Details
                       </button>
+                      
+                      {activeTab === 'review' && !worker.verified && (
+                        <>
+                          <button onClick={() => approveWorker(worker)} className="flex items-center w-full px-4 py-2 text-sm text-green-700 hover:bg-green-50 text-left">
+                            <CheckCircle size={16} className="mr-2 text-green-500" /> Approve Worker
+                          </button>
+                          <button onClick={() => openRemarksModal(worker)} className="flex items-center w-full px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-50 text-left">
+                            <AlertCircle size={16} className="mr-2 text-yellow-500" /> Request Docs
+                          </button>
+                        </>
+                      )}
+
+                      <button onClick={() => toggleAvailability(worker)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
+                        <Clock size={16} className="mr-2 text-gray-400" /> 
+                        Set: {worker.availability === 'Online' ? 'Busy' : worker.availability === 'Busy' ? 'Offline' : 'Online'}
+                      </button>
+
                       <button onClick={() => toggleStatus(worker)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
                         {worker.status === 'Active' ? <UserX size={16} className="mr-2 text-gray-400" /> : <UserCheck size={16} className="mr-2 text-gray-400" />}
                         {worker.status === 'Active' ? 'Suspend' : 'Reactivate'}
@@ -362,6 +430,40 @@ const Workers = () => {
               className="flex-1 px-4 py-2 bg-red-600 rounded-lg text-sm font-medium text-white hover:bg-red-700 transition-colors"
             >
               Yes, Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Request Docs Remarks Modal */}
+      <Modal
+        isOpen={isRemarksModalOpen}
+        onClose={() => setIsRemarksModalOpen(false)}
+        title="Request Additional Documents"
+      >
+        <div className="pb-4">
+          <p className="text-sm text-gray-600 mb-4">
+            Provide remarks on what documents <span className="font-semibold text-gray-900">{workerToReview?.name}</span> needs to submit for verification.
+          </p>
+          <textarea
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="e.g. Please upload a clearer copy of your Valid ID..."
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500 min-h-[120px]"
+          />
+          <div className="flex w-full space-x-3 mt-6">
+            <button 
+              onClick={() => setIsRemarksModalOpen(false)}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={submitRemarks}
+              disabled={!remarks.trim()}
+              className="flex-1 px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              Send Request
             </button>
           </div>
         </div>

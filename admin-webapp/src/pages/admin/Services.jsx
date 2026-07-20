@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, Filter, Plus, Edit2, Trash2, 
   Copy, Layers, ArrowUpRight, ArrowDownRight,
-  Wrench, Box, CheckCircle, XCircle
+  Wrench, Box, CheckCircle, XCircle, Grid, ToggleLeft, ToggleRight
 } from 'lucide-react';
 import Modal from '../../components/ui/Modal';
 import Pagination from '../../components/ui/Pagination';
@@ -18,6 +18,17 @@ const initialServices = [
   { id: 'SRV-008', name: 'Gardening & Landscaping', category: 'Gardening', price: 110, duration: '3 hours', workers: 3, bookings: 15, status: 'Active' },
 ];
 
+const initialCategories = [
+  { id: 'CAT-001', name: 'Plumbing', status: 'Enabled', servicesCount: 4 },
+  { id: 'CAT-002', name: 'Electrical', status: 'Enabled', servicesCount: 3 },
+  { id: 'CAT-003', name: 'Cleaning', status: 'Enabled', servicesCount: 5 },
+  { id: 'CAT-004', name: 'Carpentry', status: 'Enabled', servicesCount: 2 },
+  { id: 'CAT-005', name: 'Appliance Repair', status: 'Enabled', servicesCount: 6 },
+  { id: 'CAT-006', name: 'Painting', status: 'Enabled', servicesCount: 2 },
+  { id: 'CAT-007', name: 'Pest Control', status: 'Enabled', servicesCount: 1 },
+  { id: 'CAT-008', name: 'Air Conditioning', status: 'Enabled', servicesCount: 3 },
+];
+
 const Services = () => {
   const [services, setServices] = useState(initialServices);
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +37,10 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
   const [currentService, setCurrentService] = useState(null);
+  const [activeTab, setActiveTab] = useState('services'); // 'services' or 'categories'
+  const [categoriesData, setCategoriesData] = useState(initialCategories);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState(null);
 
   const servicesPerPage = 8;
 
@@ -66,6 +81,30 @@ const Services = () => {
     }
   };
 
+  const handleOpenAddCategoryModal = () => {
+    setModalMode('add');
+    setCurrentCategory({ name: '', status: 'Enabled' });
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleOpenEditCategoryModal = (cat) => {
+    setModalMode('edit');
+    setCurrentCategory({ ...cat });
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleDeleteCategory = (id) => {
+    if(window.confirm('Are you sure you want to delete this category? Note: This action may affect services.')) {
+      setCategoriesData(categoriesData.filter(c => c.id !== id));
+    }
+  };
+
+  const toggleCategoryStatus = (id) => {
+    setCategoriesData(categoriesData.map(c => 
+      c.id === id ? { ...c, status: c.status === 'Enabled' ? 'Disabled' : 'Enabled' } : c
+    ));
+  };
+
   const handleDuplicate = (service) => {
     const newService = {
       ...service,
@@ -87,6 +126,16 @@ const Services = () => {
     setIsModalOpen(false);
   };
 
+  const handleSaveCategory = (e) => {
+    e.preventDefault();
+    if (modalMode === 'add') {
+      setCategoriesData([...categoriesData, { ...currentCategory, id: `CAT-00${categoriesData.length + 1}`, servicesCount: 0 }]);
+    } else {
+      setCategoriesData(categoriesData.map(c => c.id === currentCategory.id ? currentCategory : c));
+    }
+    setIsCategoryModalOpen(false);
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -95,10 +144,26 @@ const Services = () => {
           <p className="text-gray-500 mt-1">Manage the services offered by workers on the platform</p>
         </div>
         <button 
-          onClick={handleOpenAddModal}
+          onClick={activeTab === 'services' ? handleOpenAddModal : handleOpenAddCategoryModal}
           className="mt-4 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm flex items-center"
         >
-          <Plus size={18} className="mr-2" /> Add Service
+          <Plus size={18} className="mr-2" /> Add {activeTab === 'services' ? 'Service' : 'Category'}
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-6 border-b border-gray-200">
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 ${activeTab === 'services' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => setActiveTab('services')}
+        >
+          Manage Services
+        </button>
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 flex items-center ${activeTab === 'categories' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => setActiveTab('categories')}
+        >
+          Manage Categories
         </button>
       </div>
 
@@ -145,7 +210,10 @@ const Services = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Content Area */}
+      {activeTab === 'services' ? (
+        <>
+          {/* Table */}
       <div className="bg-white shadow-sm border border-gray-100 overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -239,6 +307,70 @@ const Services = () => {
           totalPages={totalPages} 
           onPageChange={setCurrentPage} 
         />
+      )}
+      </>
+      ) : (
+        <div className="bg-white shadow-sm border border-gray-100 overflow-x-auto rounded-lg">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Services</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {categoriesData.map((cat) => (
+                <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="h-10 w-10 flex-shrink-0 bg-indigo-50 rounded-lg flex items-center justify-center">
+                        <Grid size={20} className="text-indigo-600" />
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">{cat.name}</div>
+                        <div className="text-xs text-gray-500">{cat.id}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-900 font-medium">{cat.servicesCount} Services</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button 
+                      onClick={() => toggleCategoryStatus(cat.id)}
+                      className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                        cat.status === 'Enabled' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                      }`}
+                    >
+                      {cat.status === 'Enabled' ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                      <span>{cat.status}</span>
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end space-x-2">
+                      <button 
+                        onClick={() => handleOpenEditCategoryModal(cat)}
+                        className="text-gray-400 hover:text-indigo-600 p-1 rounded-lg hover:bg-indigo-50 transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCategory(cat.id)}
+                        className="text-gray-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* Add/Edit Service Modal */}
@@ -336,6 +468,55 @@ const Services = () => {
               className="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium text-white hover:bg-blue-700"
             >
               {modalMode === 'add' ? 'Create Service' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Add/Edit Category Modal */}
+      <Modal 
+        isOpen={isCategoryModalOpen} 
+        onClose={() => setIsCategoryModalOpen(false)} 
+        title={modalMode === 'add' ? 'Add New Category' : 'Edit Category'}
+      >
+        <form onSubmit={handleSaveCategory} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+            <input 
+              type="text" 
+              required
+              value={currentCategory?.name || ''}
+              onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g. Landscaping"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select 
+              value={currentCategory?.status || 'Enabled'}
+              onChange={(e) => setCurrentCategory({...currentCategory, status: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="Enabled">Enabled</option>
+              <option value="Disabled">Disabled</option>
+            </select>
+          </div>
+
+          <div className="pt-4 flex justify-end space-x-3 border-t border-gray-200">
+            <button 
+              type="button"
+              onClick={() => setIsCategoryModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              className="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium text-white hover:bg-blue-700"
+            >
+              {modalMode === 'add' ? 'Create Category' : 'Save Changes'}
             </button>
           </div>
         </form>

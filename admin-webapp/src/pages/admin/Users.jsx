@@ -25,6 +25,7 @@ const generateUsers = (count) => {
       registeredAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toLocaleDateString(),
       status: statuses[Math.floor(Math.random() * statuses.length)],
       bookings: Math.floor(Math.random() * 20),
+      verified: Math.random() > 0.2,
     });
   }
   return users;
@@ -37,7 +38,13 @@ const Users = () => {
   const [users, setUsers] = useState(mockUsers);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [actionMenuOpenId, setActionMenuOpenId] = useState(null);
   const itemsPerPage = 10;
+
+  const toggleActionMenu = (id) => {
+    if (actionMenuOpenId === id) setActionMenuOpenId(null);
+    else setActionMenuOpenId(id);
+  };
 
   // Filter
   const filteredUsers = users.filter(user => 
@@ -106,6 +113,7 @@ const Users = () => {
                 <TableHead>Contact</TableHead>
                 <TableHead>Registration Date</TableHead>
                 <TableHead>Bookings</TableHead>
+                <TableHead>Verification</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -184,20 +192,43 @@ const Users = () => {
                       <span className="font-medium text-navy bg-gray-100 px-2 py-1 rounded-md">{user.bookings}</span>
                     </TableCell>
                     <TableCell>
+                      {user.verified ? (
+                        <span className="inline-flex items-center text-xs font-medium text-success">
+                          <ShieldCheck size={14} className="mr-1" /> Verified
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center text-xs font-medium text-gray-500">
+                          Unverified
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       {getStatusBadge(user.status)}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Edit">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-warning hover:bg-warning/10 rounded-lg transition-colors" title="Suspend">
-                          <Ban className="h-4 w-4" />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" title="Delete">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                    <TableCell className="text-right relative">
+                      <button 
+                        onClick={() => toggleActionMenu(user.id)}
+                        className="text-gray-400 hover:text-navy p-1 rounded-full hover:bg-gray-100 transition-colors"
+                      >
+                        <MoreVertical size={20} />
+                      </button>
+                      
+                      {actionMenuOpenId === user.id && (
+                        <div className="absolute right-8 top-10 w-48 bg-white rounded-md shadow-lg border border-border z-10 py-1 text-left">
+                          <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <Eye size={16} className="mr-2 text-gray-400" /> View Profile
+                          </button>
+                          <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <Edit size={16} className="mr-2 text-gray-400" /> Edit User
+                          </button>
+                          <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <Ban size={16} className="mr-2 text-gray-400" /> Suspend
+                          </button>
+                          <button className="flex items-center w-full px-4 py-2 text-sm text-danger hover:bg-danger/5">
+                            <Trash2 size={16} className="mr-2 text-danger" /> Soft Delete
+                          </button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

@@ -118,33 +118,40 @@ const AuditLogs = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp / Admin</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admin</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Module</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action & Target</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device & Location</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-sm">
             {paginatedLogs.length > 0 ? paginatedLogs.map((log) => (
               <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-3 whitespace-nowrap">
-                  <div className="font-medium text-gray-900">{log.admin}</div>
-                  <div className="text-xs text-gray-500">{log.timestamp}</div>
+                <td className="px-6 py-3 whitespace-nowrap text-gray-500">
+                  {log.timestamp}
+                </td>
+                <td className="px-6 py-3 whitespace-nowrap font-medium text-gray-900">
+                  {log.admin}
                 </td>
                 <td className="px-6 py-3 whitespace-nowrap">
-                  <div className="font-medium text-gray-900">
-                    <span className="bg-gray-100 px-2 py-0.5 rounded text-xs mr-2">{log.module}</span>
-                    {log.action}
-                  </div>
+                  <span className="bg-gray-100 px-2 py-0.5 rounded text-xs">{log.module}</span>
+                </td>
+                <td className="px-6 py-3 whitespace-nowrap">
+                  <div className="font-medium text-gray-900">{log.action}</div>
                   <div className="text-xs text-gray-500 mt-1">Target: {log.target}</div>
                 </td>
                 <td className="px-6 py-3 whitespace-nowrap">
-                  <div className="flex items-center text-gray-700">
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Globe size={12} className="mr-1" /> {log.ip}
+                  </div>
+                </td>
+                <td className="px-6 py-3 whitespace-nowrap">
+                  <div className="flex items-center text-gray-700 text-xs">
                     {log.isMobile ? <Smartphone size={14} className="mr-2 text-gray-400" /> : <Monitor size={14} className="mr-2 text-gray-400" />}
                     {log.device} • {log.browser}
-                  </div>
-                  <div className="flex items-center text-xs text-gray-500 mt-1">
-                    <Globe size={12} className="mr-1" /> {log.ip}
                   </div>
                 </td>
                 <td className="px-6 py-3 whitespace-nowrap text-right">
@@ -161,7 +168,7 @@ const AuditLogs = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
+                <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                   No audit logs found.
                 </td>
               </tr>

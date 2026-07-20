@@ -10,7 +10,9 @@ const Login = () => {
   const [password, setPassword] = useState('admin');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [viewState, setViewState] = useState('login'); // 'login' or 'forgot_password'
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,6 +32,18 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+    
+    // Mock API call
+    setTimeout(() => {
+      setIsLoading(false);
+      setSuccessMsg('If an account exists, a reset link has been sent to your email.');
+    }, 1000);
   };
 
   return (
@@ -81,8 +95,14 @@ const Login = () => {
           </div>
 
           <div className="mb-8 text-center lg:text-left">
-            <h2 className="text-2xl font-bold text-navy mb-2">Welcome Back</h2>
-            <p className="text-gray-500">Please sign in to your administrator account.</p>
+            <h2 className="text-2xl font-bold text-navy mb-2">
+              {viewState === 'login' ? 'Welcome Back' : 'Reset Password'}
+            </h2>
+            <p className="text-gray-500">
+              {viewState === 'login' 
+                ? 'Please sign in to your administrator account.' 
+                : 'Enter your email address and we will send you a link to reset your password.'}
+            </p>
           </div>
 
           {error && (
@@ -91,50 +111,88 @@ const Login = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="admin@a-yos.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              icon={Mail}
-              required
-            />
+          {successMsg && (
+            <div className="mb-6 bg-success/10 border-l-4 border-success p-4 rounded-r-lg flex items-start">
+              <div className="flex-1 text-sm text-success font-medium">{successMsg}</div>
+            </div>
+          )}
 
-            <div className="relative">
+          {viewState === 'login' ? (
+            <form onSubmit={handleSubmit} className="space-y-5">
               <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                icon={Lock}
+                label="Email Address"
+                type="email"
+                placeholder="admin@a-yos.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                icon={Mail}
                 required
               />
-              <button
-                type="button"
-                className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 focus:outline-none"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
 
-            <div className="flex items-center justify-between mt-2">
-              <label className="flex items-center">
-                <input type="checkbox" className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <a href="#" className="text-sm font-medium text-primary hover:text-blue-700 transition-colors">
-                Forgot password?
-              </a>
-            </div>
+              <div className="relative">
+                <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  icon={Lock}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
 
-            <Button type="submit" className="w-full mt-6" size="lg" isLoading={isLoading}>
-              Sign In to Dashboard
-            </Button>
-          </form>
+              <div className="flex items-center justify-between mt-2">
+                <label className="flex items-center">
+                  <input type="checkbox" className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
+                  <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                </label>
+                <button 
+                  type="button" 
+                  onClick={() => { setViewState('forgot_password'); setError(''); setSuccessMsg(''); }}
+                  className="text-sm font-medium text-primary hover:text-blue-700 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              <Button type="submit" className="w-full mt-6" size="lg" isLoading={isLoading}>
+                Sign In to Dashboard
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleResetPassword} className="space-y-5">
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="admin@a-yos.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                icon={Mail}
+                required
+              />
+
+              <Button type="submit" className="w-full mt-6" size="lg" isLoading={isLoading}>
+                Send Reset Link
+              </Button>
+
+              <div className="text-center mt-4">
+                <button 
+                  type="button" 
+                  onClick={() => { setViewState('login'); setError(''); setSuccessMsg(''); }}
+                  className="text-sm font-medium text-gray-500 hover:text-navy transition-colors"
+                >
+                  &larr; Back to Login
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 space-y-2 sm:space-y-0">
             <div className="flex space-x-4">

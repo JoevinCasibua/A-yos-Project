@@ -90,6 +90,19 @@ const Support = () => {
     setSelectedTicket({...selectedTicket, status: 'Resolved'});
   };
 
+  const escalateTicket = () => {
+    const updated = tickets.map(t => t.id === selectedTicket.id ? {...t, priority: 'High'} : t);
+    setTickets(updated);
+    setSelectedTicket({...selectedTicket, priority: 'High'});
+    alert(`Ticket ${selectedTicket.id} escalated to High priority.`);
+  };
+
+  const reopenTicket = () => {
+    const updated = tickets.map(t => t.id === selectedTicket.id ? {...t, status: 'Open'} : t);
+    setTickets(updated);
+    setSelectedTicket({...selectedTicket, status: 'Open'});
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -278,7 +291,7 @@ const Support = () => {
               {selectedTicket.status === 'Resolved' || selectedTicket.status === 'Closed' ? (
                 <div className="text-center py-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-gray-500 font-medium">This ticket is {selectedTicket.status.toLowerCase()}.</p>
-                  <button className="mt-2 text-sm text-blue-600 font-medium hover:underline">Reopen Ticket</button>
+                  <button onClick={reopenTicket} className="mt-2 text-sm text-blue-600 font-medium hover:underline">Reopen Ticket</button>
                 </div>
               ) : (
                 <>
@@ -286,7 +299,7 @@ const Support = () => {
                     <button onClick={markResolved} className="text-xs font-medium bg-green-50 text-green-700 px-3 py-1.5 rounded border border-green-200 hover:bg-green-100">
                       <CheckCircle size={12} className="inline mr-1" /> Mark Resolved
                     </button>
-                    <button className="text-xs font-medium bg-gray-50 text-gray-700 px-3 py-1.5 rounded border border-gray-200 hover:bg-gray-100">
+                    <button onClick={escalateTicket} className="text-xs font-medium bg-red-50 text-red-700 px-3 py-1.5 rounded border border-red-200 hover:bg-red-100">
                       Escalate
                     </button>
                   </div>

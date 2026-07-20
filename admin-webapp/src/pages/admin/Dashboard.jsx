@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   DollarSign, Calendar, Users, HardHat, 
-  ArrowUpRight, ArrowDownRight, Clock, CheckCircle, Trash2
+  ArrowUpRight, ArrowDownRight, Clock, CheckCircle, Trash2,
+  RefreshCcw, Headset, UserPlus, Bell
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -120,23 +121,23 @@ const Dashboard = () => {
       </div>
 
       {/* Stat Cards Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
         <StatCard 
           title="Total Revenue" 
-          value="$45,231.89" 
+          value="$45,231" 
           icon={DollarSign}
           trend="up"
           trendValue="20.1%"
-          subtitle="from last month"
+          subtitle="vs last month"
           isLoading={isLoading}
         />
         <StatCard 
           title="Active Bookings" 
-          value="+2350" 
+          value="2,350" 
           icon={Calendar}
           trend="up"
           trendValue="15.2%"
-          subtitle="from last month"
+          subtitle="vs last month"
           isLoading={isLoading}
         />
         <StatCard 
@@ -145,7 +146,7 @@ const Dashboard = () => {
           icon={Users}
           trend="up"
           trendValue="4.1%"
-          subtitle="from last month"
+          subtitle="vs last month"
           isLoading={isLoading}
         />
         <StatCard 
@@ -154,7 +155,25 @@ const Dashboard = () => {
           icon={HardHat}
           trend="down"
           trendValue="1.2%"
-          subtitle="from last month"
+          subtitle="vs last month"
+          isLoading={isLoading}
+        />
+        <StatCard 
+          title="Pending Refunds" 
+          value="12" 
+          icon={RefreshCcw}
+          trend="up"
+          trendValue="3"
+          subtitle="since yesterday"
+          isLoading={isLoading}
+        />
+        <StatCard 
+          title="Support Tickets" 
+          value="45" 
+          icon={Headset}
+          trend="down"
+          trendValue="5"
+          subtitle="resolved today"
           isLoading={isLoading}
         />
       </div>
@@ -299,6 +318,82 @@ const Dashboard = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Additional Widgets Row */}
+      <div className="grid gap-6 md:grid-cols-2 mt-2">
+        {/* Recent Registrations */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Registrations</CardTitle>
+                <CardDescription>Latest users who joined A-yos.</CardDescription>
+              </div>
+              <div className="p-2 bg-info/10 rounded-lg">
+                <UserPlus className="h-5 w-5 text-info" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-medium">
+                      U{i}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-navy">New User {i}</p>
+                      <p className="text-xs text-gray-500">Joined today</p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-xs">Customer</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* System Notifications */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>System Notifications</CardTitle>
+                <CardDescription>Important alerts and updates.</CardDescription>
+              </div>
+              <div className="p-2 bg-warning/10 rounded-lg">
+                <Bell className="h-5 w-5 text-warning" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3 p-3 bg-danger/5 border border-danger/20 rounded-lg">
+                <div className="p-1.5 bg-danger/10 text-danger rounded-md"><Trash2 size={16} /></div>
+                <div>
+                  <p className="text-sm font-medium text-danger">Server Maintenance</p>
+                  <p className="text-xs text-gray-600 mt-1">Scheduled for tonight at 2:00 AM PHT.</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-3 bg-success/5 border border-success/20 rounded-lg">
+                <div className="p-1.5 bg-success/10 text-success rounded-md"><CheckCircle size={16} /></div>
+                <div>
+                  <p className="text-sm font-medium text-success">New App Version</p>
+                  <p className="text-xs text-gray-600 mt-1">v2.4.1 has been deployed successfully.</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-3 bg-info/5 border border-info/20 rounded-lg">
+                <div className="p-1.5 bg-info/10 text-info rounded-md"><RefreshCcw size={16} /></div>
+                <div>
+                  <p className="text-sm font-medium text-info">Payment Gateway Sync</p>
+                  <p className="text-xs text-gray-600 mt-1">Synchronization completed with 0 errors.</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

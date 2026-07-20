@@ -60,6 +60,12 @@ const Trash = () => {
     }
   };
 
+  const handleEmptyTrash = () => {
+    if(window.confirm(`Permanently delete all ${filteredItems.length} items in ${activeTab} trash? This CANNOT be undone.`)) {
+      setItems({ ...items, [activeTab]: [] });
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -75,7 +81,10 @@ const Trash = () => {
             >
               <RotateCcw size={18} className="mr-2" /> Restore All
             </button>
-            <button className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm flex items-center">
+            <button 
+              onClick={handleEmptyTrash}
+              className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm flex items-center"
+            >
               <Trash2 size={18} className="mr-2" /> Empty Trash
             </button>
           </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   DollarSign, TrendingUp, CreditCard, Download, 
   Search, Filter, ArrowUpRight, ArrowDownRight,
-  MoreVertical, Eye, FileText
+  MoreVertical, Eye, FileText, CheckCircle, XCircle, Clock
 } from 'lucide-react';
 import Drawer from '../../components/ui/Drawer';
 import Pagination from '../../components/ui/Pagination';
@@ -44,6 +44,7 @@ const Payments = () => {
   const [selectedTxn, setSelectedTxn] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [actionMenuOpenId, setActionMenuOpenId] = useState(null);
+  const [activeTab, setActiveTab] = useState('transactions');
 
   const txnsPerPage = 10;
 
@@ -52,7 +53,12 @@ const Payments = () => {
                           t.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           t.worker.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'All' || t.type === filterType;
-    return matchesSearch && matchesType;
+    
+    let matchesTab = true;
+    if (activeTab === 'refunds') matchesTab = t.type === 'Refund';
+    if (activeTab === 'cash') matchesTab = t.method === 'Cash' || t.method === 'Bank Transfer'; // Simulating offline payments
+
+    return matchesSearch && matchesType && matchesTab;
   });
 
   const totalPages = Math.ceil(filteredTxns.length / txnsPerPage);
@@ -113,7 +119,37 @@ const Payments = () => {
         ))}
       </div>
 
-      {/* Filters and Search */}
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-6 border-b border-gray-200 overflow-x-auto">
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 whitespace-nowrap ${activeTab === 'transactions' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => { setActiveTab('transactions'); setCurrentPage(1); }}
+        >
+          All Transactions
+        </button>
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 whitespace-nowrap ${activeTab === 'refunds' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => { setActiveTab('refunds'); setCurrentPage(1); }}
+        >
+          Refund Management
+        </button>
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 whitespace-nowrap ${activeTab === 'cash' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => { setActiveTab('cash'); setCurrentPage(1); }}
+        >
+          Cash Records
+        </button>
+        <button 
+          className={`py-2 px-4 font-medium text-sm border-b-2 whitespace-nowrap ${activeTab === 'methods' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          onClick={() => setActiveTab('methods')}
+        >
+          Payment Methods (Settings)
+        </button>
+      </div>
+
+      {activeTab !== 'methods' ? (
+        <>
+          {/* Filters and Search */}
       <div className="bg-white rounded-t-xl shadow-sm border-x border-t border-gray-100 p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="relative w-full sm:w-96">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -225,6 +261,76 @@ const Payments = () => {
           totalPages={totalPages} 
           onPageChange={setCurrentPage} 
         />
+      )}
+      </>
+      ) : (
+        /* Payment Methods Settings Tab */
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-6">Payment Methods</h2>
+          <div className="space-y-4">
+            
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center mr-4">
+                  <span className="font-bold text-blue-600 text-xl">GC</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">GCash</h3>
+                  <p className="text-sm text-gray-500">Integration coming soon</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                Disabled (Future)
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-green-50 rounded-lg flex items-center justify-center mr-4">
+                  <span className="font-bold text-green-600 text-xl">M</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Maya</h3>
+                  <p className="text-sm text-gray-500">Integration coming soon</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                Disabled (Future)
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-indigo-50 rounded-lg flex items-center justify-center mr-4">
+                  <CreditCard className="text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Credit / Debit Card</h3>
+                  <p className="text-sm text-gray-500">Integration coming soon</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                Disabled (Future)
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-green-200 bg-green-50 rounded-lg">
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                  <DollarSign className="text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Cash on Delivery / Direct</h3>
+                  <p className="text-sm text-gray-500">Active by default for customer-worker offline payments</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full border border-green-200">
+                Active
+              </span>
+            </div>
+
+          </div>
+        </div>
       )}
 
       {/* Transaction Details Drawer */}

@@ -58,6 +58,10 @@ const Reports = () => {
     alert(`Downloading report ${id} as CSV...`);
   };
 
+  const handleDownloadExcel = (id) => {
+    alert(`Downloading report ${id} as Excel (XLSX)...`);
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -71,21 +75,37 @@ const Reports = () => {
       </div>
 
       {/* Report Types Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {[
-          { name: 'Financial', icon: <CreditCard className="text-blue-500" />, bg: 'bg-blue-50' },
-          { name: 'Workers', icon: <Briefcase className="text-purple-500" />, bg: 'bg-purple-50' },
-          { name: 'Customers', icon: <Users className="text-green-500" />, bg: 'bg-green-50' },
-          { name: 'Services', icon: <BarChart2 className="text-orange-500" />, bg: 'bg-orange-50' },
-          { name: 'Reviews', icon: <Star className="text-yellow-500 fill-current" />, bg: 'bg-yellow-50' },
-        ].map((type, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow">
-            <div className={`p-3 rounded-full ${type.bg} mb-3`}>
-              {type.icon}
-            </div>
-            <h3 className="text-sm font-bold text-gray-900">{type.name}</h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div 
+          onClick={() => setReportType('All')}
+          className={`rounded-xl shadow-sm border p-4 flex flex-col items-center justify-center cursor-pointer transition-all ${reportType === 'All' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white border-gray-100 hover:shadow-md text-gray-900'}`}
+        >
+          <div className={`p-3 rounded-full mb-3 ${reportType === 'All' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600'}`}>
+            <Filter size={24} />
           </div>
-        ))}
+          <h3 className="text-sm font-bold">All Reports</h3>
+        </div>
+        {[
+          { name: 'Financial', filterName: 'Financial Summary', icon: <CreditCard />, bg: 'bg-blue-50', activeBg: 'bg-blue-600', color: 'text-blue-500', activeColor: 'text-white' },
+          { name: 'Workers', filterName: 'Worker Performance', icon: <Briefcase />, bg: 'bg-purple-50', activeBg: 'bg-purple-600', color: 'text-purple-500', activeColor: 'text-white' },
+          { name: 'Customers', filterName: 'Customer Activity', icon: <Users />, bg: 'bg-green-50', activeBg: 'bg-green-600', color: 'text-green-500', activeColor: 'text-white' },
+          { name: 'Services', filterName: 'Service Popularity', icon: <BarChart2 />, bg: 'bg-orange-50', activeBg: 'bg-orange-600', color: 'text-orange-500', activeColor: 'text-white' },
+          { name: 'Reviews', filterName: 'Review Sentiment', icon: <Star className="fill-current" />, bg: 'bg-yellow-50', activeBg: 'bg-yellow-500', color: 'text-yellow-500', activeColor: 'text-white' },
+        ].map((type, index) => {
+          const isActive = reportType === type.filterName;
+          return (
+            <div 
+              key={index} 
+              onClick={() => { setReportType(type.filterName); setCurrentPage(1); }}
+              className={`rounded-xl shadow-sm border p-4 flex flex-col items-center justify-center cursor-pointer transition-all ${isActive ? type.activeBg + ' border-transparent text-white' : 'bg-white border-gray-100 hover:shadow-md text-gray-900'}`}
+            >
+              <div className={`p-3 rounded-full mb-3 ${isActive ? 'bg-white/20 text-white' : type.bg + ' ' + type.color}`}>
+                {type.icon}
+              </div>
+              <h3 className="text-sm font-bold">{type.name}</h3>
+            </div>
+          );
+        })}
       </div>
 
       {/* Filters and Search */}
@@ -173,6 +193,12 @@ const Reports = () => {
                       className="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg font-medium transition-colors text-xs"
                     >
                       CSV
+                    </button>
+                    <button 
+                      onClick={() => handleDownloadExcel(report.id)}
+                      className="text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 px-3 py-1.5 rounded-lg font-medium transition-colors text-xs"
+                    >
+                      Excel
                     </button>
                     <button 
                       onClick={() => handleDownload(report.id)}

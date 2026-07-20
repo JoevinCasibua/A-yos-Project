@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Settings as SettingsIcon, Globe, Shield, 
   CreditCard, Bell, Database, Mail, Smartphone,
-  Save, CheckCircle
+  Save, CheckCircle, Calendar, Bot
 } from 'lucide-react';
 
 const Settings = () => {
@@ -33,6 +33,8 @@ const Settings = () => {
 
   const tabs = [
     { id: 'general', label: 'General', icon: <Globe size={18} /> },
+    { id: 'booking', label: 'Booking Rules', icon: <Calendar size={18} /> },
+    { id: 'ai', label: 'AI Assistant', icon: <Bot size={18} /> },
     { id: 'security', label: 'Security & Auth', icon: <Shield size={18} /> },
     { id: 'payments', label: 'Payments & Fees', icon: <CreditCard size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
@@ -144,6 +146,56 @@ const Settings = () => {
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'booking' && (
+              <div className="space-y-6">
+                <h3 className="text-sm font-bold text-gray-900 mb-2">Booking Policies</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Auto-cancel unassigned bookings after</label>
+                    <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
+                      <option>1 Hour</option>
+                      <option>12 Hours</option>
+                      <option>24 Hours</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Advance Booking Limit</label>
+                    <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500">
+                      <option>Up to 7 days</option>
+                      <option>Up to 30 days</option>
+                      <option>Up to 3 months</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'ai' && (
+              <div className="space-y-6">
+                <h3 className="text-sm font-bold text-gray-900 mb-2">AI Assistant Settings</h3>
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div>
+                    <p className="font-medium text-gray-900">Enable AI Auto-Matching</p>
+                    <p className="text-sm text-gray-500">Allow AI to automatically assign workers to customer requests.</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div>
+                    <p className="font-medium text-gray-900">AI Cost Estimation</p>
+                    <p className="text-sm text-gray-500">Display AI-generated estimated cost for user requests.</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600"></div>
+                  </label>
                 </div>
               </div>
             )}
