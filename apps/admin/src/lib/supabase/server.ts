@@ -1,17 +1,11 @@
 import type { Database } from '@ayos/supabase';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-
-function configuration() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) throw new Error('Supabase administrator configuration is missing.');
-  return { url, key };
-}
+import { supabaseConfiguration } from './config';
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
-  const { url, key } = configuration();
+  const { url, key } = supabaseConfiguration();
   return createServerClient<Database>(url, key, {
     cookies: {
       getAll: () => cookieStore.getAll(),
