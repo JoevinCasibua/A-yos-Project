@@ -1,35 +1,15 @@
-# dependencies
 node_modules/
-
-# expo
-.expo/
+.turbo/
 dist/
-web-build/
-expo-env.d.ts
-
-# native
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-
-# metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macos
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
+.next/
+.expo/
+coverage/
+*.log
 .env
-
-# typescript
-*.tsbuildinfo
+.env.*
+!.env.example
+apps/mobile/.expo/
+supabase/.branches/
+supabase/.temp/
+supabase/.env.local
+.DS_Store
