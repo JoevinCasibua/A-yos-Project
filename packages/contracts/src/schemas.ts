@@ -4,19 +4,31 @@ import { ACCOUNT_ROLES, BOOKING_STATUSES, PAYMENT_METHODS } from './enums.js';
 export const emailSchema = z
   .string()
   .trim()
-  .email()
-  .max(254)
+  .email({ message: 'Enter a valid email address.' })
+  .max(254, { message: 'Email address must be 254 characters or fewer.' })
   .transform((value) => value.toLowerCase());
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(/^\+[1-9]\d{7,14}$/);
-export const passwordSchema = z.string().min(12).max(128).regex(/[a-z]/).regex(/[A-Z]/).regex(/\d/);
+  .regex(/^\+[1-9]\d{7,14}$/, {
+    message: 'Enter a mobile number with country code, for example +639171234567.',
+  });
+export const passwordSchema = z
+  .string()
+  .min(12, { message: 'Password must contain at least 12 characters.' })
+  .max(128, { message: 'Password must contain 128 characters or fewer.' })
+  .regex(/[a-z]/, { message: 'Password must include a lowercase letter.' })
+  .regex(/[A-Z]/, { message: 'Password must include an uppercase letter.' })
+  .regex(/\d/, { message: 'Password must include a number.' });
 
 export const registerSchema = z
   .object({
     role: z.enum(ACCOUNT_ROLES).exclude(['ADMIN']),
-    name: z.string().trim().min(2).max(120),
+    name: z
+      .string()
+      .trim()
+      .min(2, { message: 'Full name must contain at least 2 characters.' })
+      .max(120, { message: 'Full name must contain 120 characters or fewer.' }),
     mobile: phoneSchema,
     email: emailSchema,
     password: passwordSchema,
