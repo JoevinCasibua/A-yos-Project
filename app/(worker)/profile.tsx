@@ -7,8 +7,8 @@ import { Image } from 'expo-image';
 import {
   ChevronRight, User, Wrench, MapPin, Briefcase,
   Wallet, Clock, Bell, Settings, HelpCircle, Shield,
-  LogOut, ArrowLeftRight, Star, CheckCircle,
-  BadgeCheck, ArrowUpFromLine, PlusCircle, MessageSquare,
+  Star, CheckCircle,
+  BadgeCheck, ArrowUpFromLine, PlusCircle,
 } from 'lucide-react-native';
 import { workerProfile } from '@/constants/workerData';
 
@@ -66,14 +66,6 @@ export default function WorkerProfileScreen() {
       return;
     }
     Alert.alert('Coming Soon', 'This feature is under development.');
-  };
-
-  const handleLogout = () => {
-    router.replace('/');
-  };
-
-  const handleSwitchToUser = () => {
-    router.replace('/(tabs)/home');
   };
 
   return (
@@ -142,18 +134,6 @@ export default function WorkerProfileScreen() {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <LogOut color={theme.colors.error} size={20} />
-          <Text style={[theme.typography.button, { color: theme.colors.error, marginLeft: theme.spacing.sm }]}>Log Out</Text>
-        </TouchableOpacity>
-
-        <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.lg }]}>
-          For Development Testing
-        </Text>
-        <TouchableOpacity style={styles.switchBtn} onPress={handleSwitchToUser}>
-          <ArrowLeftRight color={theme.colors.primary} size={20} />
-          <Text style={[theme.typography.button, { color: theme.colors.primary, marginLeft: theme.spacing.sm }]}>Switch to User</Text>
-        </TouchableOpacity>
       </View>
     </Screen>
   );
@@ -175,6 +155,5 @@ const styles = StyleSheet.create({
   borderBottom: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
   iconContainer: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
   settingText: { flex: 1 },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing.md, backgroundColor: `${theme.colors.error}10`, borderRadius: theme.radius.md, marginTop: theme.spacing.md },
-  switchBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing.md, backgroundColor: `${theme.colors.primary}08`, borderRadius: theme.radius.md, marginTop: theme.spacing.sm, marginBottom: theme.spacing.xxxl },
+
 });
