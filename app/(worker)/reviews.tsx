@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@/constants/theme';
 import { ReviewsTab } from '@/components/ReviewsTab';
@@ -7,6 +9,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { workerReviews } from '@/constants/workerMockData';
 
 export default function WorkerReviewsScreen() {
+  const { from } = useLocalSearchParams<{ from?: string }>();
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -28,7 +31,18 @@ export default function WorkerReviewsScreen() {
         headerComponent={
           <View>
             <View style={styles.header}>
-              <Text style={theme.typography.h2}>My Reviews</Text>
+              <Pressable
+                style={styles.backButton}
+                hitSlop={12}
+                onPress={() => {
+                  if (from === 'profile') router.push('/(worker)/profile');
+                  else router.back();
+                }}
+              >
+                <ChevronLeft size={24} color={theme.colors.textPrimary} />
+              </Pressable>
+              <Text style={[theme.typography.h2, { flex: 1 }]}>My Reviews</Text>
+              <View style={{ width: 40 }} />
             </View>
             <SearchBar
               value={searchQuery}
@@ -45,6 +59,18 @@ export default function WorkerReviewsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { paddingVertical: theme.spacing.md },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.layout.screenPadding,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   searchBar: { marginBottom: theme.spacing.md },
 });
