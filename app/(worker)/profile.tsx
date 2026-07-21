@@ -8,7 +8,7 @@ import {
   ChevronRight, User, Wrench, MapPin, Briefcase,
   Wallet, Clock, Bell, Settings, HelpCircle, Shield,
   LogOut, ArrowLeftRight, Star, CheckCircle,
-  BadgeCheck, ArrowUpFromLine, PlusCircle,
+  BadgeCheck, ArrowUpFromLine, PlusCircle, MessageSquare,
 } from 'lucide-react-native';
 import { workerProfile } from '@/constants/workerData';
 
@@ -21,6 +21,7 @@ const MENU_SECTIONS = [
       { id: 'areas', title: 'Service Areas', icon: MapPin },
       { id: 'portfolio', title: 'Portfolio', icon: Briefcase },
       { id: 'verification', title: 'Verification', icon: BadgeCheck },
+      { id: 'reviews', title: 'My Reviews', icon: Star },
     ],
   },
   {
@@ -56,6 +57,10 @@ export default function WorkerProfileScreen() {
       router.push('/(worker)/verification');
       return;
     }
+    if (id === 'reviews') {
+      router.push('/(worker)/reviews');
+      return;
+    }
     Alert.alert('Coming Soon', 'This feature is under development.');
   };
 
@@ -64,7 +69,7 @@ export default function WorkerProfileScreen() {
   };
 
   const handleSwitchToUser = () => {
-    router.replace('/(tabs)');
+    router.replace('/(tabs)/home');
   };
 
   return (

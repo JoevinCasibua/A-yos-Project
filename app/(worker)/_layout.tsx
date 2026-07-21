@@ -1,33 +1,37 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Search, CalendarDays, Star, User, Wallet } from 'lucide-react-native';
-import { Colors, Typography } from '@/constants/theme';
+import { LayoutDashboard, Search, CalendarDays, User, Wallet, MessageSquare } from 'lucide-react-native';
+import { theme } from '@/constants/theme';
 
 export default function WorkerTabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: true,
-        tabBarActiveTintColor: Colors.navActive,
-        tabBarInactiveTintColor: Colors.navInactive,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: Colors.navBackground,
-          borderTopWidth: 1,
-          borderTopColor: Colors.border,
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
-          paddingTop: 8,
+          backgroundColor: theme.colors.surface,
+          borderTopWidth: 0.5,
+          borderTopColor: theme.colors.border,
+          height: Platform.OS === 'ios' ? 85 : 60,
+          paddingBottom: Platform.OS === 'ios' ? 25 : 8,
+          paddingTop: 6,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 6,
         },
         tabBarItemStyle: {
           paddingVertical: 0,
           marginVertical: 0,
         },
         tabBarLabelStyle: {
-          fontSize: Typography.xs,
+          fontSize: 11,
           fontWeight: '600',
-          marginTop: 2,
+          marginTop: 4,
         },
       }}
     >
@@ -35,7 +39,7 @@ export default function WorkerTabLayout() {
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} strokeWidth={2} />,
+          tabBarIcon: ({ color }) => <LayoutDashboard size={24} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
@@ -60,28 +64,34 @@ export default function WorkerTabLayout() {
         name="wallet"
         options={{
           title: 'Wallet',
-          tabBarIcon: ({ color, size }) => <Wallet size={size} color={color} strokeWidth={2} />,
+          tabBarIcon: ({ color }) => <Wallet size={24} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="bookings"
         options={{
           title: 'Bookings',
-          tabBarIcon: ({ color, size }) => <CalendarDays size={size} color={color} strokeWidth={2} />,
+          tabBarIcon: ({ color }) => <CalendarDays size={24} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="reviews"
         options={{
-          title: 'Reviews',
-          tabBarIcon: ({ color, size }) => <Star size={size} color={color} strokeWidth={2} />,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: 'Messages',
+          tabBarIcon: ({ color }) => <MessageSquare size={24} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
+          tabBarIcon: ({ color }) => <User size={24} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen

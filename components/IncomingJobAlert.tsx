@@ -74,6 +74,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     padding: Layout.cardPadding,
     ...Elevation.sm,
+    borderWidth: 1.5,
+    borderColor: Colors.warning,
   },
   header: {
     flexDirection: 'row',

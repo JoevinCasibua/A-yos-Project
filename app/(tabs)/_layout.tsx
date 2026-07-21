@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
-import { Search, Calendar, MessageSquare, User, Plus, Home, FileText } from 'lucide-react-native';
+import { Home, FileText, MessageSquare, User, Plus } from 'lucide-react-native';
 
 const CreateButton = () => {
   const router = useRouter();
@@ -22,7 +22,6 @@ const CreateButton = () => {
       tension: 40,
       useNativeDriver: true,
     }).start();
-    // Navigate immediately to request creation flow
     router.push('/new-request/create');
   };
 
@@ -49,27 +48,33 @@ export default function TabLayout() {
         tabBarInactiveTintColor: theme.colors.textTertiary,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
+          borderTopWidth: 0.5,
           borderTopColor: theme.colors.border,
-          height: theme.layout.bottomNavHeight,
-          paddingBottom: theme.spacing.sm,
-          paddingTop: theme.spacing.xs,
-          elevation: 10,
+          height: Platform.OS === 'ios' ? 85 : 60,
+          paddingBottom: Platform.OS === 'ios' ? 25 : 8,
+          paddingTop: 6,
+          elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
+          shadowOpacity: 0.06,
+          shadowRadius: 6,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 0,
+          marginVertical: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-        }
+          fontSize: 11,
+          fontWeight: '600',
+          marginTop: 4,
+        },
       }}>
       
       <Tabs.Screen
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
         }}
       />
       
@@ -77,7 +82,7 @@ export default function TabLayout() {
         name="bookings"
         options={{
           title: 'Activity',
-          tabBarIcon: ({ color, size }) => <FileText color={color} size={size} />,
+          tabBarIcon: ({ color }) => <FileText size={24} color={color} />,
         }}
       />
 
@@ -93,7 +98,7 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: 'Messages',
-          tabBarIcon: ({ color, size }) => <MessageSquare color={color} size={size} />,
+          tabBarIcon: ({ color }) => <MessageSquare size={24} color={color} />,
         }}
       />
 
@@ -101,7 +106,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Account',
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+          tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />
       
@@ -111,23 +116,22 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   createButtonContainer: {
-    top: -15,
+    top: -12,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 60,
-    height: 60,
+    flex: 1,
   },
   createButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: '#0B63D6',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#0B63D6',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
     elevation: 6,
   },
 });
