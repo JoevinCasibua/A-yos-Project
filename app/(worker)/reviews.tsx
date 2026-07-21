@@ -62,12 +62,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.md + theme.spacing.sm,
+    paddingVertical: theme.spacing.md
   },
   backButton: {
     width: 40,
     height: 40,
+    marginLeft: theme.spacing.md * 2,
     borderRadius: theme.radius.full,
     alignItems: 'center',
     justifyContent: 'center',
