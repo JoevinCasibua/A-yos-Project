@@ -44,6 +44,13 @@ export default function WorkerDashboardScreen() {
       )}
       <View style={[styles.topNav, { paddingTop: (isCurrentlyWorking ? 0 : insets.top) + theme.spacing.sm }]}>
         <View style={styles.headerTopRow}>
+          <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
+            <Image
+              source={workerProfile.avatarUri}
+              style={styles.headerAvatar}
+              contentFit="cover"
+            />
+          </Pressable>
           <View style={styles.searchBar}>
             <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
             <TextInput
@@ -57,29 +64,26 @@ export default function WorkerDashboardScreen() {
             <Bell color={theme.colors.surface} size={24} />
             <View style={styles.badge} />
           </Pressable>
-          <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
-            <Image
-              source={workerProfile.avatarUri}
-              style={styles.headerAvatar}
-              contentFit="cover"
-            />
-          </Pressable>
-        </View>
-        {/* Stats Row */}
-        <View style={styles.statsRow}>
-          {todayStats.map((stat, index) => (
-            <React.Fragment key={stat.label}>
-              <View style={styles.statItemHeader}>
-                <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{stat.value}</Text>
-                <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>{stat.label}</Text>
-              </View>
-              {index < todayStats.length - 1 && <View style={styles.statDividerHeader} />}
-            </React.Fragment>
-          ))}
         </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
+        {/* Today Stats */}
+        <View style={styles.section}>
+          <Text style={[theme.typography.h4, { marginBottom: theme.spacing.md }]}>Today</Text>
+          <View style={styles.statsCard}>
+            {todayStats.map((stat, index) => (
+              <React.Fragment key={stat.label}>
+                <View style={styles.statItem}>
+                  <Text style={theme.typography.h3}>{stat.value}</Text>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>{stat.label}</Text>
+                </View>
+                {index < todayStats.length - 1 && <View style={styles.statDivider} />}
+              </React.Fragment>
+            ))}
+          </View>
+        </View>
+
         {/* Incoming Job Alert */}
         <View style={styles.section}>
           <IncomingJobAlert
@@ -165,7 +169,7 @@ export default function WorkerDashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  topNav: { backgroundColor: '#1e3a8a', paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.md },
+  topNav: { backgroundColor: '#1e3a8a', paddingHorizontal: theme.layout.screenPadding },
   headerTopRow: { flexDirection: 'row', alignItems: 'center' },
   searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.full, paddingHorizontal: theme.spacing.md, height: 44, marginRight: theme.spacing.sm },
   searchInput: { flex: 1, fontSize: 14, color: theme.colors.textPrimary },
@@ -175,9 +179,9 @@ const styles = StyleSheet.create({
   headerAvatar: { width: '100%', height: '100%' },
   content: { flex: 1, zIndex: 5 },
   contentContainer: { paddingBottom: theme.spacing.xxxl, paddingTop: theme.spacing.lg },
-  statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.xs },
-  statItemHeader: { alignItems: 'center', flex: 1 },
-  statDividerHeader: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.2)' },
+  statsCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, ...theme.shadows.sm },
+  statItem: { alignItems: 'center', flex: 1 },
+  statDivider: { width: 1, height: 28, backgroundColor: theme.colors.borderLight },
   section: { marginBottom: theme.spacing.xl, paddingHorizontal: theme.layout.screenPadding },
   bookingCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, marginBottom: theme.spacing.md, ...theme.shadows.sm },
   bookingHeader: { flexDirection: 'row', alignItems: 'center' },
