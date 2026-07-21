@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { View, StyleSheet } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@/constants/theme';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ReviewsTab } from '@/components/ReviewsTab';
 import { SearchBar } from '@/components/SearchBar';
 import { workerReviews } from '@/constants/workerMockData';
@@ -30,20 +30,7 @@ export default function WorkerReviewsScreen() {
         reviews={filteredReviews}
         headerComponent={
           <View>
-            <View style={styles.header}>
-              <Pressable
-                style={styles.backButton}
-                hitSlop={12}
-                onPress={() => {
-                  if (from === 'profile') router.push('/(worker)/profile');
-                  else router.back();
-                }}
-              >
-                <ChevronLeft size={24} color={theme.colors.textPrimary} />
-              </Pressable>
-              <Text style={[theme.typography.h2, { flex: 1, marginLeft: theme.spacing.sm }]}>My Reviews</Text>
-              <View style={{ width: 40 }} />
-            </View>
+            <PageHeader title="My Reviews" from={from} />
             <SearchBar
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -59,18 +46,5 @@ export default function WorkerReviewsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.md
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    marginLeft: theme.spacing.md * 2,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   searchBar: { marginBottom: theme.spacing.md },
 });

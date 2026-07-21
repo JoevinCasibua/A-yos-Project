@@ -43,12 +43,6 @@ export default function WorkerDashboardScreen() {
         </Pressable>
       )}
       <View style={[styles.topNav, { paddingTop: (isCurrentlyWorking ? 0 : insets.top) + theme.spacing.sm }]}>
-        <View style={styles.greetingRow}>
-          <View>
-            <Text style={[theme.typography.body2, { color: 'rgba(255,255,255,0.8)' }]}>Good morning,</Text>
-            <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{workerProfile.name.split(' ')[0]} 👋</Text>
-          </View>
-        </View>
         <View style={styles.headerTopRow}>
           <View style={styles.searchBar}>
             <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
@@ -172,7 +166,6 @@ export default function WorkerDashboardScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   topNav: { backgroundColor: '#1e3a8a', paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.md },
-  greetingRow: { marginBottom: theme.spacing.md },
   headerTopRow: { flexDirection: 'row', alignItems: 'center' },
   searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.full, paddingHorizontal: theme.spacing.md, height: 44, marginRight: theme.spacing.sm },
   searchInput: { flex: 1, fontSize: 14, color: theme.colors.textPrimary },

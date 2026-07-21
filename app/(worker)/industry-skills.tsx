@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { ChevronLeft, Wrench, X, Briefcase, Check } from 'lucide-react-native';
+import { Wrench, X, Briefcase, Check } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -53,21 +54,7 @@ export default function IndustrySkillsScreen() {
 
   return (
     <Screen safeArea scrollable>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => {
-            if (from === 'profile') router.push('/(worker)/profile');
-            else if (from === 'settings') router.push('/(worker)/settings');
-            else router.back();
-          }}
-          hitSlop={12}
-          style={styles.backButton}
-        >
-          <ChevronLeft size={24} color={theme.colors.textPrimary} />
-        </Pressable>
-        <Text style={theme.typography.h4}>Industry & Skills</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <PageHeader title="Industry & Skills" from={from} />
 
       <View style={styles.content}>
         {/* Industry Section */}
@@ -188,20 +175,6 @@ export default function IndustrySkillsScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.layout.screenPadding,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   content: {
     flex: 1,
     paddingHorizontal: theme.layout.screenPadding,

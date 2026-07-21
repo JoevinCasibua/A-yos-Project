@@ -8,7 +8,7 @@ import {
   ChevronRight, User, Wrench, MapPin, Briefcase,
   Wallet, Clock, Bell, Settings, HelpCircle, Shield,
   Star, CheckCircle, LogOut, ArrowLeftRight,
-  BadgeCheck, ArrowUpFromLine, PlusCircle,
+  BadgeCheck, ArrowUpFromLine, PlusCircle, FileText,
 } from 'lucide-react-native';
 import { workerProfile } from '@/constants/workerData';
 
@@ -18,9 +18,10 @@ const MENU_SECTIONS = [
     items: [
       { id: 'personal', title: 'Personal Information', icon: User },
       { id: 'industry', title: 'Industry & Skills', icon: Wrench },
+      { id: 'experience', title: 'Work Experience', icon: FileText },
+      { id: 'availability', title: 'Availability', icon: Clock },
       { id: 'areas', title: 'Service Areas', icon: MapPin },
       { id: 'portfolio', title: 'Portfolio', icon: Briefcase },
-      { id: 'verification', title: 'Verification', icon: BadgeCheck },
       { id: 'reviews', title: 'My Reviews', icon: Star },
     ],
   },
@@ -43,6 +44,7 @@ const MENU_SECTIONS = [
   {
     title: 'Support & Legal',
     items: [
+      { id: 'verification', title: 'Verification', icon: BadgeCheck },
       { id: 'help', title: 'Help Center', icon: HelpCircle },
       { id: 'privacy', title: 'Privacy Policy', icon: Shield },
     ],
@@ -63,6 +65,14 @@ export default function WorkerProfileScreen() {
     }
     if (id === 'industry') {
       router.push('/(worker)/industry-skills?from=profile');
+      return;
+    }
+    if (id === 'experience') {
+      router.push('/(worker)/work-experience?from=profile');
+      return;
+    }
+    if (id === 'availability') {
+      router.push('/(worker)/availability?from=profile');
       return;
     }
     Alert.alert('Coming Soon', 'This feature is under development.');

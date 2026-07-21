@@ -25,7 +25,9 @@ export const QuickActionsGrid = React.memo(function QuickActionsGrid() {
         <Pressable
           key={action.id}
           style={({ pressed }) => [styles.card, { opacity: pressed ? 0.9 : 1 }]}
-          onPress={() => {}}
+          onPress={() => {
+            if (action.id === 'schedule') router.push('/(worker)/availability');
+          }}
         >
           <View style={[styles.iconContainer, { backgroundColor: action.bg }]}>
             <action.icon size={IconSize.lg} color={action.color} strokeWidth={2} />
