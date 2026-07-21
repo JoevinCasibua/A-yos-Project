@@ -24,7 +24,7 @@ export default function WorkerReviewsScreen() {
   }, [searchQuery]);
 
   return (
-    <Screen safeArea>
+    <Screen safeArea style={{ paddingBottom: 0 }}>
       <ReviewsTab
         reviews={filteredReviews}
         headerComponent={
