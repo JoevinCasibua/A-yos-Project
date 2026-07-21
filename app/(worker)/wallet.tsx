@@ -475,12 +475,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   scrollView: { flex: 1 },
-  scrollContent: { paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxl, gap: theme.spacing.md },
+  scrollContent: { paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxl },
 
   // Balance card
   balanceCard: {
     backgroundColor: Colors.white, borderRadius: Radius.xl,
     padding: Spacing['5'], gap: Spacing['4'], ...Elevation.sm,
+    marginBottom: theme.spacing.xl,
   },
   balanceTop: { gap: Spacing['1'] },
   pendingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['1'], marginTop: Spacing['1'] },
@@ -488,10 +489,10 @@ const styles = StyleSheet.create({
   balanceBtn: { flex: 1 },
 
   // Period toggle
-  periodToggle: { flexDirection: 'row', gap: Spacing['2'] },
+  periodToggle: { flexDirection: 'row', gap: Spacing['2'], marginBottom: theme.spacing.xl },
 
   // Stats grid
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing['3'] },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing['3'], marginBottom: theme.spacing.xl },
   statCard: {
     width: (screenWidth - Layout.screenPadding * 2 - Spacing['3']) / 2,
     backgroundColor: Colors.white, borderRadius: Radius.xl,
@@ -506,6 +507,7 @@ const styles = StyleSheet.create({
   chartCard: {
     backgroundColor: Colors.white, borderRadius: Radius.xl,
     padding: Spacing['4'], ...Elevation.sm,
+    marginBottom: theme.spacing.xl,
   },
   chartHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing['4'] },
   barChart: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing['2'], height: 100 },
@@ -514,7 +516,7 @@ const styles = StyleSheet.create({
   barFill: { width: '100%', borderRadius: Radius.xs },
 
   // Transactions
-  txSection: { gap: Spacing['3'] },
+  txSection: { gap: Spacing['3'], marginBottom: theme.spacing.xl },
   txHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   txFilters: { flexDirection: 'row', gap: Spacing['2'] },
   txList: { gap: Spacing['2'] },
@@ -544,6 +546,7 @@ const styles = StyleSheet.create({
   perfCard: {
     backgroundColor: Colors.white, borderRadius: Radius.xl,
     padding: Spacing['4'], ...Elevation.sm,
+    marginBottom: theme.spacing.xl,
   },
   perfHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'], marginBottom: Spacing['4'] },
   perfAvatar: {
