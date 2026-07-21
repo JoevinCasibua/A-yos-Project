@@ -18,11 +18,13 @@ export function PageHeader({ title, from }: PageHeaderProps) {
 
   return (
     <View style={styles.header}>
-      <Pressable onPress={handleBack} hitSlop={12} style={styles.backButton}>
-        <ChevronLeft size={24} color={theme.colors.textPrimary} />
-      </Pressable>
-      <Text style={theme.typography.h4}>{title}</Text>
-      <View style={{ width: 40 }} />
+      <View style={styles.sideSlot}>
+        <Pressable onPress={handleBack} hitSlop={12} style={styles.backButton}>
+          <ChevronLeft size={24} color={theme.colors.textPrimary} />
+        </Pressable>
+      </View>
+      <Text style={[theme.typography.h4, styles.title]}>{title}</Text>
+      <View style={styles.sideSlot} />
     </View>
   );
 }
@@ -31,9 +33,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.layout.screenPadding,
+  },
+  sideSlot: {
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backButton: {
     width: 40,
@@ -41,5 +47,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  title: {
+    flex: 1,
+    textAlign: 'center',
   },
 });
