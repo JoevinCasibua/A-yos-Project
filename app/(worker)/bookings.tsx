@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   tabButton: { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.md, marginRight: theme.spacing.sm, borderBottomWidth: 2, borderBottomColor: 'transparent' },
   tabButtonActive: { borderBottomColor: theme.colors.primary },
   content: { flex: 1 },
-  contentInner: { padding: theme.layout.screenPadding, paddingBottom: 100 },
+  contentInner: { paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxxl },
   bookingCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.sm },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme.spacing.md },
   customerRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, flex: 1 },

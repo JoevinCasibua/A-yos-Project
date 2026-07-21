@@ -89,7 +89,7 @@ export default function WalletScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Text style={theme.typography.h2}>Earnings</Text>
+        <Text style={theme.typography.h2}>Wallet</Text>
       </View>
       <ScrollView
         style={styles.scrollView}
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   scrollView: { flex: 1 },
-  scrollContent: { padding: Layout.screenPadding, paddingBottom: Spacing['10'], gap: Spacing['4'] },
+  scrollContent: { paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxl, gap: theme.spacing.md },
 
   // Balance card
   balanceCard: {
