@@ -46,5 +46,5 @@ export default function WorkerReviewsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  searchBar: { marginBottom: theme.spacing.md, marginHorizontal: theme.layout.screenPadding * 2 },
+  searchBar: { marginBottom: theme.spacing.md, marginHorizontal: theme.layout.screenPadding },
 });
