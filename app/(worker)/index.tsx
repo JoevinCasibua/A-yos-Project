@@ -1,33 +1,48 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, Pressable } from 'react-native';
-import { Bell, Search } from 'lucide-react-native';
+import { Bell, Search, ChevronRight, Briefcase } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { IncomingJobAlert } from '@/components/IncomingJobAlert';
 import { QuickActionsGrid } from '@/components/QuickActionsGrid';
+import { AppText } from '@/components/AppText';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
 import { workerProfile } from '@/constants/workerData';
-import { workerBookings, workerJobs, statusConfig } from '@/constants/workerMockData';
+import { workerBookings, workerJobs, statusConfig, walletPerformance } from '@/constants/workerMockData';
+import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
 const todayStats = [
-  { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress').length.toString() },
-  { label: 'Pending', value: workerBookings.filter((b) => b.status === 'upcoming').length.toString() },
+  { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress' || b.status === 'en_route').length.toString() },
+  { label: 'Pending', value: workerBookings.filter((b) => b.status === 'hired' || b.status === 'accepted').length.toString() },
   { label: 'Completed', value: workerBookings.filter((b) => b.status === 'completed').length.toString() },
   { label: 'Earnings', value: '$180' },
 ];
 
-const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled');
+const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review');
 const incomingJob = workerJobs[0];
 
 export default function WorkerDashboardScreen() {
   const insets = useSafeAreaInsets();
+  const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
+  const currentBookingId = useWorkerBookingStore((s) => s.currentBookingId);
 
   return (
     <View style={styles.container}>
-      <View style={[styles.topNav, { paddingTop: insets.top + theme.spacing.sm }]}>
+      {isCurrentlyWorking && (
+        <Pressable
+          style={[styles.workingBanner, { paddingTop: insets.top + theme.spacing.sm }]}
+          onPress={() => router.push(`/(worker)/booking-request/${currentBookingId}`)}
+        >
+          <Briefcase size={16} color={theme.colors.surface} />
+          <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>
+            You are currently working on a job — Tap to view
+          </Text>
+        </Pressable>
+      )}
+      <View style={[styles.topNav, { paddingTop: (isCurrentlyWorking ? 0 : insets.top) + theme.spacing.sm }]}>
         <View style={styles.greetingRow}>
           <View>
             <Text style={[theme.typography.body2, { color: 'rgba(255,255,255,0.8)' }]}>Good morning,</Text>
@@ -112,6 +127,42 @@ export default function WorkerDashboardScreen() {
               </View>
             </Pressable>
           ))}
+          <Pressable style={styles.seeAllBtn} onPress={() => router.push('/(worker)/bookings')}>
+            <Text style={[theme.typography.button, { color: theme.colors.primary }]}>See All Bookings</Text>
+            <ChevronRight size={18} color={theme.colors.primary} />
+          </Pressable>
+        </View>
+
+        {/* Worker Profile Card */}
+        <View style={styles.section}>
+          <View style={styles.perfCard}>
+            <View style={styles.perfHeader}>
+              <View style={styles.perfAvatar}>
+                <Text style={[theme.typography.h4, { color: theme.colors.surface }]}>JR</Text>
+              </View>
+              <View style={styles.perfInfo}>
+                <Text style={theme.typography.h4}>Juan Reyes</Text>
+                <Badge label="TOP WORKER" variant="warning" size="sm" />
+              </View>
+            </View>
+            <View style={styles.perfStats}>
+              {[
+                { label: 'Completion Rate', val: walletPerformance.completionRate, color: theme.colors.success },
+                { label: 'On-Time Arrival', val: walletPerformance.onTimeArrival, color: theme.colors.info },
+                { label: 'Repeat Clients', val: walletPerformance.repeatClients, color: theme.colors.warning },
+              ].map((s) => (
+                <View key={s.label} style={styles.perfRow}>
+                  <View style={styles.perfRowTop}>
+                    <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>{s.label}</Text>
+                    <Text style={[theme.typography.caption, { fontWeight: '600', color: s.color }]}>{s.val}%</Text>
+                  </View>
+                  <View style={styles.perfTrack}>
+                    <View style={[styles.perfFill, { width: `${s.val}%`, backgroundColor: s.color }]} />
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -139,4 +190,22 @@ const styles = StyleSheet.create({
   bookingHeader: { flexDirection: 'row', alignItems: 'center' },
   bookingInfo: { flex: 1, marginLeft: theme.spacing.sm },
   bookingMeta: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs, marginTop: theme.spacing.md, paddingTop: theme.spacing.md, borderTopWidth: 1, borderTopColor: theme.colors.borderLight },
+  seeAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: theme.spacing.sm, paddingVertical: theme.spacing.sm, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.lg, backgroundColor: theme.colors.surface },
+  perfCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.lg, ...theme.shadows.sm },
+  perfHeader: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginBottom: theme.spacing.lg },
+  perfAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.colors.info, alignItems: 'center', justifyContent: 'center' },
+  perfInfo: { flex: 1, gap: 2 },
+  perfStats: { gap: theme.spacing.md },
+  perfRow: { gap: theme.spacing.xs },
+  perfRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  perfTrack: { height: 6, backgroundColor: theme.colors.borderLight, borderRadius: theme.radius.full, overflow: 'hidden' },
+  perfFill: { height: '100%', borderRadius: theme.radius.full },
+  workingBanner: {
+    backgroundColor: theme.colors.warning,
+    paddingHorizontal: theme.layout.screenPadding,
+    paddingBottom: theme.spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
 });

@@ -243,8 +243,11 @@ export interface WorkerBooking {
   date: string;
   time: string;
   address: string;
-  status: 'upcoming' | 'in_progress' | 'completed' | 'cancelled';
+  lat: number;
+  lng: number;
+  status: 'hired' | 'accepted' | 'en_route' | 'in_progress' | 'pending_review' | 'completed' | 'cancelled';
   price: string;
+  hourlyRate: number;
   hasParts?: boolean;
   partsDescription?: string;
 }
@@ -258,8 +261,11 @@ export const workerBookings: WorkerBooking[] = [
     date: 'Today, Jul 14',
     time: '2:00 PM',
     address: '123 Oak Street',
-    status: 'upcoming',
+    lat: 14.5995,
+    lng: 120.9842,
+    status: 'hired',
     price: '$60',
+    hourlyRate: 45,
     hasParts: true,
     partsDescription: 'PVC pipe and fittings',
   },
@@ -271,8 +277,11 @@ export const workerBookings: WorkerBooking[] = [
     date: 'Today, Jul 14',
     time: '4:30 PM',
     address: '456 Pine Avenue',
+    lat: 14.5547,
+    lng: 121.0244,
     status: 'in_progress',
     price: '$75',
+    hourlyRate: 50,
     hasParts: false,
   },
   {
@@ -283,8 +292,11 @@ export const workerBookings: WorkerBooking[] = [
     date: 'Tomorrow, Jul 15',
     time: '9:00 AM',
     address: '789 Elm Drive',
-    status: 'upcoming',
+    lat: 14.5719,
+    lng: 121.0516,
+    status: 'en_route',
     price: '$450',
+    hourlyRate: 65,
   },
   {
     id: '4',
@@ -294,8 +306,11 @@ export const workerBookings: WorkerBooking[] = [
     date: 'Jul 12, 2024',
     time: '11:00 AM',
     address: '321 Maple Court',
+    lat: 14.5621,
+    lng: 121.0013,
     status: 'completed',
     price: '$85',
+    hourlyRate: 40,
   },
   {
     id: '5',
@@ -305,25 +320,48 @@ export const workerBookings: WorkerBooking[] = [
     date: 'Jul 10, 2024',
     time: '3:00 PM',
     address: '654 Cedar Lane',
-    status: 'completed',
+    lat: 14.5387,
+    lng: 121.0627,
+    status: 'pending_review',
     price: '$60',
+    hourlyRate: 45,
   },
   {
-    id: 'cancelled-1',
+    id: '6',
     customerName: 'Maria Santos',
     customerAvatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
     service: 'Pipe Repair',
+    date: 'Today, Jul 14',
+    time: '5:00 PM',
+    address: '456 Oak Avenue',
+    lat: 14.5826,
+    lng: 120.9787,
+    status: 'accepted',
+    price: '$80',
+    hourlyRate: 40,
+  },
+  {
+    id: 'cancelled-1',
+    customerName: 'Linda Garcia',
+    customerAvatar: 'https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Drain Cleaning',
     date: 'Jul 8, 2024',
     time: '10:00 AM',
-    address: '456 Oak Avenue',
+    address: '789 Pine Road',
+    lat: 14.6107,
+    lng: 121.0359,
     status: 'cancelled',
     price: '$80',
+    hourlyRate: 45,
   },
 ];
 
-export const statusConfig: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'error' }> = {
-  upcoming: { label: 'Upcoming', variant: 'info' },
+export const statusConfig: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'error' | 'neutral' }> = {
+  hired: { label: 'Hired', variant: 'info' },
+  accepted: { label: 'Chatting', variant: 'info' },
+  en_route: { label: 'En Route', variant: 'warning' },
   in_progress: { label: 'In Progress', variant: 'warning' },
+  pending_review: { label: 'Pending Review', variant: 'neutral' },
   completed: { label: 'Completed', variant: 'success' },
   cancelled: { label: 'Cancelled', variant: 'error' },
 };

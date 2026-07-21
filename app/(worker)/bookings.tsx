@@ -1,22 +1,24 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable, Alert } from 'react-native';
-import { CalendarDays, Clock, MapPin, Phone, Wrench } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable } from 'react-native';
+import { CalendarDays, Clock, MapPin, Phone } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { Screen } from '@/components/layout/Screen';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { Avatar } from '@/components/Avatar';
+import { Badge } from '@/components/Badge';
 import { workerBookings, statusConfig } from '@/constants/workerMockData';
+import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
-const variantColors: Record<string, { bg: string; color: string }> = {
-  info: { bg: theme.colors.infoBackground, color: theme.colors.info },
-  warning: { bg: theme.colors.warningBackground, color: theme.colors.warning },
-  success: { bg: theme.colors.successBackground, color: theme.colors.success },
-  error: { bg: theme.colors.errorBackground, color: theme.colors.error },
-};
-
 const BOOKING_TABS = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
+
+const TAB_FILTERS: Record<string, WorkerBooking['status'][]> = {
+  'Upcoming': ['hired', 'accepted'],
+  'In Progress': ['en_route', 'in_progress'],
+  'Completed': ['pending_review', 'completed'],
+  'Cancelled': ['cancelled'],
+};
 
 export default function WorkerBookingsScreen() {
   const { filter } = useLocalSearchParams<{ filter?: string }>();
@@ -24,46 +26,26 @@ export default function WorkerBookingsScreen() {
     filter === 'Cancelled' ? 'Cancelled' : 'Upcoming',
   );
   const [bookings, setBookings] = useState<WorkerBooking[]>(workerBookings);
+  const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
 
   const filteredBookings = useMemo(() => {
-    const statusMap: Record<string, WorkerBooking['status']> = {
-      'Upcoming': 'upcoming',
-      'In Progress': 'in_progress',
-      'Completed': 'completed',
-      'Cancelled': 'cancelled',
-    };
-    return bookings.filter((b) => b.status === statusMap[activeTab]);
+    const statuses = TAB_FILTERS[activeTab] || [];
+    return bookings.filter((b) => statuses.includes(b.status));
   }, [activeTab, bookings]);
-
-  const handleStartJob = useCallback((bookingId: string) => {
-    Alert.alert('Start Job', 'Mark this job as in progress?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Start',
-        onPress: () => setBookings((prev) =>
-          prev.map((b) => b.id === bookingId ? { ...b, status: 'in_progress' as const } : b),
-        ),
-      },
-    ]);
-  }, []);
-
-  const handleCompleteJob = useCallback((bookingId: string) => {
-    Alert.alert('Complete Job', 'Mark this job as completed?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Complete',
-        onPress: () => setBookings((prev) =>
-          prev.map((b) => b.id === bookingId ? { ...b, status: 'completed' as const } : b),
-        ),
-      },
-    ]);
-  }, []);
 
   return (
     <Screen safeArea backgroundColor={theme.colors.background}>
       <View style={styles.header}>
         <Text style={theme.typography.h2}>My Bookings</Text>
       </View>
+
+      {isCurrentlyWorking && (
+        <View style={styles.workingBanner}>
+          <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>
+            You are currently working on a job
+          </Text>
+        </View>
+      )}
 
       <View style={styles.tabsContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
@@ -104,11 +86,11 @@ export default function WorkerBookingsScreen() {
                       <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{booking.service}</Text>
                     </View>
                   </View>
-                  <View style={[styles.statusBadge, { backgroundColor: variantColors[statusConfig[booking.status].variant].bg }]}>
-                    <Text style={[theme.typography.caption, { color: variantColors[statusConfig[booking.status].variant].color, fontWeight: '600' }]}>
-                      {statusConfig[booking.status].label}
-                    </Text>
-                  </View>
+                  <Badge
+                    label={statusConfig[booking.status].label}
+                    variant={(statusConfig[booking.status].variant as any) || 'info'}
+                    size="sm"
+                  />
                 </View>
 
                 <View style={styles.cardDetails}>
@@ -128,7 +110,6 @@ export default function WorkerBookingsScreen() {
 
                 {booking.hasParts !== undefined && (
                   <View style={[styles.partsRow, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
-                    <Wrench size={14} color={booking.hasParts ? theme.colors.success : theme.colors.warning} />
                     <Text style={[theme.typography.caption, { color: booking.hasParts ? theme.colors.success : theme.colors.warning, fontWeight: '500' }]}>
                       {booking.hasParts ? 'Customer Has Parts' : 'Needs Parts'}
                     </Text>
@@ -138,24 +119,23 @@ export default function WorkerBookingsScreen() {
                 <View style={styles.cardFooter}>
                   <Text style={[theme.typography.h4, { color: theme.colors.primary }]}>{booking.price}</Text>
                   <View style={styles.actionRow}>
-                    {booking.status === 'upcoming' && (
-                      <>
-                        <TouchableOpacity style={styles.contactBtn}>
-                          <Phone size={16} color={theme.colors.primary} />
-                          <Text style={[theme.typography.caption, { color: theme.colors.primary, fontWeight: '600' }]}>Contact</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.primaryBtn} onPress={() => handleStartJob(booking.id)}>
-                          <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>Start Job</Text>
-                        </TouchableOpacity>
-                      </>
-                    )}
                     {booking.status === 'in_progress' && (
-                      <TouchableOpacity style={styles.primaryBtn} onPress={() => handleCompleteJob(booking.id)}>
-                        <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>Complete</Text>
+                      <TouchableOpacity style={styles.primaryBtn}>
+                        <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>
+                          {isCurrentlyWorking ? 'Working...' : 'View'}
+                        </Text>
                       </TouchableOpacity>
                     )}
                     {booking.status === 'completed' && (
                       <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>Paid · {booking.price}</Text>
+                    )}
+                    {booking.status === 'pending_review' && (
+                      <Text style={[theme.typography.caption, { color: theme.colors.warning }]}>Awaiting confirmation</Text>
+                    )}
+                    {(booking.status === 'hired' || booking.status === 'accepted' || booking.status === 'en_route') && (
+                      <TouchableOpacity style={styles.primaryBtn}>
+                        <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>View</Text>
+                      </TouchableOpacity>
                     )}
                   </View>
                 </View>
@@ -170,22 +150,48 @@ export default function WorkerBookingsScreen() {
 
 const styles = StyleSheet.create({
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
+  workingBanner: {
+    backgroundColor: theme.colors.warning,
+    paddingHorizontal: theme.layout.screenPadding,
+    paddingVertical: theme.spacing.sm,
+    alignItems: 'center',
+  },
   tabsContainer: { borderBottomWidth: 1, borderBottomColor: theme.colors.border },
   tabsScroll: { paddingHorizontal: theme.layout.screenPadding },
-  tabButton: { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.md, marginRight: theme.spacing.sm, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabButton: {
+    paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.md,
+    marginRight: theme.spacing.sm, borderBottomWidth: 2, borderBottomColor: 'transparent',
+  },
   tabButtonActive: { borderBottomColor: theme.colors.primary },
   content: { flex: 1 },
-  contentInner: { paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxxl },
-  bookingCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.sm },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme.spacing.md },
+  contentInner: {
+    paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xxxl,
+  },
+  bookingCard: {
+    backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.sm,
+  },
+  cardHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start',
+    marginBottom: theme.spacing.md,
+  },
   customerRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, flex: 1 },
-  statusBadge: { paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xxs, borderRadius: theme.radius.md, marginLeft: theme.spacing.sm },
-  cardDetails: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: theme.colors.borderLight, paddingTop: theme.spacing.sm },
+  cardDetails: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    borderTopWidth: 1, borderTopColor: theme.colors.borderLight, paddingTop: theme.spacing.sm,
+  },
   detailRow: { flexDirection: 'row', alignItems: 'center' },
   detailText: { color: theme.colors.textSecondary, marginLeft: 4 },
-  partsRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm },
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: theme.colors.borderLight, paddingTop: theme.spacing.md, marginTop: theme.spacing.md },
+  partsRow: { paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm },
+  cardFooter: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderTopWidth: 1, borderTopColor: theme.colors.borderLight,
+    paddingTop: theme.spacing.md, marginTop: theme.spacing.md,
+  },
   actionRow: { flexDirection: 'row', gap: theme.spacing.sm },
-  contactBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, borderWidth: 1.5, borderColor: theme.colors.border, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.lg },
-  primaryBtn: { backgroundColor: theme.colors.primary, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.lg },
+  primaryBtn: {
+    backgroundColor: theme.colors.primary, paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm, borderRadius: theme.radius.lg,
+  },
 });
