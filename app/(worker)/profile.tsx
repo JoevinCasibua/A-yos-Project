@@ -61,6 +61,10 @@ export default function WorkerProfileScreen() {
       router.push('/(worker)/reviews');
       return;
     }
+    if (id === 'industry') {
+      router.push('/(worker)/industry-skills');
+      return;
+    }
     Alert.alert('Coming Soon', 'This feature is under development.');
   };
 

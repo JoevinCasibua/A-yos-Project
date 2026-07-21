@@ -96,6 +96,10 @@ export default function WorkerTabLayout() {
         options={{ href: null }}
       />
       <Tabs.Screen
+        name="industry-skills"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="cancel-service/[id]"
         options={{ href: null }}
       />
