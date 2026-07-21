@@ -44,41 +44,10 @@ export default function WorkerTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="search"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="verification"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="transactions-history"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="wallet"
-        options={{
-          title: 'Wallet',
-          tabBarIcon: ({ color }) => <Wallet size={24} color={color} strokeWidth={2} />,
-        }}
-      />
-      <Tabs.Screen
         name="bookings"
         options={{
           title: 'Bookings',
           tabBarIcon: ({ color }) => <CalendarDays size={24} color={color} strokeWidth={2} />,
-        }}
-      />
-      <Tabs.Screen
-        name="reviews"
-        options={{
-          href: null,
         }}
       />
       <Tabs.Screen
@@ -89,6 +58,13 @@ export default function WorkerTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="wallet"
+        options={{
+          title: 'Wallet',
+          tabBarIcon: ({ color }) => <Wallet size={24} color={color} strokeWidth={2} />,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
@@ -96,22 +72,32 @@ export default function WorkerTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="search"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="verification"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="transactions-history"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="reviews"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="settings"
-        options={{
-          href: null,
-        }}
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="booking-request/[id]"
-        options={{
-          href: null,
-        }}
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="cancel-service/[id]"
-        options={{
-          href: null,
-        }}
+        options={{ href: null }}
       />
     </Tabs>
   );
