@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@/constants/theme';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ReviewsTab } from '@/components/ReviewsTab';
 import { SearchBar } from '@/components/SearchBar';
@@ -10,7 +10,6 @@ import { workerReviews } from '@/constants/workerMockData';
 
 export default function WorkerReviewsScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
-  const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredReviews = useMemo(() => {
@@ -25,7 +24,7 @@ export default function WorkerReviewsScreen() {
   }, [searchQuery]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <Screen safeArea>
       <ReviewsTab
         reviews={filteredReviews}
         headerComponent={
@@ -40,11 +39,10 @@ export default function WorkerReviewsScreen() {
           </View>
         }
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
-  searchBar: { marginBottom: theme.spacing.md, marginHorizontal: theme.layout.screenPadding * 2 },
+  searchBar: { marginBottom: theme.spacing.md, marginHorizontal: theme.layout.screenPadding },
 });
