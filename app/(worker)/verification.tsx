@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   ArrowLeft, CheckCircle, Clock, AlertCircle, Upload,
   FileText, Camera, RefreshCw, Shield, BadgeCheck, Briefcase,
@@ -264,13 +264,22 @@ function FaqItem({ q, a, isOpen, onPress }: { q: string; a: string; isOpen: bool
 }
 
 export default function VerificationScreen() {
+  const { from } = useLocalSearchParams<{ from?: string }>();
   const [tab, setTab] = useState<'status' | 'documents' | 'faq'>('status');
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={8}>
+        <Pressable
+          style={styles.backBtn}
+          onPress={() => {
+            if (from === 'profile') router.push('/(worker)/profile');
+            else if (from === 'settings') router.push('/(worker)/settings');
+            else router.back();
+          }}
+          hitSlop={8}
+        >
           <ArrowLeft size={22} color={Colors.white} />
         </Pressable>
         <AppText variant="h3" weight="bold" color={Colors.white} style={{ flex: 1 }}>Verification</AppText>

@@ -54,15 +54,15 @@ export default function WorkerProfileScreen() {
 
   const handleItemPress = (id: string) => {
     if (id === 'verification') {
-      router.push('/(worker)/verification');
+      router.push('/(worker)/verification?from=profile');
       return;
     }
     if (id === 'reviews') {
-      router.push('/(worker)/reviews');
+      router.push('/(worker)/reviews?from=profile');
       return;
     }
     if (id === 'industry') {
-      router.push('/(worker)/industry-skills');
+      router.push('/(worker)/industry-skills?from=profile');
       return;
     }
     Alert.alert('Coming Soon', 'This feature is under development.');

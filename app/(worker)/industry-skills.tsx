@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { ChevronLeft, Wrench, X, Briefcase, Check } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -12,6 +12,7 @@ import { INDUSTRIES, SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
 import { workerProfile } from '@/constants/workerData';
 
 export default function IndustrySkillsScreen() {
+  const { from } = useLocalSearchParams<{ from?: string }>();
   const [industry, setIndustry] = useState(workerProfile.category);
   const [isEditingIndustry, setIsEditingIndustry] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<string[]>(workerProfile.skills);
@@ -53,7 +54,15 @@ export default function IndustrySkillsScreen() {
   return (
     <Screen safeArea scrollable>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
+        <Pressable
+          onPress={() => {
+            if (from === 'profile') router.push('/(worker)/profile');
+            else if (from === 'settings') router.push('/(worker)/settings');
+            else router.back();
+          }}
+          hitSlop={12}
+          style={styles.backButton}
+        >
           <ChevronLeft size={24} color={theme.colors.textPrimary} />
         </Pressable>
         <Text style={theme.typography.h4}>Industry & Skills</Text>

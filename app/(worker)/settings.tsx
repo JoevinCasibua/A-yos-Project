@@ -39,7 +39,7 @@ export default function WorkerSettingsScreen() {
 
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => router.push('/(worker)/industry-skills')}
+          onPress={() => router.push('/(worker)/industry-skills?from=settings')}
         >
           <View style={styles.menuLeft}>
             <Wrench size={20} color={theme.colors.primary} />
