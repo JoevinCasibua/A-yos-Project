@@ -249,19 +249,23 @@ function DocRow({ doc }: { doc: Document }) {
   );
 }
 
-function FaqItem({ q }: { q: string }) {
+function FaqItem({ q, a, isOpen, onPress }: { q: string; a: string; isOpen: boolean; onPress: () => void }) {
   return (
-    <View style={styles.faqItem}>
+    <Pressable style={styles.faqItem} onPress={onPress}>
       <View style={styles.faqQ}>
         <AppText variant="bodySm" weight="semiBold" color={Colors.textPrimary} style={{ flex: 1 }}>{q}</AppText>
-        <ChevronDown size={14} color={Colors.textTertiary} />
+        <ChevronDown size={14} color={Colors.textTertiary} style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }} />
       </View>
-    </View>
+      {isOpen && (
+        <AppText variant="caption" color={Colors.textSecondary} style={styles.faqA}>{a}</AppText>
+      )}
+    </Pressable>
   );
 }
 
 export default function VerificationScreen() {
   const [tab, setTab] = useState<'status' | 'documents' | 'faq'>('status');
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
 
   return (
     <View style={styles.container}>
@@ -347,7 +351,13 @@ export default function VerificationScreen() {
           <>
             <View style={styles.card}>
               {FAQ_ITEMS.map((item) => (
-                <FaqItem key={item.q} q={item.q} a={item.a} />
+                <FaqItem
+                  key={item.q}
+                  q={item.q}
+                  a={item.a}
+                  isOpen={expandedFaq === item.q}
+                  onPress={() => setExpandedFaq(expandedFaq === item.q ? null : item.q)}
+                />
               ))}
             </View>
 
@@ -373,7 +383,7 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    backgroundColor: '#0B1F4D', paddingTop: Spacing['16'], paddingBottom: Spacing['4'],
+    backgroundColor: theme.colors.primary, paddingTop: Spacing['16'], paddingBottom: Spacing['4'],
     paddingHorizontal: Layout.screenPadding, flexDirection: 'row', alignItems: 'center',
   },
   backBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', alignItems: 'center', marginRight: Spacing['3'] },
@@ -382,7 +392,7 @@ const styles = StyleSheet.create({
   // Status banner
   statusBanner: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing['2'],
-    backgroundColor: '#0B1F4D', paddingHorizontal: Layout.screenPadding,
+    backgroundColor: theme.colors.primary, paddingHorizontal: Layout.screenPadding,
     paddingBottom: Spacing['4'],
   },
   bannerIconWrap: {
@@ -391,7 +401,7 @@ const styles = StyleSheet.create({
   },
 
   // Tabs
-  tabsWrap: { backgroundColor: '#0B1F4D', paddingHorizontal: Layout.screenPadding, paddingBottom: Spacing['4'] },
+  tabsWrap: { backgroundColor: theme.colors.primary, paddingHorizontal: Layout.screenPadding, paddingBottom: Spacing['4'] },
   tabs: {
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: 3, gap: 3,
   },
@@ -446,7 +456,7 @@ const styles = StyleSheet.create({
   // FAQ
   faqItem: { borderBottomWidth: 1, borderBottomColor: 'rgba(11,31,77,0.07)' },
   faqQ: { paddingVertical: Spacing['3'], flexDirection: 'row', alignItems: 'center', gap: Spacing['2'] },
-  faqA: { paddingBottom: Spacing['3'], lineHeight: 18 },
+  faqA: { paddingBottom: Spacing['3'], paddingHorizontal: Spacing['3'], lineHeight: 18 },
 
   // Support
   supportCard: {
