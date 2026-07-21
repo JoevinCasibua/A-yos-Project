@@ -27,50 +27,50 @@ export default function WorkerDashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
-        <View style={[styles.topNav, { paddingTop: insets.top + theme.spacing.sm }]}>
-          <View style={styles.greetingRow}>
-            <View>
-              <Text style={[theme.typography.body2, { color: 'rgba(255,255,255,0.8)' }]}>Good morning,</Text>
-              <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{workerProfile.name.split(' ')[0]} 👋</Text>
-            </View>
-          </View>
-          <View style={styles.headerTopRow}>
-            <View style={styles.searchBar}>
-              <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
-              <TextInput
-                placeholder="Search for everything"
-                style={styles.searchInput}
-                placeholderTextColor={theme.colors.textTertiary}
-                editable={false}
-              />
-            </View>
-            <Pressable style={styles.iconButton} onPress={() => router.push('/notifications')}>
-              <Bell color={theme.colors.surface} size={24} />
-              <View style={styles.badge} />
-            </Pressable>
-            <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
-              <Image
-                source={workerProfile.avatarUri}
-                style={styles.headerAvatar}
-                contentFit="cover"
-              />
-            </Pressable>
-          </View>
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            {todayStats.map((stat, index) => (
-              <React.Fragment key={stat.label}>
-                <View style={styles.statItemHeader}>
-                  <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{stat.value}</Text>
-                  <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>{stat.label}</Text>
-                </View>
-                {index < todayStats.length - 1 && <View style={styles.statDividerHeader} />}
-              </React.Fragment>
-            ))}
+      <View style={[styles.topNav, { paddingTop: insets.top + theme.spacing.sm }]}>
+        <View style={styles.greetingRow}>
+          <View>
+            <Text style={[theme.typography.body2, { color: 'rgba(255,255,255,0.8)' }]}>Good morning,</Text>
+            <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{workerProfile.name.split(' ')[0]} 👋</Text>
           </View>
         </View>
+        <View style={styles.headerTopRow}>
+          <View style={styles.searchBar}>
+            <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
+            <TextInput
+              placeholder="Search for everything"
+              style={styles.searchInput}
+              placeholderTextColor={theme.colors.textTertiary}
+              editable={false}
+            />
+          </View>
+          <Pressable style={styles.iconButton} onPress={() => router.push('/notifications')}>
+            <Bell color={theme.colors.surface} size={24} />
+            <View style={styles.badge} />
+          </Pressable>
+          <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
+            <Image
+              source={workerProfile.avatarUri}
+              style={styles.headerAvatar}
+              contentFit="cover"
+            />
+          </Pressable>
+        </View>
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          {todayStats.map((stat, index) => (
+            <React.Fragment key={stat.label}>
+              <View style={styles.statItemHeader}>
+                <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{stat.value}</Text>
+                <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>{stat.label}</Text>
+              </View>
+              {index < todayStats.length - 1 && <View style={styles.statDividerHeader} />}
+            </React.Fragment>
+          ))}
+        </View>
+      </View>
 
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
         {/* Incoming Job Alert */}
         <View style={styles.section}>
           <IncomingJobAlert
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   avatarButton: { width: 40, height: 40, borderRadius: 20, overflow: 'hidden', borderWidth: 2, borderColor: theme.colors.surface },
   headerAvatar: { width: '100%', height: '100%' },
   content: { flex: 1, zIndex: 5 },
-  contentContainer: { paddingBottom: theme.spacing.xxxl },
+  contentContainer: { paddingBottom: theme.spacing.xxxl, paddingTop: theme.spacing.lg },
   statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.xs },
   statItemHeader: { alignItems: 'center', flex: 1 },
   statDividerHeader: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.2)' },
