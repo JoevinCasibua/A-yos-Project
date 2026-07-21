@@ -18,6 +18,7 @@ export default function WorkerTabLayout() {
           height: Platform.OS === 'ios' ? 85 : 60,
           paddingBottom: Platform.OS === 'ios' ? 25 : 8,
           paddingTop: 6,
+          paddingHorizontal: theme.layout.screenPadding,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
