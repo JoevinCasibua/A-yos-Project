@@ -65,21 +65,24 @@ export default function WorkerDashboardScreen() {
             <View style={styles.badge} />
           </Pressable>
         </View>
-        {/* Stats Row */}
-        <View style={styles.statsRow}>
-          {todayStats.map((stat, index) => (
-            <React.Fragment key={stat.label}>
-              <View style={styles.statItemHeader}>
-                <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{stat.value}</Text>
-                <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>{stat.label}</Text>
-              </View>
-              {index < todayStats.length - 1 && <View style={styles.statDividerHeader} />}
-            </React.Fragment>
-          ))}
-        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
+        {/* Today Stats */}
+        <View style={styles.section}>
+          <View style={styles.statsCard}>
+            {todayStats.map((stat, index) => (
+              <React.Fragment key={stat.label}>
+                <View style={styles.statItem}>
+                  <Text style={theme.typography.h3}>{stat.value}</Text>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>{stat.label}</Text>
+                </View>
+                {index < todayStats.length - 1 && <View style={styles.statDivider} />}
+              </React.Fragment>
+            ))}
+          </View>
+        </View>
+
         {/* Incoming Job Alert */}
         <View style={styles.section}>
           <IncomingJobAlert
@@ -175,9 +178,9 @@ const styles = StyleSheet.create({
   headerAvatar: { width: '100%', height: '100%' },
   content: { flex: 1, zIndex: 5 },
   contentContainer: { paddingBottom: theme.spacing.xxxl, paddingTop: theme.spacing.lg },
-  statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.xs },
-  statItemHeader: { alignItems: 'center', flex: 1 },
-  statDividerHeader: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.2)' },
+  statsCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, ...theme.shadows.sm },
+  statItem: { alignItems: 'center', flex: 1 },
+  statDivider: { width: 1, height: 28, backgroundColor: theme.colors.borderLight },
   section: { marginBottom: theme.spacing.xl, paddingHorizontal: theme.layout.screenPadding },
   bookingCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, marginBottom: theme.spacing.md, ...theme.shadows.sm },
   bookingHeader: { flexDirection: 'row', alignItems: 'center' },
