@@ -147,20 +147,20 @@ export function ReviewsTab({ reviews, headerComponent }: ReviewsTabProps) {
 }
 
 const styles = StyleSheet.create({
-  listContent: { paddingHorizontal: Spacing['8'], paddingBottom: 100 },
+  listContent: { paddingBottom: 100 },
   summaryCard: {
     flexDirection: 'row', backgroundColor: Colors.white, borderRadius: Radius.xl,
-    padding: Spacing['5'], gap: Spacing['6'], ...Elevation.sm,
+    padding: Spacing['5'], gap: Spacing['6'], ...Elevation.sm, marginHorizontal: Spacing['8'],
   },
   summaryLeft: { alignItems: 'center', justifyContent: 'center' },
   summaryRight: { flex: 1, gap: Spacing['1'] },
   distRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['1'] },
   distBar: { flex: 1, height: 6, backgroundColor: Colors.borderLight, borderRadius: Radius.full, overflow: 'hidden' },
   distFill: { height: '100%', borderRadius: Radius.full },
-  filterRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing['2'], marginTop: Spacing['4'], marginBottom: Spacing['3'], flexWrap: 'wrap' },
+  filterRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing['2'], marginTop: Spacing['4'], marginBottom: Spacing['3'], flexWrap: 'wrap', paddingHorizontal: Spacing['8'] },
   reviewCard: {
     backgroundColor: Colors.white, borderRadius: Radius.xl, padding: Spacing['4'],
-    ...Elevation.sm,
+    ...Elevation.sm, marginHorizontal: Spacing['8'],
   },
   reviewHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing['3'] },
   reviewInfo: { flex: 1 },
