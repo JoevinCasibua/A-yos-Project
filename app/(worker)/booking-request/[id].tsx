@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Alert, Image } from 'react-native';
 import {
   ChevronLeft,
@@ -102,6 +102,19 @@ export default function BookingRequestScreen() {
     ]);
   };
 
+  useEffect(() => {
+    if (booking.status !== 'pending_review' || !completionTimestamp) return;
+    const remaining = completionTimestamp - Date.now();
+    if (remaining <= 0) {
+      updateStatus('completed');
+      return;
+    }
+    const timer = setTimeout(() => {
+      updateStatus('completed');
+    }, remaining);
+    return () => clearTimeout(timer);
+  }, [booking.status, completionTimestamp]);
+
   const handleReport = () => {
     Alert.alert('Coming Soon', 'Report user feature will be available soon.', [{ text: 'OK' }]);
   };
@@ -113,14 +126,25 @@ export default function BookingRequestScreen() {
   const isCompleted = booking.status === 'completed';
   const isCancelled = booking.status === 'cancelled';
 
-  const remainingTime = useMemo(() => {
-    if (!completionTimestamp) return '';
-    const remaining = completionTimestamp - Date.now();
-    if (remaining <= 0) return 'Auto-confirming...';
-    const hours = Math.floor(remaining / (1000 * 60 * 60));
-    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
-  }, [completionTimestamp, booking.status]);
+  const [remainingTime, setRemainingTime] = useState('');
+
+  useEffect(() => {
+    if (booking.status !== 'pending_review' || !completionTimestamp) {
+      setRemainingTime('');
+      return;
+    }
+    const update = () => {
+      const remaining = completionTimestamp - Date.now();
+      if (remaining <= 0) {
+        setRemainingTime('Auto-confirming...');
+      } else {
+        setRemainingTime(`${Math.ceil(remaining / 1000)}s`);
+      }
+    };
+    update();
+    const interval = setInterval(update, 500);
+    return () => clearInterval(interval);
+  }, [booking.status, completionTimestamp]);
 
   return (
     <View style={styles.container}>
