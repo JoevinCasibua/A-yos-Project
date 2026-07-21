@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.md * 2,
+    paddingHorizontal: theme.spacing.md + theme.spacing.sm,
   },
   backButton: {
     width: 40,
