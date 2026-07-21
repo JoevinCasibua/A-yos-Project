@@ -91,11 +91,12 @@ export default function WalletScreen() {
       <View style={styles.header}>
         <Text style={theme.typography.h2}>Wallet</Text>
       </View>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={{ paddingHorizontal: theme.layout.screenPadding, flex: 1 }}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Balance Card */}
         <View style={styles.balanceCard}>
           <View style={styles.balanceTop}>
@@ -123,6 +124,32 @@ export default function WalletScreen() {
               onPress={() => setShowPayout(true)}
               style={styles.balanceBtn}
             />
+          </View>
+        </View>
+
+        {/* Bar Chart */}
+        <View style={styles.chartCard}>
+          <View style={styles.chartHeader}>
+            <AppText variant="body" weight="bold">Daily Earnings — This Week</AppText>
+            <Badge label="Peak: Thu ₱2,160" variant="info" size="sm" />
+          </View>
+          <View style={styles.barChart}>
+            {walletBarData.map((d, i) => (
+              <View key={i} style={styles.barCol}>
+                <View style={styles.barTrack}>
+                  <View
+                    style={[
+                      styles.barFill,
+                      {
+                        height: `${(d.val / BAR_MAX) * 100}%`,
+                        backgroundColor: d.val === BAR_MAX ? Colors.verified : Colors.info,
+                      },
+                    ]}
+                  />
+                </View>
+                <AppText variant="caption" color={Colors.textTertiary}>{d.day}</AppText>
+              </View>
+            ))}
           </View>
         </View>
 
@@ -155,32 +182,6 @@ export default function WalletScreen() {
               <AppText variant="caption" color={Colors.textTertiary}>{s.label}</AppText>
             </View>
           ))}
-        </View>
-
-        {/* Bar Chart */}
-        <View style={styles.chartCard}>
-          <View style={styles.chartHeader}>
-            <AppText variant="body" weight="bold">Daily Earnings — This Week</AppText>
-            <Badge label="Peak: Thu ₱2,160" variant="info" size="sm" />
-          </View>
-          <View style={styles.barChart}>
-            {walletBarData.map((d, i) => (
-              <View key={i} style={styles.barCol}>
-                <View style={styles.barTrack}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      {
-                        height: `${(d.val / BAR_MAX) * 100}%`,
-                        backgroundColor: d.val === BAR_MAX ? Colors.verified : Colors.info,
-                      },
-                    ]}
-                  />
-                </View>
-                <AppText variant="caption" color={Colors.textTertiary}>{d.day}</AppText>
-              </View>
-            ))}
-          </View>
         </View>
 
         {/* Transactions */}
@@ -256,38 +257,8 @@ export default function WalletScreen() {
             <ChevronRight size={16} color={Colors.info} />
           </Pressable>
         </View>
-
-        {/* Performance Card */}
-        <View style={styles.perfCard}>
-          <View style={styles.perfHeader}>
-            <View style={styles.perfAvatar}>
-              <AppText variant="body" weight="bold" color={Colors.white}>JR</AppText>
-            </View>
-            <View style={styles.perfInfo}>
-              <AppText variant="body" weight="bold">Juan Reyes</AppText>
-              <Badge label="TOP WORKER" variant="warning" size="sm" />
-            </View>
-            <ChevronDown size={16} color={Colors.textTertiary} />
-          </View>
-          <View style={styles.perfStats}>
-            {[
-              { label: 'Completion Rate', val: walletPerformance.completionRate, color: Colors.verified },
-              { label: 'On-Time Arrival', val: walletPerformance.onTimeArrival, color: Colors.info },
-              { label: 'Repeat Clients', val: walletPerformance.repeatClients, color: Colors.warning },
-            ].map((s) => (
-              <View key={s.label} style={styles.perfRow}>
-                <View style={styles.perfRowTop}>
-                  <AppText variant="caption" color={Colors.textSecondary}>{s.label}</AppText>
-                  <AppText variant="caption" weight="bold" color={s.color}>{s.val}%</AppText>
-                </View>
-                <View style={styles.perfTrack}>
-                  <View style={[styles.perfFill, { width: `${s.val}%`, backgroundColor: s.color }]} />
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
       </ScrollView>
+      </View>
 
       {/* Payout Sheet */}
       <Modal visible={showPayout} transparent animationType="fade">
@@ -473,7 +444,7 @@ export default function WalletScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
+  header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding * 2 },
   scrollView: { flex: 1 },
   scrollContent: { paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxl },
 
@@ -489,12 +460,12 @@ const styles = StyleSheet.create({
   balanceBtn: { flex: 1 },
 
   // Period toggle
-  periodToggle: { flexDirection: 'row', gap: Spacing['2'], marginBottom: theme.spacing.xl },
+  periodToggle: { flexDirection: 'row', justifyContent: 'center', gap: Spacing['2'], marginBottom: theme.spacing.md },
 
   // Stats grid
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing['3'], marginBottom: theme.spacing.xl },
   statCard: {
-    width: (screenWidth - Layout.screenPadding * 2 - Spacing['3']) / 2,
+    width: (screenWidth - Layout.screenPadding * 4 - Spacing['3']) / 2,
     backgroundColor: Colors.white, borderRadius: Radius.xl,
     padding: Spacing['4'], gap: Spacing['2'], ...Elevation.sm,
   },
@@ -518,7 +489,7 @@ const styles = StyleSheet.create({
   // Transactions
   txSection: { gap: Spacing['3'], marginBottom: theme.spacing.xl },
   txHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  txFilters: { flexDirection: 'row', gap: Spacing['2'] },
+  txFilters: { flexDirection: 'row', justifyContent: 'center', gap: Spacing['2'] },
   txList: { gap: Spacing['2'] },
   txRow: {
     flexDirection: 'row', alignItems: 'flex-start', gap: Spacing['3'],

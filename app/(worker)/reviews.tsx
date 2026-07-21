@@ -1,23 +1,50 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@/constants/theme';
 import { ReviewsTab } from '@/components/ReviewsTab';
+import { SearchBar } from '@/components/SearchBar';
 import { workerReviews } from '@/constants/workerMockData';
 
 export default function WorkerReviewsScreen() {
   const insets = useSafeAreaInsets();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredReviews = useMemo(() => {
+    if (!searchQuery.trim()) return workerReviews;
+    const q = searchQuery.toLowerCase();
+    return workerReviews.filter(
+      (r) =>
+        r.author.toLowerCase().includes(q) ||
+        r.comment.toLowerCase().includes(q) ||
+        r.serviceType.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={theme.typography.h2}>My Reviews</Text>
-      </View>
-      <ReviewsTab reviews={workerReviews} />
+      <ReviewsTab
+        reviews={filteredReviews}
+        headerComponent={
+          <View>
+            <View style={styles.header}>
+              <Text style={theme.typography.h2}>My Reviews</Text>
+            </View>
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search reviews..."
+              style={styles.searchBar}
+            />
+          </View>
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
+  header: { paddingVertical: theme.spacing.md },
+  searchBar: { marginBottom: theme.spacing.md },
 });

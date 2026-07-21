@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
+import { SearchBar } from '@/components/SearchBar';
 import {
   Settings, ArrowLeftRight,
 } from 'lucide-react-native';
 
 export default function WorkerSettingsScreen() {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSwitchToUser = () => {
     router.replace('/(tabs)');
@@ -28,6 +30,12 @@ export default function WorkerSettingsScreen() {
           </Text>
         </View>
 
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search settings..."
+          style={styles.searchBar}
+        />
         <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.xl }]}>
           For Development Testing
         </Text>
@@ -44,5 +52,6 @@ const styles = StyleSheet.create({
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxxl, justifyContent: 'center' },
   infoCard: { alignItems: 'center', padding: theme.spacing.lg },
+  searchBar: { marginVertical: theme.spacing.md },
   switchBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing.md, backgroundColor: `${theme.colors.primary}08`, borderRadius: theme.radius.md, marginTop: theme.spacing.sm },
 });
