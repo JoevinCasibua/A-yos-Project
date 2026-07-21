@@ -41,7 +41,7 @@ export default function WorkerReviewsScreen() {
               >
                 <ChevronLeft size={24} color={theme.colors.textPrimary} />
               </Pressable>
-              <Text style={[theme.typography.h2, { flex: 1 }]}>My Reviews</Text>
+              <Text style={[theme.typography.h2, { flex: 1, marginLeft: theme.spacing.sm }]}>My Reviews</Text>
               <View style={{ width: 40 }} />
             </View>
             <SearchBar
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.layout.screenPadding,
+    paddingHorizontal: theme.spacing.md * 2,
   },
   backButton: {
     width: 40,
