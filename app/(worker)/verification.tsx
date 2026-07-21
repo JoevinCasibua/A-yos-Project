@@ -6,7 +6,7 @@ import {
   FileText, Camera, RefreshCw, Shield, BadgeCheck, Briefcase,
   Wallet, HelpCircle, ChevronDown, Home, MapPin, User,
 } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, Layout, Typography } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Layout, Typography, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Pill } from '@/components/Pill';
 
