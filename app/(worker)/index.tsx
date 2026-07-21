@@ -65,25 +65,21 @@ export default function WorkerDashboardScreen() {
             <View style={styles.badge} />
           </Pressable>
         </View>
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          {todayStats.map((stat, index) => (
+            <React.Fragment key={stat.label}>
+              <View style={styles.statItemHeader}>
+                <Text style={[theme.typography.h3, { color: theme.colors.surface }]}>{stat.value}</Text>
+                <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>{stat.label}</Text>
+              </View>
+              {index < todayStats.length - 1 && <View style={styles.statDividerHeader} />}
+            </React.Fragment>
+          ))}
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
-        {/* Today Stats */}
-        <View style={styles.section}>
-          <Text style={[theme.typography.h4, { marginBottom: theme.spacing.md }]}>Today</Text>
-          <View style={styles.statsCard}>
-            {todayStats.map((stat, index) => (
-              <React.Fragment key={stat.label}>
-                <View style={styles.statItem}>
-                  <Text style={theme.typography.h3}>{stat.value}</Text>
-                  <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>{stat.label}</Text>
-                </View>
-                {index < todayStats.length - 1 && <View style={styles.statDivider} />}
-              </React.Fragment>
-            ))}
-          </View>
-        </View>
-
         {/* Incoming Job Alert */}
         <View style={styles.section}>
           <IncomingJobAlert
@@ -169,19 +165,19 @@ export default function WorkerDashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  topNav: { backgroundColor: '#1e3a8a', paddingHorizontal: theme.layout.screenPadding },
-  headerTopRow: { flexDirection: 'row', alignItems: 'center' },
-  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.full, paddingHorizontal: theme.spacing.md, height: 44, marginRight: theme.spacing.sm },
+  topNav: { backgroundColor: '#1e3a8a', paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.md },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.full, paddingHorizontal: theme.spacing.md, height: 44 },
   searchInput: { flex: 1, fontSize: 14, color: theme.colors.textPrimary },
-  iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.sm },
+  iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
   badge: { position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.error, borderWidth: 1, borderColor: '#1e3a8a' },
   avatarButton: { width: 40, height: 40, borderRadius: 20, overflow: 'hidden', borderWidth: 2, borderColor: theme.colors.surface },
   headerAvatar: { width: '100%', height: '100%' },
   content: { flex: 1, zIndex: 5 },
   contentContainer: { paddingBottom: theme.spacing.xxxl, paddingTop: theme.spacing.lg },
-  statsCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, ...theme.shadows.sm },
-  statItem: { alignItems: 'center', flex: 1 },
-  statDivider: { width: 1, height: 28, backgroundColor: theme.colors.borderLight },
+  statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.xs },
+  statItemHeader: { alignItems: 'center', flex: 1 },
+  statDividerHeader: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.2)' },
   section: { marginBottom: theme.spacing.xl, paddingHorizontal: theme.layout.screenPadding },
   bookingCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, marginBottom: theme.spacing.md, ...theme.shadows.sm },
   bookingHeader: { flexDirection: 'row', alignItems: 'center' },
