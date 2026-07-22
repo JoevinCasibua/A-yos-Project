@@ -6,43 +6,44 @@ import { Button } from '../../components/buttons/Button';
 import { theme } from '../../theme';
 import { CheckCircle2 } from 'lucide-react-native';
 
-export default function PaymentSuccessScreen() {
+export default function TopUpSuccessScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { amount } = useLocalSearchParams();
+  const displayAmount = amount ? `₱${Number(amount).toLocaleString()}` : '₱0.00';
 
   return (
     <Screen safeArea>
       <View style={styles.container}>
         <CheckCircle2 color={theme.colors.success} size={80} style={styles.icon} />
-        <Text style={[theme.typography.h1, styles.title]}>Payment Successful!</Text>
+        <Text style={[theme.typography.h1, styles.title]}>Top Up Successful!</Text>
         <Text style={[theme.typography.body1, styles.subtitle]}>
-          Your payment of ₱1,250.00 has been processed successfully.
+          Your wallet has been successfully funded with {displayAmount}.
         </Text>
 
         <View style={styles.receiptCard}>
           <View style={styles.row}>
             <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>Reference No.</Text>
-            <Text style={theme.typography.label}>AYOS-982347</Text>
+            <Text style={theme.typography.label}>AYOS-TU-{Math.floor(Math.random() * 1000000)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>Date</Text>
-            <Text style={theme.typography.label}>Oct 24, 11:30 AM</Text>
+            <Text style={theme.typography.label}>Oct 24, 11:35 AM</Text>
           </View>
           <View style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.colors.border, paddingTop: theme.spacing.md, marginTop: theme.spacing.sm }]}>
-            <Text style={theme.typography.h4}>Total Paid</Text>
-            <Text style={[theme.typography.h3, { color: theme.colors.primary }]}>₱ 1,250.00</Text>
+            <Text style={theme.typography.h4}>Total Topped Up</Text>
+            <Text style={[theme.typography.h3, { color: theme.colors.primary }]}>{displayAmount}</Text>
           </View>
         </View>
 
         <View style={styles.actions}>
           <Button 
-            title="Rate the Service" 
-            onPress={() => router.replace(`/review/${id}`)}
+            title="Back to Wallet" 
+            onPress={() => router.replace('/wallet')}
             fullWidth 
             style={styles.actionBtn}
           />
           <Button 
-            title="Back to Home" 
+            title="Go to Home" 
             variant="ghost"
             onPress={() => router.replace('/(tabs)')}
             fullWidth 

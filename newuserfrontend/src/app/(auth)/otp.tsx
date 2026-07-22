@@ -70,7 +70,7 @@ export default function OTPScreen() {
         phone: phone || '09171234567'
       });
       setLoading(false);
-      router.replace('/(tabs)/home');
+      router.replace('/(tabs)');
     }, 1500);
   };
 

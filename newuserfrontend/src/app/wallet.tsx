@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '../components/layout/Screen';
 import { Button } from '../components/buttons/Button';
 import { theme } from '../theme';
-import { ArrowLeft, Wallet, Plus, History, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, Wallet, Plus, History, ChevronRight, X, CreditCard, Smartphone, Building } from 'lucide-react-native';
 
 const TOP_UP_AMOUNTS = [500, 1000, 2000, 5000];
 
@@ -14,9 +14,29 @@ const MOCK_TRANSACTIONS = [
   { id: '3', title: 'Payment for AC Repair', amount: '-₱1,200.00', date: 'Oct 10, 2023', type: 'debit' },
 ];
 
+const PAYMENT_METHODS = [
+  { id: 'gcash', name: 'GCash', icon: Smartphone, color: '#007df2' },
+  { id: 'maya', name: 'Maya', icon: Smartphone, color: '#10ce69' },
+  { id: 'card', name: 'Credit / Debit Card', icon: CreditCard, color: '#6366f1' },
+  { id: 'bank', name: 'Online Banking', icon: Building, color: '#f59e0b' }
+];
+
 export default function WalletScreen() {
   const router = useRouter();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+
+  const handleTopUpClick = () => {
+    setShowPaymentModal(true);
+  };
+
+  const handleProceedPayment = () => {
+    setShowPaymentModal(false);
+    setTimeout(() => {
+       router.push(`/payment/topup-success?amount=${selectedAmount}`);
+    }, 300);
+  };
 
   return (
     <Screen safeArea backgroundColor={theme.colors.background}>
@@ -60,11 +80,7 @@ export default function WalletScreen() {
           </View>
           <Button 
             title={selectedAmount ? `Top Up ₱${selectedAmount.toLocaleString()}` : "Select an amount to Top Up"} 
-            onPress={() => {
-              // Handle top up logic
-              alert(`Proceeding to top up ₱${selectedAmount}`);
-              setSelectedAmount(null);
-            }} 
+            onPress={handleTopUpClick} 
             disabled={!selectedAmount}
             fullWidth 
             style={{ marginTop: theme.spacing.md }}
@@ -105,8 +121,56 @@ export default function WalletScreen() {
             ))}
           </View>
         </View>
-
       </ScrollView>
+
+      {/* Payment Method Modal */}
+      <Modal visible={showPaymentModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={theme.typography.h4}>Select Payment Method</Text>
+              <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
+                <X color={theme.colors.textPrimary} size={24} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg }]}>
+              You are topping up ₱{selectedAmount?.toLocaleString()}
+            </Text>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {PAYMENT_METHODS.map(method => {
+                const Icon = method.icon;
+                const isSelected = selectedPayment === method.id;
+                return (
+                  <TouchableOpacity 
+                    key={method.id} 
+                    style={[styles.paymentMethodCard, isSelected && styles.paymentMethodCardActive]}
+                    onPress={() => setSelectedPayment(method.id)}
+                  >
+                    <View style={[styles.paymentIconBox, { backgroundColor: method.color + '20' }]}>
+                      <Icon color={method.color} size={24} />
+                    </View>
+                    <Text style={[theme.typography.body1, { flex: 1, marginLeft: theme.spacing.md }]}>{method.name}</Text>
+                    <View style={[styles.radioCircle, isSelected && styles.radioCircleActive]}>
+                      {isSelected && <View style={styles.radioInner} />}
+                    </View>
+                  </TouchableOpacity>
+                )
+              })}
+            </ScrollView>
+
+            <Button 
+              title="Confirm Payment" 
+              onPress={handleProceedPayment} 
+              disabled={!selectedPayment}
+              fullWidth 
+              style={{ marginTop: theme.spacing.xl }}
+            />
+          </View>
+        </View>
+      </Modal>
+
     </Screen>
   );
 }
@@ -133,4 +197,14 @@ const styles = StyleSheet.create({
   borderBottom: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
   txIconContainer: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
   txDetails: { flex: 1, marginRight: theme.spacing.sm },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: theme.colors.background, borderTopLeftRadius: theme.radius.xl, borderTopRightRadius: theme.radius.xl, padding: theme.spacing.xl, paddingBottom: 40, maxHeight: '80%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.sm },
+  paymentMethodCard: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, borderWidth: 1, borderColor: theme.colors.borderLight, borderRadius: theme.radius.lg, marginBottom: theme.spacing.md },
+  paymentMethodCardActive: { borderColor: theme.colors.primary, backgroundColor: theme.colors.primary + '05' },
+  paymentIconBox: { width: 40, height: 40, borderRadius: theme.radius.md, justifyContent: 'center', alignItems: 'center' },
+  radioCircle: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: theme.colors.border, justifyContent: 'center', alignItems: 'center' },
+  radioCircleActive: { borderColor: theme.colors.primary },
+  radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: theme.colors.primary },
 });

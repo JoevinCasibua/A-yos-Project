@@ -27,7 +27,7 @@ export default function ReviewScreen() {
     setTimeout(() => {
       setLoading(false);
       // Navigate to Home or Bookings
-      router.replace('/(tabs)/home');
+      router.replace('/(tabs)');
     }, 1500);
   };
 

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { Screen } from '../../components/layout/Screen';
-import { Button } from '../../components/buttons/Button';
 import { theme } from '../../theme';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
@@ -24,114 +23,108 @@ export default function LoginScreen() {
     setTimeout(() => {
       login({ id: '1', name: 'Juan Dela Cruz', email: data.email, phone: '09171234567' });
       setLoading(false);
-      router.replace('/(tabs)/home');
+      router.replace('/(tabs)');
     }, 1500);
   };
 
   return (
-    <Screen safeArea backgroundColor="#fff">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          
-          <View style={styles.header}>
-            <Text style={styles.title}>Sign in</Text>
-            <View style={styles.subtitleRow}>
-              <Text style={styles.subtitle}>New user? </Text>
-              <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-                <Text style={styles.createAccount}>Create an account</Text>
+    <Screen safeArea scrollable backgroundColor="#fff" keyboardAvoiding={false} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Sign in</Text>
+        <View style={styles.subtitleRow}>
+          <Text style={styles.subtitle}>New user? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+            <Text style={styles.createAccount}>Create an account</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.form}>
+        <Controller
+          control={control}
+          rules={{ required: 'Email is required' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.inputWrapper}>
+              <Mail color={theme.colors.textSecondary} size={20} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                placeholderTextColor={theme.colors.textTertiary}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+          )}
+          name="email"
+        />
+        {errors.email && <Text style={styles.errorText}>{errors.email.message as string}</Text>}
+
+        <Controller
+          control={control}
+          rules={{ required: 'Password is required' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={[styles.inputWrapper, { marginTop: 16 }]}>
+              <Lock color={theme.colors.textSecondary} size={20} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor={theme.colors.textTertiary}
+                secureTextEntry={!showPassword}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                {showPassword ? <Eye color={theme.colors.textSecondary} size={20} /> : <EyeOff color={theme.colors.textSecondary} size={20} />}
               </TouchableOpacity>
             </View>
-          </View>
+          )}
+          name="password"
+        />
+        {errors.password && <Text style={styles.errorText}>{errors.password.message as string}</Text>}
 
-          <View style={styles.form}>
-            <Controller
-              control={control}
-              rules={{ required: 'Email is required' }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={styles.inputWrapper}>
-                  <Mail color={theme.colors.textSecondary} size={20} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Email Address"
-                    placeholderTextColor={theme.colors.textTertiary}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                </View>
-              )}
-              name="email"
-            />
-            {errors.email && <Text style={styles.errorText}>{errors.email.message as string}</Text>}
+        <TouchableOpacity style={styles.forgotPassword}>
+          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+        </TouchableOpacity>
 
-            <Controller
-              control={control}
-              rules={{ required: 'Password is required' }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={[styles.inputWrapper, { marginTop: 16 }]}>
-                  <Lock color={theme.colors.textSecondary} size={20} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    placeholderTextColor={theme.colors.textTertiary}
-                    secureTextEntry={!showPassword}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                    {showPassword ? <Eye color={theme.colors.textSecondary} size={20} /> : <EyeOff color={theme.colors.textSecondary} size={20} />}
-                  </TouchableOpacity>
-                </View>
-              )}
-              name="password"
-            />
-            {errors.password && <Text style={styles.errorText}>{errors.password.message as string}</Text>}
+        <TouchableOpacity 
+          style={styles.loginButton} 
+          onPress={handleSubmit(onSubmit)}
+          disabled={loading}
+        >
+          <Text style={styles.loginButtonText}>{loading ? 'Logging in...' : 'Login'}</Text>
+        </TouchableOpacity>
+      </View>
 
-            <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-            </TouchableOpacity>
+      <View style={styles.dividerContainer}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.dividerLine} />
+      </View>
 
-            <TouchableOpacity 
-              style={styles.loginButton} 
-              onPress={handleSubmit(onSubmit)}
-              disabled={loading}
-            >
-              <Text style={styles.loginButtonText}>{loading ? 'Logging in...' : 'Login'}</Text>
-            </TouchableOpacity>
-          </View>
+      <Text style={styles.socialPrompt}>Join With Your Favourite Social Media Account</Text>
 
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
+      <View style={styles.socialRow}>
+        <TouchableOpacity style={styles.socialButton}>
+          <Image source="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" style={styles.socialIcon} contentFit="contain" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.socialButton}>
+          <Image source="https://freelogopng.com/images/all_img/1690643591twitter-x-logo-png.png" style={styles.socialIcon} contentFit="contain" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.socialButton}>
+          <Image source="https://cdn3.iconfinder.com/data/icons/picons-social/57/16-apple-512.png" style={[styles.socialIcon, { width: 22, height: 26 }]} contentFit="contain" />
+        </TouchableOpacity>
+      </View>
 
-          <Text style={styles.socialPrompt}>Join With Your Favourite Social Media Account</Text>
+      <View style={{ flex: 1 }} />
 
-          <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Image source="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" style={styles.socialIcon} contentFit="contain" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Image source="https://freelogopng.com/images/all_img/1690643591twitter-x-logo-png.png" style={styles.socialIcon} contentFit="contain" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Image source="https://cdn3.iconfinder.com/data/icons/picons-social/57/16-apple-512.png" style={[styles.socialIcon, { width: 22, height: 26 }]} contentFit="contain" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={{ flex: 1 }} />
-
-          <Text style={styles.termsText}>
-            By signing in with an account, you agree to SO's{'\n'}
-            <Text style={styles.termsLink}>Terms of Service</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
-          </Text>
-
-        </ScrollView>
-      </KeyboardAvoidingView>
+      <Text style={styles.termsText}>
+        By signing in with an account, you agree to SO's{'\n'}
+        <Text style={styles.termsLink}>Terms of Service</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
+      </Text>
     </Screen>
   );
 }
