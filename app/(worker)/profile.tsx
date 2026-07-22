@@ -9,8 +9,10 @@ import {
   Wallet, Clock, Bell, Settings, HelpCircle, Shield,
   Star, CheckCircle, LogOut, ArrowLeftRight,
   BadgeCheck, ArrowUpFromLine, PlusCircle, FileText,
+  DollarSign, CalendarDays,
 } from 'lucide-react-native';
-import { workerProfile } from '@/constants/workerData';
+import { workerProfile, DAY_LABELS, DAYS } from '@/constants/workerData';
+import { Chip } from '@/components/Chip';
 
 const MENU_SECTIONS = [
   {
@@ -75,6 +77,10 @@ export default function WorkerProfileScreen() {
       router.push('/(worker)/availability?from=profile');
       return;
     }
+    if (id === 'portfolio') {
+      router.push('/(worker)/portfolio?from=profile');
+      return;
+    }
     Alert.alert('Coming Soon', 'This feature is under development.');
   };
 
@@ -124,6 +130,85 @@ export default function WorkerProfileScreen() {
           <View style={styles.statItem}>
             <Text style={theme.typography.h3}>{workerProfile.earnings}</Text>
             <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>Earnings</Text>
+          </View>
+        </View>
+
+        {/* Skills */}
+        <View style={styles.infoSection}>
+          <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Skills</Text>
+          <View style={styles.chipRow}>
+            {workerProfile.skills.slice(0, 4).map((skill) => (
+              <Chip key={skill} label={skill} size="sm" />
+            ))}
+            {workerProfile.skills.length > 4 && (
+              <Chip label={`+${workerProfile.skills.length - 4}`} size="sm" selected />
+            )}
+          </View>
+        </View>
+
+        {/* Pricing & Service */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoCardRow}>
+            <View style={styles.infoCardItem}>
+              <DollarSign size={16} color={theme.colors.success} />
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginLeft: 6 }]}>Rate</Text>
+            </View>
+            <Text style={theme.typography.body1}>{workerProfile.hourlyRate}</Text>
+          </View>
+          <View style={styles.infoCardDivider} />
+          <View style={styles.infoCardRow}>
+            <View style={styles.infoCardItem}>
+              <Wrench size={16} color={theme.colors.info} />
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginLeft: 6 }]}>Category</Text>
+            </View>
+            <Text style={theme.typography.body1}>{workerProfile.category}</Text>
+          </View>
+          <View style={styles.infoCardDivider} />
+          <View style={styles.infoCardRow}>
+            <View style={styles.infoCardItem}>
+              <MapPin size={16} color={theme.colors.warning} />
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginLeft: 6 }]}>Areas</Text>
+            </View>
+            <Text style={theme.typography.body1}>{workerProfile.serviceAreas.slice(0, 2).join(', ')}{workerProfile.serviceAreas.length > 2 ? ` +${workerProfile.serviceAreas.length - 2}` : ''}</Text>
+          </View>
+        </View>
+
+        {/* Availability Summary */}
+        <View style={styles.infoSection}>
+          <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
+          <View style={styles.availabilityRow}>
+            {DAYS.map((day) => {
+              const dayData = workerProfile.availability[day];
+              return (
+                <View key={day} style={[styles.dayDot, dayData.available && styles.dayDotActive]}>
+                  <Text style={[styles.dayLabel, dayData.available && styles.dayLabelActive]}>
+                    {DAY_LABELS[day].charAt(0)}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+          <Text style={[theme.typography.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]}>
+            {DAYS.filter((d) => workerProfile.availability[d].available).length} days available
+          </Text>
+        </View>
+
+        {/* Experience Summary */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoCardRow}>
+            <View style={styles.infoCardItem}>
+              <Briefcase size={16} color={theme.colors.primary} />
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginLeft: 6 }]}>Experience</Text>
+            </View>
+            <Text style={theme.typography.body1}>{workerProfile.yearsExperience} years</Text>
+          </View>
+          <View style={styles.infoCardDivider} />
+          <View style={styles.infoCardRow}>
+            <View style={styles.infoCardItem}>
+              <Star size={16} color="#F59E0B" />
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginLeft: 6 }]}>Reviews</Text>
+            </View>
+            <Text style={theme.typography.body1}>{workerProfile.reviewCount} reviews</Text>
           </View>
         </View>
 
@@ -180,6 +265,18 @@ const styles = StyleSheet.create({
   statDivider: { width: 1, height: 32, backgroundColor: theme.colors.borderLight },
   section: { marginBottom: theme.spacing.xl },
   sectionTitle: { marginBottom: theme.spacing.md, marginLeft: theme.spacing.xs },
+  infoSection: { marginBottom: theme.spacing.lg },
+  infoSectionTitle: { marginBottom: theme.spacing.sm, marginLeft: theme.spacing.xs },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs },
+  infoCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.md, marginBottom: theme.spacing.lg, ...theme.shadows.sm },
+  infoCardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  infoCardItem: { flexDirection: 'row', alignItems: 'center' },
+  infoCardDivider: { height: 1, backgroundColor: theme.colors.borderLight, marginVertical: theme.spacing.sm },
+  availabilityRow: { flexDirection: 'row', gap: theme.spacing.xs },
+  dayDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: theme.colors.borderLight, alignItems: 'center', justifyContent: 'center' },
+  dayDotActive: { backgroundColor: `${theme.colors.primary}15` },
+  dayLabel: { fontSize: 12, fontWeight: '600', color: theme.colors.textTertiary },
+  dayLabelActive: { color: theme.colors.primary },
   card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, ...theme.shadows.sm, overflow: 'hidden' },
   settingItem: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
   borderBottom: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },

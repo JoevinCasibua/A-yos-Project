@@ -111,6 +111,10 @@ export default function WorkerTabLayout() {
         name="availability"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="portfolio"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
