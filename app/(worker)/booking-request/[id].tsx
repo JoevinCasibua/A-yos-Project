@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Alert, Image } from 'react-native';
 import {
   ChevronLeft,
@@ -24,13 +24,13 @@ import { BookingChat } from '@/components/booking/BookingChat';
 import { BookingMap } from '@/components/booking/BookingMap';
 import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
-import { DeclineReasonDialog } from '@/components/booking/DeclineReasonDialog';
+import { RescheduleDialog } from '@/components/booking/RescheduleDialog';
 import { workerJobs, workerBookings, statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
 export default function BookingRequestScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, autoAccept } = useLocalSearchParams<{ id: string; autoAccept?: string }>();
   const job = workerJobs.find((j) => j.id === id) || workerJobs[0];
   const mockBooking = workerBookings.find((b) => b.id === id) || workerBookings[0];
 
@@ -50,6 +50,14 @@ export default function BookingRequestScreen() {
     };
   }, []);
 
+  const autoAcceptHandled = useRef(false);
+  useEffect(() => {
+    if (autoAccept === 'true' && booking.status === 'hired' && !autoAcceptHandled.current) {
+      autoAcceptHandled.current = true;
+      updateStatus('accepted');
+    }
+  }, [autoAccept, booking.status]);
+
   const updateStatus = (newStatus: WorkerBooking['status']) => {
     setBooking((prev) => ({ ...prev, status: newStatus }));
     setStoreStatus(booking.id, newStatus);
@@ -59,12 +67,15 @@ export default function BookingRequestScreen() {
   };
 
   const [feedbackGiven, setFeedbackGiven] = useState(false);
-  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
 
-  const handleDeclineConfirm = (reason: string) => {
-    setShowDeclineDialog(false);
-    Alert.alert('Declined', `Booking has been declined. Another worker will be matched.\n\nReason: ${reason}`);
-    router.back();
+  const handleRescheduleConfirm = (date: string, time: string, message: string) => {
+    setShowRescheduleDialog(false);
+    Alert.alert(
+      'Reschedule Proposed',
+      `New date: ${date}\nNew time: ${time}${message ? `\nMessage: ${message}` : ''}\n\nThe customer will be notified.`,
+      [{ text: 'OK', onPress: () => router.back() }]
+    );
   };
 
   const handleConfirmDetails = () => {
@@ -261,13 +272,22 @@ export default function BookingRequestScreen() {
                 variant="primary"
                 leftIcon={<Calendar size={18} color={Colors.white} />}
                 fullWidth
-                onPress={() => updateStatus('accepted')}
+                onPress={() => {
+                  Alert.alert(
+                    'Accept Booking',
+                    'Accept this booking request and start coordinating with the customer?',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Accept', onPress: () => updateStatus('accepted') },
+                    ]
+                  );
+                }}
               />
               <AppButton
-                label="Decline"
+                label="Reschedule"
                 variant="outline"
                 fullWidth
-                onPress={() => setShowDeclineDialog(true)}
+                onPress={() => setShowRescheduleDialog(true)}
               />
             </View>
           </View>
@@ -390,11 +410,13 @@ export default function BookingRequestScreen() {
         )}
       </ScrollView>
 
-      <DeclineReasonDialog
-        visible={showDeclineDialog}
-        onClose={() => setShowDeclineDialog(false)}
-        onConfirm={handleDeclineConfirm}
+      <RescheduleDialog
+        visible={showRescheduleDialog}
+        onClose={() => setShowRescheduleDialog(false)}
+        onConfirm={handleRescheduleConfirm}
         customerName={job.customerName}
+        currentDate={booking.date}
+        currentTime={booking.time}
       />
     </View>
   );

@@ -836,3 +836,687 @@ interface CancellationReason {
 12. **Settings** → Profile → Settings, Help Center, Privacy Policy
 13. **Logout** → Profile → Log Out → Clear JWT → Redirect to Landing
 14. **Switch to User** → Profile → Switch Account → `router.replace('/(tabs)')` → User mode
+
+---
+
+## Navigation Map
+
+### Screen-to-Screen Linking
+
+The worker tab navigator has 5 visible tabs and 21 hidden stack screens. All hidden screens are pushed onto the `(worker)` stack via `router.push()`.
+
+```
+Tab: Dashboard (index)
+  ├──→ profile (tab)
+  ├──→ /notifications (shared)
+  ├──→ universal-search
+  │      ├──→ profile?from=universal-search
+  │      ├──→ wallet?from=universal-search
+  │      ├──→ bookings?from=universal-search
+  │      ├──→ messages (tab)
+  │      ├──→ help?from=universal-search
+  │      ├──→ settings?from=universal-search
+  │      ├──→ reviews?from=universal-search
+  │      ├──→ industry-skills?from=universal-search
+  │      └──→ any of the 15 searchable screen links
+  ├──→ booking-request/[id]
+  │      ├──→ cancel-service/[id]
+  │      ├──→ messages/chat?id=[id]
+  │      ├──→ earnings-receipt?bookingId=...&from=booking
+  │      └──→ /notifications
+  ├──→ availability?from=dashboard
+  └──→ Quick Actions
+         ├──→ availability (Schedule)
+         ├──→ wallet (Earnings)
+         ├──→ settings (Premium)
+         └──→ verification (Verification)
+
+Tab: Bookings (bookings)
+  ├──→ booking-request/[id]
+  │      └── (see above)
+  └──→ bookings?filter=Cancelled (via Cancel Service confirmation)
+
+Tab: Messages (messages)
+  └──→ /messages/chat?id=[chatId]
+         ├──→ (back to messages)
+         └── (no further navigation)
+
+Tab: Wallet (wallet)
+  ├──→ transactions-history
+  │      └──→ earnings-receipt?transactionId=[id]&from=transactions
+  └──→ earnings-receipt?transactionId=[id]&from=wallet (via transaction row tap)
+
+Tab: Profile (profile)
+  ├──→ /notifications
+  ├──→ personal-info?from=profile
+  ├──→ industry-skills?from=profile
+  ├──→ work-experience?from=profile
+  ├──→ availability?from=profile
+  ├──→ service-areas?from=profile
+  ├──→ portfolio?from=profile
+  ├──→ reviews?from=profile
+  ├──→ payout-methods?from=profile
+  ├──→ payout-history?from=profile
+  ├──→ verification?from=profile
+  ├──→ help?from=profile
+  ├──→ privacy?from=profile
+  └──→ settings?from=profile (if settings had a from param)
+
+Settings (settings)
+  └──→ industry-skills?from=settings
+```
+
+### Tab Navigator Structure
+
+Defined in `app/(worker)/_layout.tsx`:
+
+| Tab | Route Name | Icon | Visible |
+|-----|-----------|------|---------|
+| Dashboard | `index` | LayoutDashboard | Yes |
+| Bookings | `bookings` | CalendarDays | Yes |
+| Messages | `messages` | MessageSquare | Yes |
+| Wallet | `wallet` | Wallet | Yes |
+| Profile | `profile` | User | Yes |
+| Search | `search` | — | No (`href: null`) |
+| All other screens | — | — | No (`href: null`) |
+
+All hidden screens are registered in `_layout.tsx` with `options={{ href: null }}`. They exist as stack routes but don't appear in the tab bar. Tab bar styling: white background, subtle top border, 85px height on iOS / 60px on Android, active tint `theme.colors.primary`.
+
+---
+
+## Back Button Behavior
+
+### The `from` Query Parameter System
+
+The `PageHeader` component uses a `from` query parameter to determine back navigation behavior. This ensures that when a user navigates from Profile → Settings → Industry & Skills, pressing back goes to Settings (not Profile).
+
+**Mechanism:**
+
+```typescript
+// components/layout/PageHeader.tsx
+const handleBack = () => {
+  if (from === 'profile') router.push('/(worker)/profile');
+  else if (from === 'settings') router.push('/(worker)/settings');
+  else router.back();
+};
+```
+
+**Usage in screens:**
+
+```typescript
+// AppCode: app/(worker)/availability.tsx
+const { from } = useLocalSearchParams<{ from?: string }>();
+return (
+  <Screen scrollable header={<PageHeader title="My Availability" from={from} />}>
+    ...
+  </Screen>
+);
+```
+
+**All `from` param values in use:**
+
+| Value | Navigation Behavior | Used By |
+|-------|-------------------|---------|
+| `profile` | `router.push('/(worker)/profile')` | All Profile sub-screens |
+| `settings` | `router.push('/(worker)/settings')` | Settings sub-screens |
+| `universal-search` | `router.back()` (falls through to default) | Universal Search sub-screens |
+| `booking` | `router.back()` (falls through) | Earnings Receipt (from Booking Request) |
+| `transactions` | `router.back()` (falls through) | Earnings Receipt (from Transactions History) |
+| `wallet` | `router.back()` (falls through) | Earnings Receipt (from Wallet) |
+| *(none)* | `router.back()` | All screens without explicit `from` |
+
+**Navigation chain examples:**
+
+1. Profile → Industry & Skills → `industry-skills?from=profile`
+   Back → pushes `/profile`
+
+2. Profile → Settings → `settings?from=profile`
+   Back → pushes `/profile`
+
+3. Settings → Industry & Skills → `industry-skills?from=settings`
+   Back → pushes `/settings`
+
+4. Dashboard → Availability → `availability?from=dashboard`
+   Back → `router.back()` → pops to Dashboard
+
+5. Booking Request → Cancel Service → `cancel-service/${id}`
+   Back → `router.back()` → pops to Booking Request
+
+### Back Button Patterns (19 Screens with, 7 Without)
+
+**Standard PageHeader pattern (14 screens):**
+All use `<PageHeader title="..." from={from} />` via `Screen`'s `header` prop.
+Screens: `help`, `personal-info`, `payout-methods`, `payout-history`, `service-areas`, `privacy`, `earnings-receipt`, `transactions-history`, `universal-search`, `availability`, `industry-skills`, `work-experience`, `portfolio`, `reviews`
+
+**Custom back buttons (5 screens):**
+- `booking-request/[id]`: `Pressable` + `ChevronLeft` (size 24) + `router.back()`, bold h4 title, white background with border
+- `cancel-service/[id]`: `Pressable` + `ChevronLeft` (size 24) + `router.back()`, bold h4 title, white background with border
+- `verification`: `Pressable` + `ArrowLeft` (size 22) + `router.back()`, **different pattern** — primary background color, smaller 28×28 circular white back button with rgba bg, white h3 bold title, help icon button on right, extra top padding `Spacing['16']`
+- `messages/chat.tsx`: `Pressable` + `ArrowLeft` (size 24) + `router.back()`, customer avatar + name + "Online" status + call button in header
+- `notifications.tsx`: `TouchableOpacity` + `ArrowLeft` (size 24) + `router.back()`, h4 title, reference pattern for all headers
+
+**Screens WITHOUT back buttons (7):**
+- `index` (Dashboard) — tab root, no back needed
+- `bookings` — tab root
+- `messages` — tab root
+- `wallet` — tab root
+- `profile` — tab root
+- `settings` — stub screen, no back (only has one menu item)
+- `search` — hidden tab, not navigated to
+
+### PageHeader Canonical Implementation
+
+From `components/layout/PageHeader.tsx`:
+
+```typescript
+interface PageHeaderProps {
+  title: string;
+  from?: string;
+}
+
+export function PageHeader({ title, from }: PageHeaderProps) {
+  const handleBack = () => {
+    if (from === 'profile') router.push('/(worker)/profile');
+    else if (from === 'settings') router.push('/(worker)/settings');
+    else router.back();
+  };
+
+  return (
+    <View style={styles.header}>
+      <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+        <ArrowLeft color={theme.colors.textPrimary} size={24} />
+      </TouchableOpacity>
+      <Text style={[theme.typography.h4, styles.title]}>{title}</Text>
+      <View style={styles.spacer} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.layout.screenPadding,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  title: {
+    flex: 1,
+    textAlign: 'center',
+    color: theme.colors.textPrimary,
+  },
+  spacer: {
+    width: 40,
+  },
+});
+```
+
+**Key differences from booking-request and cancel-service headers:**
+- Booking/cancel use `Pressable` (not `TouchableOpacity`)
+- Booking/cancel use `ChevronLeft` (not `ArrowLeft`)
+- Booking/cancel have `weight="bold"` on title
+- Booking/cancel have `borderBottomWidth: 1, borderBottomColor: Colors.borderLight`
+- Booking/cancel have `backgroundColor: Colors.white` on header
+- Booking/cancel have `paddingTop: Spacing['16']` (extra top padding)
+
+---
+
+## Shared Components
+
+### BookingChat (`components/booking/BookingChat.tsx`)
+
+Embedded chat widget shown in the `accepted` status of Booking Request. Not a full-screen chat — a contained card within the scroll view.
+
+**Props:**
+```typescript
+interface BookingChatProps {
+  customerName: string;
+  customerAvatar: string;
+  onConfirmDetails: () => void;
+}
+```
+
+**Features:**
+- Chat header with customer avatar, name, "Messaging" status, language picker (English/Filipino)
+- Language dropdown with auto-translate toggle
+- Message list (ScrollView, maxHeight 200px) with 4 message types:
+  - Text: worker bubbles (blue/CTA bg), customer bubbles (white bg)
+  - Voice: play/pause button, deterministic waveform bars `[6,10,14,8,16,12,6,14,10,8,16,6]`, duration label
+  - Image: thumbnail in bubble (160×120)
+  - Location: map placeholder (80px tall) + address + coordinates
+- Input row: Image button (⊕ icon), Location button, TextInput, Send/Mic button
+- Recording indicator: red bar with pulsing dot, duration counter, cancel button
+- "Confirm Details" button: enabled after sending ≥1 message
+- Voice recording: toggle start/stop, send only if duration ≥ 1s
+- Image picker: bottom sheet modal with 3 mock images
+- Location confirm: bottom sheet with "Share your current location?"
+
+**Message interface:**
+```typescript
+interface Message {
+  id: string;
+  text?: string;
+  sender: 'worker' | 'customer';
+  timestamp: string;
+  type: 'text' | 'voice' | 'image' | 'location';
+  voiceDuration?: number;
+  imageUrl?: string;
+  location?: { lat: number; lng: number; address: string };
+  translatedText?: string;
+}
+```
+
+### BookingMap (`components/booking/BookingMap.tsx`)
+
+Map view shown in `en_route` status. Uses `react-native-maps` with Google provider.
+
+**Props:**
+```typescript
+interface BookingMapProps {
+  destinationLat: number;
+  destinationLng: number;
+  destinationAddress: string;
+  workerLat?: number;
+  workerLng?: number;
+}
+```
+
+**Features:**
+- Native: Full `MapView` with `PROVIDER_GOOGLE`, two markers (worker = blue circle with Navigation icon, destination = red MapPin)
+- Web: Fallback view with MapPin icon, "Map Preview (Native Only)" text, destination address
+- Auto-calculated region to fit both markers
+- Worker position defaults to destination + 0.01 offset
+- ETA badge (top-right, hardcoded "15 Min")
+- Address badge (bottom, semi-transparent white background)
+
+### JobTimer (`components/booking/JobTimer.tsx`)
+
+Live timer card shown in `in_progress` status.
+
+**Props:**
+```typescript
+interface JobTimerProps {
+  hourlyRate: number;
+}
+```
+
+**Features:**
+- Reads `elapsedSeconds`, `timerStart`, `tick` from `useWorkerBookingStore`
+- `useEffect` starts `setInterval(tick, 1000)` when `timerStart` is set
+- Displays HH:MM:SS in tabular-nums font variant (fixed-width digits)
+- Calculates running earnings: `(elapsedSeconds / 3600) * hourlyRate`
+- Shows rate text below earnings row
+
+### CompletedSummary (`components/booking/CompletedSummary.tsx`)
+
+Summary card shown in `completed` status.
+
+**Props:**
+```typescript
+interface CompletedSummaryProps {
+  bookingId: string;
+  duration: string;
+  earnings: string;
+  onLeaveFeedback: () => void;
+  onViewReceipt?: () => void;
+}
+```
+
+**Features:**
+- Green CheckCircle2 icon (size 48), "Job Completed!" title, "Your payment has been released" subtitle
+- Summary card: Booking ID (#XXXX), Transaction ID (TXN-2026-XXXX), Duration, Earnings (green)
+- Two action buttons: "Leave Feedback" (outline), "View Receipt" (primary with Receipt icon)
+- Transaction ID generated as `TXN-2026-${bookingId.padStart(4, '0')}`
+
+### IncomingJobAlert (`components/IncomingJobAlert.tsx`)
+
+Card shown on Dashboard for the most recent job opportunity.
+
+**Props:**
+```typescript
+interface IncomingJobAlertProps {
+  service: string;
+  location: string;
+  distance: string;
+  postedTime: string;
+  onAccept?: () => void;
+  onMoreDetails?: () => void;
+}
+```
+
+**Features:**
+- Orange warning border (`borderWidth: 1.5, borderColor: Colors.warning`)
+- Header: `PulsingDot` (animated pulsing orange dot) + "NEW BOOKING REQUEST" overline + posted time
+- Service name (body, semiBold), location + distance with MapPin icon
+- Two buttons: "Accept" (primary, flex 1), "More Details" (outline, flex 1)
+- `PulsingDot` uses opacity animation loop for attention
+
+### QuickActionsGrid (`components/QuickActionsGrid.tsx`)
+
+2×2 grid of action tiles shown on Dashboard.
+
+**Features:**
+- 4 tiles: Schedule (Calendar → availability), Earnings (DollarSign → wallet), Premium (Star → settings), Verification (Shield → verification)
+- Each tile: colored icon container (48×48), caption label below
+- Colors: Schedule = CTA, Earnings = success, Premium = warning, Verification = info
+- Backgrounds: primarySurface, successBg, warningBg, infoBg
+- Card width calculated: `(screenWidth - screenPadding * 2 - gap) / 2`
+- Uses `React.memo` for performance
+
+### BookingStepIndicator (`components/booking/BookingStepIndicator.tsx`)
+
+6-step progress indicator shown at the top of Booking Request.
+
+**Steps:** Hired → Chat → En Route → Work → Review → Done
+
+**Features:**
+- Horizontal row of step dots connected by lines
+- Done steps: green CheckCircle2 (size 14)
+- Active step: filled CTA circle with border
+- Pending steps: hollow gray circle
+- Lines between steps: green if done, light gray if pending
+- Status order: `{ hired: 0, accepted: 1, en_route: 2, in_progress: 3, pending_review: 4, completed: 5, cancelled: -1 }`
+- `cancelled` status shows no active step (all pending)
+
+---
+
+## Modal & Dialog Triggers
+
+### DeclineReasonDialog (`components/booking/DeclineReasonDialog.tsx`)
+
+Shown when "Decline" is pressed in `hired` status on Booking Request.
+
+**Trigger:** `setShowDeclineDialog(true)` → `<DeclineReasonDialog visible={showDeclineDialog} ... />`
+
+**Contents:**
+- 4 reason categories with 2 reasons each:
+  - Schedule Conflict: "I have another booking at this time", "This time doesn't work for my schedule"
+  - Location Issues: "The location is too far from me", "I cannot access the area"
+  - Job Description: "The job is outside my expertise", "The description doesn't match the actual job"
+  - Personal Reasons: "Personal emergency came up", "I'm not feeling well"
+- Custom reason: "Other" option → TextInput for free text
+- Confirmation: Alert "Booking has been declined. Another worker will be matched."
+
+### RescheduleDialog (`components/booking/RescheduleDialog.tsx`)
+
+Shown when "Reschedule" is pressed in `hired` status on Booking Request.
+
+**Trigger:** `<RescheduleDialog visible={showRescheduleDialog} onClose={...} onConfirm={...} customerName={...} />`
+
+**NOTE:** In the current codebase, the `hired` status has "Accept Booking" + "Decline" buttons (not Reschedule). The RescheduleDialog component exists but is not currently wired into the booking-request UI. It's available for future use.
+
+**Contents:**
+- Date text input (e.g., "Jul 28, 2026")
+- Quick-time chips: 9:00 AM, 10:00 AM, 11:00 AM, 1:00 PM, 2:00 PM, 3:00 PM
+- Custom time text input
+- Optional message to customer (multiline)
+- Validation: date required, time required → Alert if missing
+- Actions: "Cancel" (outline), "Send Proposal" (primary)
+- On confirm: clears inputs, calls `onConfirm(date, time, message)`
+
+### CancellationConfirmation (`components/CancellationConfirmation.tsx`)
+
+Shown after confirming cancellation on Cancel Service page.
+
+**Trigger:** `setShowConfirmation(true)` after "Confirm Cancellation" button press.
+
+**Contents:**
+- Customer name display
+- "View Bookings" button → navigates to `bookings?filter=Cancelled`
+
+### Image Picker Modal (in BookingChat)
+
+Bottom sheet with 3 mock images for selection.
+
+**Trigger:** `setShowImagePicker(true)` via ⊕/ImageIcon button in chat input row.
+
+**Contents:**
+- Sheet handle (36×4 rounded bar)
+- "Select Photo" header with X close button
+- 3 image thumbnails in a row (aspect ratio 1:1, border highlight when selected)
+- "Send Photo" button (disabled until image selected)
+
+### Location Confirm Modal (in BookingChat)
+
+Bottom sheet to confirm sharing location.
+
+**Trigger:** `setShowLocationConfirm(true)` via MapPin button in chat input row.
+
+**Contents:**
+- MapPin icon (size 32, CTA color)
+- "Share Location?" title
+- "Your current location will be shared with {customerName}." subtitle
+- Two buttons: "Cancel" (outline), "Share" (primary)
+
+### Full Chat Screen Modal (in messages/chat.tsx)
+
+The full-screen chat at `/messages/chat` has its own attach menu:
+
+**Trigger:** `setShowAttachMenu(true)` via Paperclip button.
+
+**Contents (popup bubble):**
+- Camera, Gallery, Location, Voice Message, Translate toggle
+- Each option is a separate action (camera → alert, gallery → image picker, location → confirm dialog, voice → start/stop recording, translate → toggle mode)
+
+### Wallet Modals (in wallet.tsx)
+
+| Modal | Trigger | Contents |
+|-------|---------|----------|
+| Payout Sheet | "Payout" button | Amount input, quick amounts, payout method, confirm/cancel |
+| Top-Up Sheet | "Top-Up" button | Amount input, quick amounts, pay-with method, confirm/cancel |
+| Payout Success | Confirm payout | Green checkmark, amount + method, "Done" |
+| Top-Up Success | Confirm top-up | Green checkmark, amount + method, "Done" |
+
+### Portfolio Full-Screen Modal (in portfolio.tsx)
+
+**Trigger:** Tap on portfolio image.
+
+**Contents:**
+- Full-screen lightbox viewer
+- Close button (X)
+- Left/right navigation arrows
+- Image counter "N / M"
+
+---
+
+## State Management
+
+### useWorkerBookingStore (`store/useWorkerBookingStore.ts`)
+
+Zustand store managing the current booking lifecycle state. Single source of truth for which booking is active and what status it's in.
+
+```typescript
+interface WorkerBookingState {
+  // Current booking
+  currentBookingId: string | null;
+  currentStatus: WorkerBooking['status'] | null;
+  isCurrentlyWorking: boolean;  // true when status === 'in_progress'
+
+  // Job timer (in_progress only)
+  timerStart: number | null;    // Date.now() when timer started
+  elapsedSeconds: number;       // updated by tick()
+
+  // Auto-confirm timer (pending_review only)
+  completionTimestamp: number | null;  // Date.now() + 3000 when set
+
+  // Actions
+  setStatus: (bookingId: string, status: WorkerBooking['status']) => void;
+  startTimer: () => void;
+  stopTimer: () => void;
+  tick: () => void;
+  setCompletionTimer: () => void;
+  clearCurrentBooking: () => void;
+}
+```
+
+**How it's used across screens:**
+
+| Screen | Reads | Calls |
+|--------|-------|-------|
+| Dashboard (`index.tsx`) | `isCurrentlyWorking`, `currentBookingId` | — |
+| Booking Request (`booking-request/[id].tsx`) | `completionTimestamp` | `setStatus`, `setCompletionTimer`, `clearCurrentBooking` |
+| Job Timer (`JobTimer.tsx`) | `elapsedSeconds`, `timerStart` | `tick` (via setInterval) |
+| Bookings Tab (`bookings.tsx`) | — | — (reads from mock data) |
+
+**Key behaviors:**
+
+1. `setStatus(id, 'in_progress')` → sets `isCurrentlyWorking = true`, starts timer (`timerStart = Date.now()`, `elapsedSeconds = 0`)
+2. `setStatus(id, 'completed' | 'cancelled')` → resets all timer state, `isCurrentlyWorking = false`
+3. `setCompletionTimer()` → sets `completionTimestamp = Date.now() + 3000` (3-second auto-confirm)
+4. `tick()` → recalculates `elapsedSeconds` from `timerStart`
+5. `clearCurrentBooking()` → resets everything to initial state
+
+**Currently Working banner:**
+The Dashboard reads `isCurrentlyWorking` and `currentBookingId`. When true, an orange banner appears at the top: "You are currently working on a job — Tap to view". Tapping navigates to `booking-request/${currentBookingId}`.
+
+**Timer lifecycle:**
+1. Worker taps "Start Job" → status becomes `in_progress` → `setStatus` sets `timerStart = Date.now()`
+2. `JobTimer` component starts `setInterval(tick, 1000)` → `elapsedSeconds` increments
+3. Worker taps "Complete Job" → status becomes `pending_review` → `setCompletionTimer()` starts auto-confirm
+4. `completionTimestamp - Date.now()` countdown displayed in Booking Request
+5. Timer expires → status becomes `completed` → `setStatus` clears timer, `isCurrentlyWorking = false`
+
+### Other State
+
+Currently, all other state is local (React `useState`). No global stores for:
+- Chat messages (local state in `messages/chat.tsx`)
+- Booking list filtering (local state in `bookings.tsx`)
+- Search queries (local state in `universal-search.tsx`)
+- Form data (local state in edit screens)
+
+**Future consideration:** When backend is integrated, replace mock data with React Query hooks. The app already has `@tanstack/react-query` installed and configured in `app/_layout.tsx`.
+
+---
+
+## Error Handling & Edge Cases
+
+### Current Implementation
+
+All error handling is via `Alert.alert()` — no error boundaries, no retry logic, no loading states.
+
+| Scenario | Current Behavior |
+|----------|-----------------|
+| Empty search results | "No results found" empty state with SearchX icon |
+| No bookings in filter | "No Bookings" empty state message |
+| No messages | "No Messages Yet" empty state |
+| No transactions | "No transactions found" empty state |
+| No payouts | "No payouts found" / "No {status} payouts" |
+| No portfolio items | "No Portfolio Items" with prompt to add photos |
+| Form validation (availability) | Alert "Please set times for all available days" |
+| Form validation (reschedule) | Alert "Please enter a date" / "Please select a time" |
+| Form validation (cancel) | Button disabled until reason selected or custom text entered |
+| Form validation (help) | Alert "Please fill in both subject and message" |
+| Cancel with empty custom reason | Button disabled |
+| Booking not found | Falls back to `workerBookings[0]` |
+| Job not found | Falls back to `workerJobs[0]` |
+
+### Known Edge Cases
+
+1. **Timer persistence:** Job timer uses `Date.now()` difference, so if app is killed and reopened, timer state is lost (Zustand is in-memory only)
+2. **Booking ID collision:** Falls back to first mock booking if ID not found — no error shown
+3. **Auto-confirm race condition:** `completionTimestamp` timeout could fire after component unmount if user navigates away; mitigated by `useEffect` cleanup
+4. **Voice recording < 1s:** Silently discarded in BookingChat (no message sent)
+5. **Empty chat message:** Send button disabled via `if (!inputText.trim()) return`
+6. **Multiple bookings:** Only one `currentBookingId` tracked — opening a second booking while working on first overwrites state
+
+### Form Validation Summary
+
+| Screen | Field | Rule |
+|--------|-------|------|
+| Availability | Available days | Must have start/end times if available is toggled on |
+| Personal Info | Full Name | Required |
+| Personal Info | Email | Required |
+| Personal Info | Phone | Required |
+| Personal Info | Bio | Max 200 characters |
+| Reschedule Dialog | Date | Required (text input) |
+| Reschedule Dialog | Time | Required (chip or text) |
+| Cancel Service | Reason | At least one selected or custom text entered |
+| Help Center | Subject | Required |
+| Help Center | Message | Required |
+| Industry & Skills | Skills | At least one skill must be selected |
+| Payout Request | Amount | Must be > 0 |
+| Top-Up | Amount | Must be > 0 |
+
+---
+
+## Real-Time Features & Notifications
+
+### Current Implementation
+
+The app has no real-time features. All data is mocked and static.
+
+**Notification bell:** The dashboard has a notification bell icon with a red dot badge (always shown, no count). Tapping navigates to `/notifications` (shared route).
+
+**Incoming Job Alert:** Shown on Dashboard from `workerJobs[0]` — always the same mock job. In production, this would be pushed via WebSocket or polling.
+
+**Booking status changes:** Currently manual (worker taps buttons). In production:
+- `hired` → worker receives push notification
+- `accepted` → customer receives push notification
+- `en_route` → customer receives location update
+- `in_progress` → timer starts server-side
+- `pending_review` → auto-confirm timer runs server-side
+- `completed` → payment released, both parties notified
+
+**Chat messages:** Currently local state only. In production: WebSocket connection per chat, read receipts, typing indicators, online status.
+
+### Production Real-Time Requirements
+
+| Feature | Current | Production |
+|---------|---------|------------|
+| Incoming jobs | Static mock | WebSocket push or polling every 30s |
+| Booking status | Manual button taps | Server-side state machine, push notifications |
+| Chat messages | Local state only | WebSocket, message queue, read receipts |
+| Timer (JobTimer) | Client-side `Date.now()` | Server-side timer, client polls or receives updates |
+| Auto-confirm | Client-side 3s timeout | Server-side timer (e.g., 24h), push notification on confirm |
+| Notifications | Static badge | Push notification service (FCM/APNs), unread count API |
+| Online status | Static "Online" text | WebSocket presence, last seen timestamp |
+
+---
+
+## Platform Differences
+
+### Native vs Web
+
+| Feature | Native (iOS/Android) | Web |
+|---------|---------------------|-----|
+| Map (`BookingMap`) | Full `MapView` with `PROVIDER_GOOGLE`, markers, region calculation | Fallback view: MapPin icon + address text, no interactive map |
+| Keyboard handling | `KeyboardAvoidingView` with `behavior="padding"` (iOS) | No keyboard avoidance needed |
+| Safe area insets | `useSafeAreaInsets()` for top/bottom padding | No safe area needed |
+| Status bar | `StatusBar style="dark"` (light background) | No status bar |
+| Haptic feedback | Available via `expo-haptics` (not currently used) | Not available |
+| Push notifications | Available via `expo-notifications` (not currently used) | Not available |
+| Image picker | Native camera/gallery | Web file input |
+| Voice recording | Native audio recording (not currently implemented) | Not available |
+| Tab bar height | 85px (iOS with safe area) / 60px (Android) | Fixed height |
+| Font rendering | Native font smoothing | Web font rendering |
+
+### iOS vs Android
+
+| Feature | iOS | Android |
+|---------|-----|---------|
+| Tab bar padding | `paddingBottom: 25` (safe area) | `paddingBottom: 8` |
+| Tab bar height | 85px | 60px |
+| Keyboard behavior | `behavior="padding"` | `behavior={undefined}` (default) |
+| Back button | Swipe gesture + PageHeader back | System back button + PageHeader back |
+| Safe area | Top notch + home indicator | Status bar only |
+| Shadow rendering | `shadow*` properties | `elevation` property |
+| Font weights | Full range | Limited to platform defaults |
+| Status bar | `style="dark"` (dark text) | `style="dark"` (dark text) |
+
+### Expo Go Limitations
+
+The following native modules are **not available in Expo Go** and require a development build:
+
+| Module | Used In | Fallback |
+|--------|---------|----------|
+| `react-native-maps` | `BookingMap.tsx` | Web fallback view, no native map |
+| `@react-native-async-storage/async-storage` | Auth token storage | Not yet integrated |
+| `expo-image` | Dashboard avatar, chat images | `react-native` `Image` (not used, expo-image is Expo Go compatible) |
+
+**To test native features:** Run `npx expo run:ios` or `npx expo run:android` for a development build.

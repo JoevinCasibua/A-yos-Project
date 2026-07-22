@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Alert } from 'react-native';
 import { Bell, Search, ChevronRight, Briefcase } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
@@ -91,6 +91,16 @@ export default function WorkerDashboardScreen() {
             location={incomingJob.location}
             distance={incomingJob.distance}
             postedTime={incomingJob.postedTime}
+            onAccept={() => {
+              Alert.alert(
+                'Accept Booking',
+                'Are you sure you want to accept this booking request?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Accept', onPress: () => router.push(`/(worker)/booking-request/${incomingJob.id}?autoAccept=true`) },
+                ]
+              );
+            }}
             onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}`)}
           />
         </View>

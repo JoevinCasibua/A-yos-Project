@@ -106,7 +106,7 @@ export default function CancelServiceScreen() {
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.push(`/(worker)/booking-request/${id}`)}
           hitSlop={12}
         >
           <ChevronLeft size={24} color={Colors.textPrimary} />

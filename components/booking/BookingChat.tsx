@@ -5,12 +5,13 @@ import {
 } from 'react-native';
 import {
   Send, Mic, MicOff, MapPin, Image as ImageIcon, X,
-  Play, Pause, Globe, ChevronDown,
+  Play, Pause, Globe, ChevronDown, Square,
 } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
+import { AnimatedWaveform } from '@/components/AnimatedWaveform';
 
 interface Message {
   id: string;
@@ -76,7 +77,9 @@ export const BookingChat = React.memo(function BookingChat({
 
   // Voice state
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [voicePreviewDuration, setVoicePreviewDuration] = useState<number | null>(null);
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const recordingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -137,10 +140,32 @@ export const BookingChat = React.memo(function BookingChat({
     setInputText('');
   };
 
-  const handleSendVoice = () => {
-    setIsRecording(false);
+  const handleStopRecording = () => {
+    if (recordingInterval.current) clearInterval(recordingInterval.current);
     const duration = recordingDuration;
-    if (duration < 1) return;
+    setIsRecording(false);
+    setIsPaused(false);
+    setRecordingDuration(0);
+    if (duration >= 1) {
+      setVoicePreviewDuration(duration);
+    }
+  };
+
+  const handlePauseRecording = () => {
+    if (recordingInterval.current) clearInterval(recordingInterval.current);
+    setIsPaused(true);
+  };
+
+  const handleResumeRecording = () => {
+    setIsPaused(false);
+    recordingInterval.current = setInterval(() => {
+      setRecordingDuration((d) => d + 1);
+    }, 1000);
+  };
+
+  const handleSendVoice = () => {
+    const duration = voicePreviewDuration;
+    if (!duration || duration < 1) return;
 
     const newMsg: Message = {
       id: `voice-${Date.now()}`,
@@ -151,6 +176,11 @@ export const BookingChat = React.memo(function BookingChat({
     };
 
     setMessages((prev) => [...prev, newMsg]);
+    setVoicePreviewDuration(null);
+  };
+
+  const handleCancelVoicePreview = () => {
+    setVoicePreviewDuration(null);
   };
 
   const handleSendImage = (uri: string) => {
@@ -290,18 +320,13 @@ export const BookingChat = React.memo(function BookingChat({
                 ) : (
                   <Play size={16} color={Colors.white} />
                 )}
-                <View style={styles.voiceWaveform}>
-                  {[6, 10, 14, 8, 16, 12, 6, 14, 10, 8, 16, 6].map((h, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.voiceBar,
-                        { height: h },
-                        playingVoiceId === msg.id && styles.voiceBarActive,
-                      ]}
-                    />
-                  ))}
-                </View>
+                <AnimatedWaveform
+                  barCount={12}
+                  color={Colors.white}
+                  active={playingVoiceId === msg.id}
+                  maxHeight={18}
+                  style={{ flex: 1 }}
+                />
                 <AppText variant="caption" color={Colors.white}>
                   {formatDuration(msg.voiceDuration || 0)}
                 </AppText>
@@ -365,8 +390,11 @@ export const BookingChat = React.memo(function BookingChat({
         />
 
         {/* Mic/Send Button */}
-        {inputText.trim() ? (
-          <Pressable style={styles.sendBtn} onPress={handleSendText}>
+        {inputText.trim() || voicePreviewDuration ? (
+          <Pressable
+            style={styles.sendBtn}
+            onPress={voicePreviewDuration ? handleSendVoice : handleSendText}
+          >
             <Send size={18} color={Colors.white} />
           </Pressable>
         ) : (
@@ -374,7 +402,7 @@ export const BookingChat = React.memo(function BookingChat({
             style={[styles.micBtn, isRecording && styles.micBtnActive]}
             onPress={() => {
               if (isRecording) {
-                handleSendVoice();
+                handleStopRecording();
               } else {
                 setIsRecording(true);
               }
@@ -389,15 +417,57 @@ export const BookingChat = React.memo(function BookingChat({
         )}
       </View>
 
-      {/* Recording Indicator */}
+      {/* Recording Bar */}
       {isRecording && (
         <View style={styles.recordingBar}>
-          <View style={styles.recordingDot} />
+          <AnimatedWaveform
+            barCount={16}
+            color={Colors.error}
+            active={!isPaused}
+            maxHeight={18}
+            style={{ flex: 1 }}
+          />
           <AppText variant="caption" weight="semiBold" color={Colors.error}>
-            Recording {formatDuration(recordingDuration)}
+            {formatDuration(recordingDuration)}
           </AppText>
-          <Pressable onPress={() => setIsRecording(false)}>
-            <AppText variant="caption" weight="semiBold" color={Colors.textTertiary}>Cancel</AppText>
+          <Pressable style={styles.recordingActionBtn} onPress={isPaused ? handleResumeRecording : handlePauseRecording}>
+            {isPaused ? (
+              <Play size={14} color={Colors.cta} />
+            ) : (
+              <Pause size={14} color={Colors.cta} />
+            )}
+          </Pressable>
+          <Pressable style={[styles.recordingActionBtn, { backgroundColor: Colors.errorBg }]} onPress={handleStopRecording}>
+            <Square size={12} color={Colors.error} />
+          </Pressable>
+        </View>
+      )}
+
+      {/* Voice Preview */}
+      {voicePreviewDuration !== null && (
+        <View style={styles.voicePreviewBar}>
+          <Pressable
+            style={styles.voicePreviewPlay}
+            onPress={() => setPlayingVoiceId(playingVoiceId === 'preview' ? null : 'preview')}
+          >
+            {playingVoiceId === 'preview' ? (
+              <Pause size={16} color={Colors.cta} />
+            ) : (
+              <Play size={16} color={Colors.cta} />
+            )}
+          </Pressable>
+          <AnimatedWaveform
+            barCount={16}
+            color={Colors.cta}
+            active={playingVoiceId === 'preview'}
+            maxHeight={18}
+            style={{ flex: 1 }}
+          />
+          <AppText variant="caption" color={Colors.textSecondary}>
+            {formatDuration(voicePreviewDuration)}
+          </AppText>
+          <Pressable style={styles.voicePreviewCancel} onPress={handleCancelVoicePreview}>
+            <X size={16} color={Colors.error} />
           </Pressable>
         </View>
       )}
@@ -544,23 +614,6 @@ const styles = StyleSheet.create({
     gap: Spacing['2'],
     minWidth: 140,
   },
-  voiceWaveform: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    height: 24,
-    overflow: 'hidden',
-    borderRadius: 4,
-  },
-  voiceBar: {
-    width: 3,
-    borderRadius: 1.5,
-    backgroundColor: 'rgba(255,255,255,0.5)',
-  },
-  voiceBarActive: {
-    backgroundColor: Colors.white,
-  },
 
   // Image
   chatImage: {
@@ -641,11 +694,41 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing['2'],
     backgroundColor: Colors.errorBg,
   },
-  recordingDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.error,
+  recordingActionBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Voice Preview
+  voicePreviewBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+    paddingHorizontal: Spacing['3'],
+    paddingVertical: Spacing['2'],
+    backgroundColor: Colors.primarySurface,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  voicePreviewPlay: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voicePreviewCancel: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.errorBg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // Confirm

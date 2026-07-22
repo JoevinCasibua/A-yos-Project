@@ -24,6 +24,9 @@ import {
   CheckCheck,
   X,
   Image as ImageIcon,
+  Phone,
+  Camera,
+  Square,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
@@ -31,6 +34,7 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Image } from 'expo-image';
+import { AnimatedWaveform } from '@/components/AnimatedWaveform';
 
 interface ChatMessage {
   id: string;
@@ -51,8 +55,6 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   { id: '5', type: 'image', sender: 'customer', timestamp: '10:16 AM', imageUrl: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&auto=format&fit=crop' },
 ];
 
-const WAVEFORM_HEIGHTS = [6, 10, 14, 8, 16, 12, 6, 14, 10, 8, 16, 6, 12, 10, 14, 8, 6, 16, 12, 10];
-
 export default function ChatScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -62,7 +64,9 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [voicePreviewDuration, setVoicePreviewDuration] = useState<number | null>(null);
   const [showLocationConfirm, setShowLocationConfirm] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState<string | null>(null);
   const [translateMode, setTranslateMode] = useState(false);
@@ -87,8 +91,22 @@ export default function ChatScreen() {
   };
 
   const handleStartRecording = () => {
+    setShowAttachMenu(false);
     setIsRecording(true);
+    setIsPaused(false);
     setRecordingSeconds(0);
+    recordingTimer.current = setInterval(() => {
+      setRecordingSeconds((prev) => prev + 1);
+    }, 1000);
+  };
+
+  const handlePauseRecording = () => {
+    if (recordingTimer.current) clearInterval(recordingTimer.current);
+    setIsPaused(true);
+  };
+
+  const handleResumeRecording = () => {
+    setIsPaused(false);
     recordingTimer.current = setInterval(() => {
       setRecordingSeconds((prev) => prev + 1);
     }, 1000);
@@ -98,17 +116,29 @@ export default function ChatScreen() {
     if (recordingTimer.current) clearInterval(recordingTimer.current);
     const duration = recordingSeconds;
     setIsRecording(false);
+    setIsPaused(false);
     setRecordingSeconds(0);
-    setShowAttachMenu(false);
-    if (duration > 0) {
-      addMessage({ sender: 'worker', type: 'voice', voiceDuration: duration });
+    if (duration >= 1) {
+      setVoicePreviewDuration(duration);
     }
   };
 
   const handleCancelRecording = () => {
     if (recordingTimer.current) clearInterval(recordingTimer.current);
     setIsRecording(false);
+    setIsPaused(false);
     setRecordingSeconds(0);
+  };
+
+  const handleSendVoice = () => {
+    const duration = voicePreviewDuration;
+    if (!duration || duration < 1) return;
+    addMessage({ sender: 'worker', type: 'voice', voiceDuration: duration });
+    setVoicePreviewDuration(null);
+  };
+
+  const handleCancelVoicePreview = () => {
+    setVoicePreviewDuration(null);
   };
 
   const handleImageAttach = (source: 'camera' | 'gallery') => {
@@ -168,20 +198,13 @@ export default function ChatScreen() {
             ) : (
               <Play size={16} color={isWorker ? Colors.white : Colors.cta} />
             )}
-            <View style={styles.voiceWaveform}>
-              {WAVEFORM_HEIGHTS.map((h, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.voiceBar,
-                    {
-                      height: h,
-                      backgroundColor: isWorker ? 'rgba(255,255,255,0.6)' : `${Colors.cta}60`,
-                    },
-                  ]}
-                />
-              ))}
-            </View>
+            <AnimatedWaveform
+              barCount={12}
+              color={isWorker ? 'rgba(255,255,255,0.6)' : `${Colors.cta}60`}
+              active={playingVoiceId === msg.id}
+              maxHeight={16}
+              style={{ flex: 1 }}
+            />
             <AppText variant="caption" color={isWorker ? Colors.white : Colors.textSecondary}>
               {formatDuration(msg.voiceDuration || 0)}
             </AppText>
@@ -275,7 +298,7 @@ export default function ChatScreen() {
         </View>
         <Pressable style={styles.headerAction} onPress={() => Alert.alert('Call', 'Calling customer...')}>
           <View style={styles.actionCircle}>
-            <AppText variant="body" weight="bold" color={Colors.cta}>📞</AppText>
+            <Phone size={18} color={Colors.cta} />
           </View>
         </Pressable>
       </View>
@@ -292,15 +315,57 @@ export default function ChatScreen() {
         {messages.map(renderMessage)}
       </ScrollView>
 
-      {/* Recording Indicator */}
+      {/* Recording Bar */}
       {isRecording && (
         <View style={styles.recordingBar}>
-          <View style={styles.recordingDot} />
+          <AnimatedWaveform
+            barCount={16}
+            color={Colors.error}
+            active={!isPaused}
+            maxHeight={18}
+            style={{ flex: 1 }}
+          />
           <AppText variant="bodySm" weight="semiBold" color={Colors.error}>
-            Recording {formatDuration(recordingSeconds)}
+            {formatDuration(recordingSeconds)}
           </AppText>
-          <Pressable onPress={handleCancelRecording}>
-            <AppText variant="caption" weight="semiBold" color={Colors.textTertiary}>Cancel</AppText>
+          <Pressable style={styles.recordingActionBtn} onPress={isPaused ? handleResumeRecording : handlePauseRecording}>
+            {isPaused ? (
+              <Play size={16} color={Colors.cta} />
+            ) : (
+              <Pause size={16} color={Colors.cta} />
+            )}
+          </Pressable>
+          <Pressable style={[styles.recordingActionBtn, { backgroundColor: Colors.errorBg }]} onPress={handleStopRecording}>
+            <Square size={14} color={Colors.error} />
+          </Pressable>
+        </View>
+      )}
+
+      {/* Voice Preview */}
+      {voicePreviewDuration !== null && (
+        <View style={styles.voicePreviewBar}>
+          <Pressable
+            style={styles.voicePreviewPlay}
+            onPress={() => setPlayingVoiceId(playingVoiceId === 'preview' ? null : 'preview')}
+          >
+            {playingVoiceId === 'preview' ? (
+              <Pause size={16} color={Colors.cta} />
+            ) : (
+              <Play size={16} color={Colors.cta} />
+            )}
+          </Pressable>
+          <AnimatedWaveform
+            barCount={16}
+            color={Colors.cta}
+            active={playingVoiceId === 'preview'}
+            maxHeight={18}
+            style={{ flex: 1 }}
+          />
+          <AppText variant="caption" color={Colors.textSecondary}>
+            {formatDuration(voicePreviewDuration)}
+          </AppText>
+          <Pressable style={styles.voicePreviewCancel} onPress={handleCancelVoicePreview}>
+            <X size={16} color={Colors.error} />
           </Pressable>
         </View>
       )}
@@ -327,11 +392,11 @@ export default function ChatScreen() {
 
           {/* Send Button */}
           <Pressable
-            style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
-            onPress={inputText.trim() ? handleSend : undefined}
-            disabled={!inputText.trim()}
+            style={[styles.sendBtn, !inputText.trim() && !voicePreviewDuration && styles.sendBtnDisabled]}
+            onPress={voicePreviewDuration ? handleSendVoice : inputText.trim() ? handleSend : undefined}
+            disabled={!inputText.trim() && !voicePreviewDuration}
           >
-            <Send size={20} color={inputText.trim() ? Colors.white : Colors.textTertiary} />
+            <Send size={20} color={inputText.trim() || voicePreviewDuration ? Colors.white : Colors.textTertiary} />
           </Pressable>
         </View>
       </View>
@@ -344,7 +409,7 @@ export default function ChatScreen() {
             <View style={styles.attachBubbleArrow} />
             <Pressable style={styles.attachOption} onPress={() => handleImageAttach('camera')}>
               <View style={[styles.attachOptionIcon, { backgroundColor: Colors.infoBg }]}>
-                <ImageIcon size={18} color={Colors.info} />
+                <Camera size={18} color={Colors.info} />
               </View>
               <AppText variant="bodySm" weight="semiBold">Camera</AppText>
             </Pressable>
@@ -468,16 +533,6 @@ const styles = StyleSheet.create({
 
   // Voice
   voiceRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['2'] },
-  voiceWaveform: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    height: 24,
-    overflow: 'hidden',
-    borderRadius: Radius.sm,
-  },
-  voiceBar: { width: 3, borderRadius: 1.5 },
 
   // Image
   chatImage: { width: 200, height: 150, borderRadius: Radius.lg },
@@ -496,13 +551,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing['2'],
-    paddingHorizontal: Spacing['4'],
+    paddingHorizontal: Spacing['3'],
     paddingVertical: Spacing['2'],
     backgroundColor: Colors.errorBg,
   },
-  recordingDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: Colors.error,
+  recordingActionBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Voice Preview
+  voicePreviewBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+    paddingHorizontal: Spacing['3'],
+    paddingVertical: Spacing['2'],
+    backgroundColor: Colors.primarySurface,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  voicePreviewPlay: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voicePreviewCancel: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.errorBg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // Input
