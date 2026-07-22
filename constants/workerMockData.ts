@@ -139,6 +139,50 @@ export const workerJobs: JobOpportunity[] = [
     imageUrl: 'https://images.pexels.com/photos/5691634/pexels-photo-5691634.jpeg?auto=compress&cs=tinysrgb&w=800',
     commentCount: 2,
   },
+  {
+    id: '5',
+    customerName: 'Robert Wilson',
+    customerAvatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Emergency Pipe Repair',
+    category: 'Plumbing',
+    description: 'Burst pipe in utility room causing water damage. Need immediate repair.',
+    location: '654 Cedar Lane',
+    distance: '2.8 mi',
+    offeredPrice: '$60',
+    urgency: 'urgent',
+    postedTime: '1 day ago',
+    imageUrl: 'https://images.pexels.com/photos/5691622/pexels-photo-5691622.jpeg?auto=compress&cs=tinysrgb&w=800',
+    commentCount: 1,
+  },
+  {
+    id: '6',
+    customerName: 'Maria Santos',
+    customerAvatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Pipe Repair',
+    category: 'Plumbing',
+    description: 'Leaking pipe under kitchen sink. Dripping constantly.',
+    location: '456 Oak Avenue',
+    distance: '1.0 mi',
+    offeredPrice: '$80',
+    urgency: 'normal',
+    postedTime: '30 min ago',
+    imageUrl: 'https://images.pexels.com/photos/5691621/pexels-photo-5691621.jpeg?auto=compress&cs=tinysrgb&w=800',
+    commentCount: 0,
+  },
+  {
+    id: 'cancelled-1',
+    customerName: 'Linda Garcia',
+    customerAvatar: 'https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Drain Cleaning',
+    category: 'Plumbing',
+    description: 'Kitchen drain clogged, water pooling in sink.',
+    location: '789 Pine Road',
+    distance: '3.2 mi',
+    offeredPrice: '$80',
+    urgency: 'normal',
+    postedTime: '2 days ago',
+    commentCount: 0,
+  },
 ];
 
 export interface JobComment {
@@ -250,6 +294,9 @@ export interface WorkerBooking {
   hourlyRate: number;
   hasParts?: boolean;
   partsDescription?: string;
+  duration?: string;
+  cancelledReason?: string;
+  cancelledBy?: 'customer' | 'worker';
 }
 
 export const workerBookings: WorkerBooking[] = [
@@ -283,6 +330,7 @@ export const workerBookings: WorkerBooking[] = [
     price: '$75',
     hourlyRate: 50,
     hasParts: false,
+    duration: '45m',
   },
   {
     id: '3',
@@ -311,6 +359,7 @@ export const workerBookings: WorkerBooking[] = [
     status: 'completed',
     price: '$85',
     hourlyRate: 40,
+    duration: '1h 15m',
   },
   {
     id: '5',
@@ -325,6 +374,7 @@ export const workerBookings: WorkerBooking[] = [
     status: 'pending_review',
     price: '$60',
     hourlyRate: 45,
+    duration: '2h 30m',
   },
   {
     id: '6',
@@ -353,6 +403,8 @@ export const workerBookings: WorkerBooking[] = [
     status: 'cancelled',
     price: '$80',
     hourlyRate: 45,
+    cancelledReason: 'Customer no longer available',
+    cancelledBy: 'customer',
   },
 ];
 

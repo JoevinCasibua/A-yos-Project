@@ -34,7 +34,7 @@ export default function WorkerDashboardScreen() {
       {isCurrentlyWorking && (
         <Pressable
           style={[styles.workingBanner, { paddingTop: insets.top + theme.spacing.sm }]}
-          onPress={() => router.push(`/(worker)/booking-request/${currentBookingId}`)}
+          onPress={() => router.push(`/(worker)/booking-request/${currentBookingId}?from=dashboard`)}
         >
           <Briefcase size={16} color={theme.colors.surface} />
           <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>
@@ -51,7 +51,7 @@ export default function WorkerDashboardScreen() {
               contentFit="cover"
             />
           </Pressable>
-          <Pressable style={styles.searchBar} onPress={() => router.push('/(worker)/universal-search')}>
+          <Pressable style={styles.searchBar} onPress={() => router.push('/(worker)/universal-search?from=dashboard')}>
             <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
             <TextInput
               placeholder="Search for everything"
@@ -97,11 +97,11 @@ export default function WorkerDashboardScreen() {
                 'Are you sure you want to accept this booking request?',
                 [
                   { text: 'Cancel', style: 'cancel' },
-                  { text: 'Accept', onPress: () => router.push(`/(worker)/booking-request/${incomingJob.id}?autoAccept=true`) },
+                  { text: 'Accept', onPress: () => router.push(`/(worker)/booking-request/${incomingJob.id}?autoAccept=true&from=dashboard`) },
                 ]
               );
             }}
-            onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}`)}
+            onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}?from=dashboard`)}
           />
         </View>
 
@@ -118,7 +118,7 @@ export default function WorkerDashboardScreen() {
             <Pressable
               key={booking.id}
               style={({ pressed }) => [styles.bookingCard, { opacity: pressed ? 0.95 : 1 }]}
-              onPress={() => router.push(`/(worker)/booking-request/${booking.id}`)}
+              onPress={() => router.push(`/(worker)/booking-request/${booking.id}?from=dashboard`)}
             >
               <View style={styles.bookingHeader}>
                 <Avatar uri={booking.customerAvatar} size={40} />

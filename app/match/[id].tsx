@@ -8,7 +8,7 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { providers } from '@/constants/mockData';
 import { useRequest } from '@/context/RequestContext';
-import { ChevronLeft, MapPin, CheckCircle, MessageSquare, ShieldAlert } from 'lucide-react-native';
+import { ArrowLeft, MapPin, CheckCircle, MessageSquare, ShieldAlert } from 'lucide-react-native';
 
 const RadarPulse = () => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
@@ -96,8 +96,8 @@ export default function ASAPMatchScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" style={styles.headerTitle}>Finding Workers</AppText>
         <View style={{ width: 40 }} />
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     ...Elevation.sm,
   },
-  backBtn: {
+  backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',

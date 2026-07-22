@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Calendar, MapPin, Navigation, Tag, Wrench } from 'lucide-react-native';
+import { ArrowLeft, Calendar, MapPin, Navigation, Tag, Wrench } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -31,8 +31,8 @@ export default function OrderDetailsScreen() {
     <View style={styles.container}>
       {/* Consistent Header */}
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" style={styles.headerTitle}>Order Details</AppText>
         <View style={{ width: 40 }} />
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   scrollContent: {
     padding: Layout.screenPadding,
     paddingBottom: 120,

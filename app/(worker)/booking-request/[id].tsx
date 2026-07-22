@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Alert, Image } from 'react-native';
 import {
-  ChevronLeft,
+  ArrowLeft,
   MapPin,
   Clock,
   DollarSign,
@@ -25,16 +25,27 @@ import { BookingMap } from '@/components/booking/BookingMap';
 import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
 import { RescheduleDialog } from '@/components/booking/RescheduleDialog';
+import { getBackRoute } from '@/constants/backRoutes';
 import { workerJobs, workerBookings, statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
 export default function BookingRequestScreen() {
-  const { id, autoAccept } = useLocalSearchParams<{ id: string; autoAccept?: string }>();
-  const job = workerJobs.find((j) => j.id === id) || workerJobs[0];
-  const mockBooking = workerBookings.find((b) => b.id === id) || workerBookings[0];
+  const { id, autoAccept, from } = useLocalSearchParams<{ id: string; autoAccept?: string; from?: string }>();
+  const job = useMemo(() => workerJobs.find((j) => j.id === id) || workerJobs[0], [id]);
 
-  const [booking, setBooking] = useState<WorkerBooking>(mockBooking);
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, WorkerBooking['status']>>(() => {
+    if (autoAccept === 'true' && id) {
+      const base = workerBookings.find((b) => b.id === id);
+      if (base?.status === 'hired') return { [base.id]: 'accepted' as WorkerBooking['status'] };
+    }
+    return {};
+  });
+
+  const booking = useMemo(() => {
+    const base = workerBookings.find((b) => b.id === id) || workerBookings[0];
+    return statusOverrides[base.id] ? { ...base, status: statusOverrides[base.id] } : base;
+  }, [id, statusOverrides]);
 
   const setStoreStatus = useWorkerBookingStore((s) => s.setStatus);
   const setCompletionTimer = useWorkerBookingStore((s) => s.setCompletionTimer);
@@ -48,23 +59,23 @@ export default function BookingRequestScreen() {
         clearCurrentBooking();
       }
     };
-  }, []);
+  }, [booking.id, booking.status]);
 
-  const autoAcceptHandled = useRef(false);
-  useEffect(() => {
-    if (autoAccept === 'true' && booking.status === 'hired' && !autoAcceptHandled.current) {
-      autoAcceptHandled.current = true;
-      updateStatus('accepted');
-    }
-  }, [autoAccept, booking.status]);
+
 
   const updateStatus = (newStatus: WorkerBooking['status']) => {
-    setBooking((prev) => ({ ...prev, status: newStatus }));
+    setStatusOverrides((prev) => ({ ...prev, [booking.id]: newStatus }));
     setStoreStatus(booking.id, newStatus);
     if (newStatus === 'pending_review') {
       setCompletionTimer();
     }
   };
+
+  useEffect(() => {
+    if (autoAccept === 'true' && booking.status === 'hired') {
+      updateStatus('accepted');
+    }
+  }, [autoAccept, booking.status]);
 
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
@@ -125,7 +136,12 @@ export default function BookingRequestScreen() {
   };
 
   const handleCancelService = () => {
-    router.push(`/(worker)/cancel-service/${booking.id}`);
+    router.push(`/(worker)/cancel-service/${booking.id}?from=${from || 'dashboard'}`);
+  };
+
+  const handleBack = () => {
+    const route = getBackRoute(from);
+    route ? router.push(route) : router.back();
   };
 
   const isCompleted = booking.status === 'completed';
@@ -154,8 +170,8 @@ export default function BookingRequestScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" color={Colors.textPrimary}>
           Booking Request
@@ -395,17 +411,34 @@ export default function BookingRequestScreen() {
             duration="1h 15m"
             earnings={booking.price}
             onLeaveFeedback={handleLeaveFeedback}
-            onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking`)}
+            onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
           />
         )}
 
         {isCancelled && (
           <View style={styles.cancelledBanner}>
-            <XCircle size={36} color={Colors.error} />
-            <AppText variant="h4" weight="bold" color={Colors.error}>Booking Cancelled</AppText>
-            <AppText variant="body" color={Colors.textSecondary} style={{ textAlign: 'center' }}>
-              This booking has been cancelled.
-            </AppText>
+            {booking.cancelledBy === 'worker' ? (
+              <>
+                <XCircle size={36} color={Colors.warning} />
+                <AppText variant="h4" weight="bold" color={Colors.warning}>Booking Cancelled</AppText>
+                <AppText variant="body" color={Colors.textSecondary} style={{ textAlign: 'center' }}>
+                  You have cancelled this booking.
+                </AppText>
+              </>
+            ) : (
+              <>
+                <XCircle size={36} color={Colors.error} />
+                <AppText variant="h4" weight="bold" color={Colors.error}>Booking Cancelled</AppText>
+                <AppText variant="body" color={Colors.textSecondary} style={{ textAlign: 'center' }}>
+                  The customer has cancelled this booking.
+                </AppText>
+              </>
+            )}
+            {booking.cancelledReason && (
+              <AppText variant="caption" color={Colors.textTertiary} style={{ textAlign: 'center', fontStyle: 'italic' }}>
+                Reason: {booking.cancelledReason}
+              </AppText>
+            )}
           </View>
         )}
       </ScrollView>

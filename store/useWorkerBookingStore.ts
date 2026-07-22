@@ -58,7 +58,7 @@ export const useWorkerBookingStore = create<WorkerBookingState>((set, get) => ({
   },
 
   setCompletionTimer: () => {
-    set({ completionTimestamp: Date.now() + 3 * 1000 });
+    set({ completionTimestamp: Date.now() + 10 * 1000 });
   },
 
   clearCurrentBooking: () => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ChevronLeft, Send, Camera, Image as ImageIcon } from 'lucide-react-native';
+import { ArrowLeft, Send, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -38,8 +38,8 @@ export default function ChatScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-            <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+          <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+            <ArrowLeft size={24} color={Colors.textPrimary} />
           </Pressable>
           <Avatar uri={provider.avatarUri} size={40} />
           <View style={styles.headerInfo}>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backBtn: {
+  backButton: {
     marginRight: Spacing['3'],
   },
   headerInfo: {

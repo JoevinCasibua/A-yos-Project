@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { ChevronLeft, CheckCircle, Clock3, MessageSquare } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, Clock3, MessageSquare } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Layout, Spacing, Radius, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -78,8 +78,8 @@ export default function RequestDetailsScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" style={styles.headerTitle}>Request Details</AppText>
         <View style={{ width: 40 }} />
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing['4'],
     backgroundColor: Colors.background,
   },
-  backBtn: {
+  backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',

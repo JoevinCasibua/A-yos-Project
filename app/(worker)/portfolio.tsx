@@ -7,6 +7,7 @@ import { theme } from '@/constants/theme';
 import { workerProfile } from '@/constants/workerData';
 import { Image } from 'expo-image';
 import { X, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { useLocalSearchParams } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const COLUMNS = 2;
@@ -14,13 +15,14 @@ const GAP = theme.spacing.sm;
 const TILE_SIZE = (SCREEN_WIDTH - theme.layout.screenPadding * 2 - GAP) / COLUMNS;
 
 export default function PortfolioScreen() {
+  const { from } = useLocalSearchParams<{ from?: string }>();
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const images = workerProfile.portfolioImages;
 
   if (images.length === 0) {
     return (
       <Screen safeArea>
-        <PageHeader title="Portfolio" from="profile" />
+        <PageHeader title="Portfolio" from={from} />
         <EmptyState
           icon={ImageIcon}
           title="No Portfolio Items"
@@ -32,7 +34,7 @@ export default function PortfolioScreen() {
 
   return (
     <Screen safeArea scrollable>
-      <PageHeader title="Portfolio" from="profile" />
+      <PageHeader title="Portfolio" from={from} />
 
       <View style={styles.grid}>
         {images.map((uri, index) => (

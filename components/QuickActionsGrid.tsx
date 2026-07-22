@@ -29,7 +29,7 @@ export const QuickActionsGrid = React.memo(function QuickActionsGrid() {
             if (action.id === 'schedule') router.push('/(worker)/availability');
             else if (action.id === 'earnings') router.push('/(worker)/wallet');
             else if (action.id === 'premium') router.push('/(worker)/settings');
-            else if (action.id === 'verification') router.push('/(worker)/verification');
+            else if (action.id === 'verification') router.push('/(worker)/verification?from=dashboard');
           }}
         >
           <View style={[styles.iconContainer, { backgroundColor: action.bg }]}>

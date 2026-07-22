@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { MapPin, Edit3, Image as ImageIcon, Map as MapIcon, Check, Wallet, Banknote, CreditCard, ChevronLeft, Info } from 'lucide-react-native';
+import { MapPin, Edit3, Image as ImageIcon, Map as MapIcon, Check, Wallet, Banknote, CreditCard, ArrowLeft, Info } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -50,8 +50,8 @@ export default function ReviewRequestScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" style={styles.headerTitle}>Review Request</AppText>
         <View style={{ width: 40 }} />
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   scrollContent: {
     padding: Layout.screenPadding,
     paddingBottom: 160,

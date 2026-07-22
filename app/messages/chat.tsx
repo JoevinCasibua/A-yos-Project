@@ -280,13 +280,10 @@ export default function ChatScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.container}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + Spacing['2'] }]}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
+        <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={12}>
           <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <View style={styles.headerCenter}>
@@ -303,6 +300,10 @@ export default function ChatScreen() {
         </Pressable>
       </View>
 
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       {/* Chat Messages */}
       <ScrollView
         ref={scrollRef}
@@ -444,6 +445,8 @@ export default function ChatScreen() {
         </>
       )}
 
+      </KeyboardAvoidingView>
+
       {/* Location Confirm Dialog */}
       <Modal visible={showLocationConfirm} transparent animationType="fade">
         <Pressable style={styles.overlay} onPress={() => setShowLocationConfirm(false)}>
@@ -473,7 +476,7 @@ export default function ChatScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -488,7 +491,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
   },
-  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
   headerInfo: { gap: 1 },
   headerAction: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },

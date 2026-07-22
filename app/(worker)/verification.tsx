@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import {
-  ArrowLeft, CheckCircle, Clock, AlertCircle, Upload,
+  CheckCircle, Clock, AlertCircle, Upload,
   FileText, Camera, RefreshCw, Shield, BadgeCheck, Briefcase,
-  Wallet, HelpCircle, ChevronDown, Home, MapPin, User,
+  Wallet, HelpCircle, ChevronDown, Home, MapPin, User, ArrowLeft,
 } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, Layout, Typography, theme } from '@/constants/theme';
+import { getBackRoute } from '@/constants/backRoutes';
 import { AppText } from '@/components/AppText';
 import { Pill } from '@/components/Pill';
 
@@ -271,19 +272,16 @@ export default function VerificationScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable
-          style={styles.backBtn}
-          onPress={() => {
-            if (from === 'profile') router.push('/(worker)/profile');
-            else if (from === 'settings') router.push('/(worker)/settings');
-            else router.back();
-          }}
-          hitSlop={8}
-        >
-          <ArrowLeft size={22} color={Colors.white} />
+        <Pressable onPress={() => {
+          const route = getBackRoute(from);
+          route ? router.push(route) : router.back();
+        }} style={styles.backButton}>
+          <ArrowLeft size={20} color={Colors.white} />
         </Pressable>
-        <AppText variant="h3" weight="bold" color={Colors.white} style={{ flex: 1 }}>Verification</AppText>
-        <Pressable style={styles.headerIconBtn} hitSlop={8}>
+        <AppText variant="h4" weight="bold" color={Colors.white} style={{ flex: 1, textAlign: 'center' }}>
+          Verification
+        </AppText>
+        <Pressable style={styles.headerIconBtn} hitSlop={12}>
           <HelpCircle size={16} color={Colors.white} />
         </Pressable>
       </View>
@@ -395,7 +393,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary, paddingTop: Spacing['16'], paddingBottom: Spacing['4'],
     paddingHorizontal: Layout.screenPadding, flexDirection: 'row', alignItems: 'center',
   },
-  backBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', alignItems: 'center', marginRight: Spacing['3'] },
+  backButton: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', alignItems: 'center', marginRight: Spacing['3'] },
   headerIconBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', alignItems: 'center' },
 
   // Status banner

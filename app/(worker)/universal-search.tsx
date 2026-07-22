@@ -32,17 +32,17 @@ const SCREEN_LINKS: { title: string; subtitle: string; icon: React.ReactNode; ro
   { title: 'Wallet', subtitle: 'Check balance and transactions', icon: <Wallet size={18} color={Colors.verified} />, route: '/(worker)/wallet' },
   { title: 'Bookings', subtitle: 'View all your bookings', icon: <CalendarDays size={18} color={Colors.info} />, route: '/(worker)/bookings' },
   { title: 'Messages', subtitle: 'Chat with customers', icon: <MessageSquare size={18} color={Colors.primary} />, route: '/(worker)/messages' },
-  { title: 'Help Center', subtitle: 'FAQ and support', icon: <HelpCircle size={18} color={Colors.warning} />, route: '/(worker)/help' },
-  { title: 'Settings', subtitle: 'App preferences', icon: <Settings size={18} color={Colors.textTertiary} />, route: '/(worker)/settings' },
-  { title: 'My Reviews', subtitle: 'See customer feedback', icon: <Star size={18} color={Colors.warning} />, route: '/(worker)/reviews' },
-  { title: 'Industry & Skills', subtitle: 'Manage your skills', icon: <Wrench size={18} color={Colors.info} />, route: '/(worker)/industry-skills' },
-  { title: 'Work Experience', subtitle: 'Your work history', icon: <FileText size={18} color={Colors.cta} />, route: '/(worker)/work-experience' },
-  { title: 'Availability', subtitle: 'Set your schedule', icon: <Clock size={18} color={Colors.verified} />, route: '/(worker)/availability' },
-  { title: 'Service Areas', subtitle: 'Manage coverage areas', icon: <MapPin size={18} color={Colors.error} />, route: '/(worker)/service-areas' },
-  { title: 'Payout Methods', subtitle: 'Manage payment methods', icon: <CreditCard size={18} color={Colors.info} />, route: '/(worker)/payout-methods' },
-  { title: 'Payout History', subtitle: 'Past withdrawals', icon: <TrendingUp size={18} color={Colors.verified} />, route: '/(worker)/payout-history' },
-  { title: 'Personal Information', subtitle: 'Edit your details', icon: <User size={18} color={Colors.cta} />, route: '/(worker)/personal-info' },
-  { title: 'Privacy Policy', subtitle: 'Data and privacy', icon: <FileText size={18} color={Colors.textTertiary} />, route: '/(worker)/privacy' },
+  { title: 'Help Center', subtitle: 'FAQ and support', icon: <HelpCircle size={18} color={Colors.warning} />, route: '/(worker)/help?from=universal-search' },
+  { title: 'Settings', subtitle: 'App preferences', icon: <Settings size={18} color={Colors.textTertiary} />, route: '/(worker)/settings?from=universal-search' },
+  { title: 'My Reviews', subtitle: 'See customer feedback', icon: <Star size={18} color={Colors.warning} />, route: '/(worker)/reviews?from=universal-search' },
+  { title: 'Industry & Skills', subtitle: 'Manage your skills', icon: <Wrench size={18} color={Colors.info} />, route: '/(worker)/industry-skills?from=universal-search' },
+  { title: 'Work Experience', subtitle: 'Your work history', icon: <FileText size={18} color={Colors.cta} />, route: '/(worker)/work-experience?from=universal-search' },
+  { title: 'Availability', subtitle: 'Set your schedule', icon: <Clock size={18} color={Colors.verified} />, route: '/(worker)/availability?from=universal-search' },
+  { title: 'Service Areas', subtitle: 'Manage coverage areas', icon: <MapPin size={18} color={Colors.error} />, route: '/(worker)/service-areas?from=universal-search' },
+  { title: 'Payout Methods', subtitle: 'Manage payment methods', icon: <CreditCard size={18} color={Colors.info} />, route: '/(worker)/payout-methods?from=universal-search' },
+  { title: 'Payout History', subtitle: 'Past withdrawals', icon: <TrendingUp size={18} color={Colors.verified} />, route: '/(worker)/payout-history?from=universal-search' },
+  { title: 'Personal Information', subtitle: 'Edit your details', icon: <User size={18} color={Colors.cta} />, route: '/(worker)/personal-info?from=universal-search' },
+  { title: 'Privacy Policy', subtitle: 'Data and privacy', icon: <FileText size={18} color={Colors.textTertiary} />, route: '/(worker)/privacy?from=universal-search' },
 ];
 
 function matchQuery(text: string, query: string): boolean {
@@ -66,7 +66,7 @@ export default function UniversalSearchScreen() {
           subtitle: `${b.customerName} · ${b.date}`,
           category: 'Bookings',
           icon: <CalendarDays size={18} color={Colors.info} />,
-          route: `/(worker)/booking-request/${b.id}`,
+          route: `/(worker)/booking-request/${b.id}?from=universal-search`,
           badge: b.status,
         });
       }
@@ -80,7 +80,7 @@ export default function UniversalSearchScreen() {
           subtitle: `${j.customerName} · ${j.location} · ${j.offeredPrice}`,
           category: 'Job Opportunities',
           icon: <Briefcase size={18} color={Colors.cta} />,
-          route: `/(worker)/booking-request/${j.id}`,
+          route: `/(worker)/booking-request/${j.id}?from=universal-search`,
           badge: j.urgency === 'urgent' ? 'Urgent' : undefined,
           badgeVariant: j.urgency === 'urgent' ? 'error' : undefined,
         });
@@ -95,7 +95,7 @@ export default function UniversalSearchScreen() {
           subtitle: r.comment.slice(0, 60) + '...',
           category: 'Reviews',
           icon: <Star size={18} color={Colors.warning} />,
-          route: '/(worker)/reviews',
+          route: '/(worker)/reviews?from=universal-search',
         });
       }
     });
@@ -108,7 +108,7 @@ export default function UniversalSearchScreen() {
           subtitle: `${t.sub} · ${t.amount} · ${t.date}`,
           category: 'Transactions',
           icon: <Wallet size={18} color={Colors.verified} />,
-          route: '/(worker)/transactions-history',
+          route: '/(worker)/transactions-history?from=universal-search',
         });
       }
     });
@@ -122,7 +122,7 @@ export default function UniversalSearchScreen() {
           subtitle: 'Skill',
           category: 'Skills',
           icon: <Wrench size={18} color={Colors.info} />,
-          route: '/(worker)/industry-skills',
+          route: '/(worker)/industry-skills?from=universal-search',
         });
       }
     });
@@ -134,7 +134,7 @@ export default function UniversalSearchScreen() {
         subtitle: workerProfile.category,
         category: 'Profile',
         icon: <User size={18} color={Colors.cta} />,
-        route: '/(worker)/profile',
+        route: '/(worker)/profile?from=universal-search',
       });
     }
 
@@ -146,7 +146,7 @@ export default function UniversalSearchScreen() {
           subtitle: 'Service Area',
           category: 'Service Areas',
           icon: <MapPin size={18} color={Colors.error} />,
-          route: '/(worker)/service-areas',
+          route: '/(worker)/service-areas?from=universal-search',
         });
       }
     });
@@ -226,7 +226,7 @@ export default function UniversalSearchScreen() {
                 <Pressable
                   key={b.id}
                   style={styles.recentItem}
-                  onPress={() => router.push(`/(worker)/booking-request/${b.id}`)}
+                  onPress={() => router.push(`/(worker)/booking-request/${b.id}?from=universal-search`)}
                 >
                   <CalendarDays size={16} color={Colors.info} />
                   <View style={styles.recentInfo}>

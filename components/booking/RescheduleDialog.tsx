@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Modal, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Modal, TextInput, Alert, Keyboard } from 'react-native';
 import { Calendar, Clock, X } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -14,7 +14,20 @@ interface RescheduleDialogProps {
   currentTime?: string;
 }
 
-const QUICK_TIMES = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'];
+const QUICK_TIMES = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
+
+function formatDate(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function formatTime(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
 
 export function RescheduleDialog({
   visible,
@@ -44,6 +57,7 @@ export function RescheduleDialog({
   };
 
   const handleClose = () => {
+    Keyboard.dismiss();
     setDate('');
     setTime('');
     setMessage('');
@@ -53,7 +67,7 @@ export function RescheduleDialog({
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.overlay} onPress={handleClose}>
-        <Pressable style={styles.dialog} onPress={() => {}}>
+        <Pressable style={styles.dialog} onPress={() => Keyboard.dismiss()}>
           {/* Header */}
           <View style={styles.header}>
             <AppText variant="h4" weight="bold">Reschedule Booking</AppText>
@@ -73,10 +87,12 @@ export function RescheduleDialog({
               <Calendar size={16} color={Colors.textTertiary} />
               <TextInput
                 style={styles.input}
-                placeholder="e.g. Jul 28, 2026"
+                placeholder="MM/DD/YYYY"
                 placeholderTextColor={Colors.textTertiary}
                 value={date}
-                onChangeText={setDate}
+                onChangeText={(t) => setDate(formatDate(t))}
+                keyboardType="numeric"
+                maxLength={10}
               />
             </View>
           </View>
@@ -106,10 +122,12 @@ export function RescheduleDialog({
               <Clock size={16} color={Colors.textTertiary} />
               <TextInput
                 style={styles.input}
-                placeholder="Or type a custom time"
+                placeholder="HH:MM (24h)"
                 placeholderTextColor={Colors.textTertiary}
                 value={time}
-                onChangeText={setTime}
+                onChangeText={(t) => setTime(formatTime(t))}
+                keyboardType="numeric"
+                maxLength={5}
               />
             </View>
           </View>

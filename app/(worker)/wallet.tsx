@@ -259,7 +259,7 @@ export default function WalletScreen() {
           {/* See All */}
           <Pressable
             style={styles.seeAllBtn}
-            onPress={() => router.push('/(worker)/transactions-history')}
+            onPress={() => router.push('/(worker)/transactions-history?from=wallet')}
           >
             <AppText variant="bodySm" weight="bold" color={Colors.info}>See All Transactions</AppText>
             <ChevronRight size={16} color={Colors.info} />

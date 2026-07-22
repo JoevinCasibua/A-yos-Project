@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import {
-  ChevronLeft,
+  ArrowLeft,
   ChevronRight,
   CircleCheck,
   Briefcase,
@@ -748,7 +748,7 @@ export default function RegisterWorkerScreen() {
     >
       <View style={styles.header}>
         <Pressable onPress={handleBack} hitSlop={12} style={styles.backButton}>
-          <ChevronLeft size={24} color={Colors.textPrimary} />
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold">Register as Worker</AppText>
         <View style={{ width: 24 }} />

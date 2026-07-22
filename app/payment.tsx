@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
-import { ChevronLeft, CreditCard, Wallet, Banknote, Check, Info, Calendar } from 'lucide-react-native';
+import { ArrowLeft, CreditCard, Wallet, Banknote, Check, Info, Calendar } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Typography, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -36,8 +36,8 @@ export default function PaymentScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" style={styles.headerTitle}>Confirm Booking</AppText>
         <View style={{ width: 40 }} />
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   section: { paddingHorizontal: Spacing['4'], marginBottom: Spacing['6'] },
   
   bookingCard: {

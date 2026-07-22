@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Calendar, Clock, ChevronLeft } from 'lucide-react-native';
+import { Calendar, Clock, ArrowLeft } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -44,8 +44,8 @@ export default function ScheduleScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleBack} hitSlop={12}>
-          <ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2.5} />
+        <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" style={styles.headerTitle}>Schedule This Week</AppText>
         <View style={{ width: 40 }} />
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   scrollContent: {
     padding: Layout.screenPadding,
     paddingBottom: 100,

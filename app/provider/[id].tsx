@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {
-  ChevronLeft,
+  ArrowLeft,
   Heart,
   Share,
   MapPin,
@@ -55,7 +55,7 @@ export default function ProviderProfileScreen() {
           {/* Top nav buttons */}
           <View style={styles.topNav}>
             <Pressable style={styles.navBtn} onPress={handleBack}>
-              <ChevronLeft size={22} color={Colors.white} strokeWidth={2.5} />
+              <ArrowLeft size={22} color={Colors.white} />
             </Pressable>
             <View style={styles.navBtnsRight}>
               <Pressable style={styles.navBtn} onPress={() => setIsFav(!isFav)}>

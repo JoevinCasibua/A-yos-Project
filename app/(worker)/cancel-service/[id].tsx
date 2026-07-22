@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
-import { ChevronLeft, ChevronDown, ChevronUp, Check } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown, ChevronUp, Check } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -12,7 +12,7 @@ import { cancellationReasons, jobStages, workerBookings, CancellationReason } fr
 type JobStage = 'before_traveling' | 'after_arriving' | 'after_inspecting';
 
 export default function CancelServiceScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const [selectedStage, setSelectedStage] = useState<JobStage>('before_traveling');
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<CancellationReason | null>(null);
@@ -106,10 +106,10 @@ export default function CancelServiceScreen() {
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
-          onPress={() => router.push(`/(worker)/booking-request/${id}`)}
+          onPress={() => router.push(`/(worker)/booking-request/${id}?from=${from || 'dashboard'}`)}
           hitSlop={12}
         >
-          <ChevronLeft size={24} color={Colors.textPrimary} />
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
         <AppText variant="h4" weight="bold" color={Colors.textPrimary}>
           Cancel Service
