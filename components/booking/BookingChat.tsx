@@ -1,21 +1,60 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TextInput, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
-import { Send } from 'lucide-react-native';
+import {
+  View, StyleSheet, TextInput, ScrollView, Pressable,
+  KeyboardAvoidingView, Platform, Modal, Image,
+} from 'react-native';
+import {
+  Send, Mic, MicOff, MapPin, Image as ImageIcon, X,
+  Play, Pause, Globe, ChevronDown,
+} from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
+import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 
 interface Message {
   id: string;
-  text: string;
+  text?: string;
   sender: 'worker' | 'customer';
   timestamp: string;
+  type: 'text' | 'voice' | 'image' | 'location';
+  voiceDuration?: number;
+  imageUrl?: string;
+  location?: { lat: number; lng: number; address: string };
+  translatedText?: string;
 }
 
 interface BookingChatProps {
   customerName: string;
   customerAvatar: string;
   onConfirmDetails: () => void;
+}
+
+const MOCK_IMAGES = [
+  'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=300',
+  'https://images.pexels.com/photos/164338/pexels-photo-164338.jpeg?auto=compress&cs=tinysrgb&w=300',
+  'https://images.pexels.com/photos/280232/pexels-photo-280232.jpeg?auto=compress&cs=tinysrgb&w=300',
+];
+
+const TRANSLATIONS: Record<string, string> = {
+  'Hello!': 'Kamusta!',
+  'How are you?': 'Kamusta ka?',
+  'I will be there soon': 'Dadalhin ko soon',
+  'Thank you': 'Salamat',
+  'Okay': 'Sige',
+  'See you': 'Kita tayo',
+  'What time?': 'Anong oras?',
+  'Where are you?': 'Saan ka na?',
+};
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'fil', label: 'Filipino' },
+];
+
+function translateText(text: string, targetLang: string): string {
+  if (targetLang === 'en') return text;
+  return TRANSLATIONS[text] || text;
 }
 
 export const BookingChat = React.memo(function BookingChat({
@@ -29,29 +68,127 @@ export const BookingChat = React.memo(function BookingChat({
       text: `Hi! I'm on my way to your location. Let me know if there's anything specific you need me to check.`,
       sender: 'worker',
       timestamp: 'Just now',
+      type: 'text',
     },
   ]);
   const [inputText, setInputText] = useState('');
   const scrollRef = useRef<ScrollView>(null);
 
-  const handleSend = () => {
+  // Voice state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
+  const recordingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Image state
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Location state
+  const [showLocationConfirm, setShowLocationConfirm] = useState(false);
+
+  // Translation state
+  const [showLangPicker, setShowLangPicker] = useState(false);
+  const [targetLang, setTargetLang] = useState('fil');
+  const [autoTranslate, setAutoTranslate] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+  }, [messages.length]);
+
+  useEffect(() => {
+    if (isRecording) {
+      recordingInterval.current = setInterval(() => {
+        setRecordingDuration((d) => d + 1);
+      }, 1000);
+    } else {
+      if (recordingInterval.current) clearInterval(recordingInterval.current);
+      setRecordingDuration(0);
+    }
+    return () => {
+      if (recordingInterval.current) clearInterval(recordingInterval.current);
+    };
+  }, [isRecording]);
+
+  const formatDuration = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleSendText = () => {
     const trimmed = inputText.trim();
     if (!trimmed) return;
+
+    const translated = autoTranslate && targetLang !== 'en'
+      ? translateText(trimmed, targetLang)
+      : undefined;
 
     const newMsg: Message = {
       id: `msg-${Date.now()}`,
       text: trimmed,
       sender: 'worker',
       timestamp: 'Just now',
+      type: 'text',
+      translatedText: translated,
     };
 
     setMessages((prev) => [...prev, newMsg]);
     setInputText('');
   };
 
-  useEffect(() => {
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
-  }, [messages.length]);
+  const handleSendVoice = () => {
+    setIsRecording(false);
+    const duration = recordingDuration;
+    if (duration < 1) return;
+
+    const newMsg: Message = {
+      id: `voice-${Date.now()}`,
+      sender: 'worker',
+      timestamp: 'Just now',
+      type: 'voice',
+      voiceDuration: duration,
+    };
+
+    setMessages((prev) => [...prev, newMsg]);
+  };
+
+  const handleSendImage = (uri: string) => {
+    setShowImagePicker(false);
+    setSelectedImage(null);
+
+    const newMsg: Message = {
+      id: `img-${Date.now()}`,
+      sender: 'worker',
+      timestamp: 'Just now',
+      type: 'image',
+      imageUrl: uri,
+    };
+
+    setMessages((prev) => [...prev, newMsg]);
+  };
+
+  const handleSendLocation = () => {
+    setShowLocationConfirm(false);
+
+    const newMsg: Message = {
+      id: `loc-${Date.now()}`,
+      sender: 'worker',
+      timestamp: 'Just now',
+      type: 'location',
+      location: {
+        lat: 14.5995,
+        lng: 120.9842,
+        address: 'Customer Location, Quezon City',
+      },
+    };
+
+    setMessages((prev) => [...prev, newMsg]);
+  };
+
+  const toggleVoicePlayback = (msgId: string) => {
+    setPlayingVoiceId(playingVoiceId === msgId ? null : msgId);
+  };
 
   const sentCount = messages.filter((m) => m.sender === 'worker').length;
   const canConfirm = sentCount >= 1;
@@ -62,14 +199,51 @@ export const BookingChat = React.memo(function BookingChat({
       style={styles.container}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
+      {/* Chat Header */}
       <View style={styles.chatHeader}>
         <Avatar uri={customerAvatar} size={32} />
         <View style={styles.chatHeaderInfo}>
           <AppText variant="bodySm" weight="semiBold">{customerName}</AppText>
           <AppText variant="caption" color={Colors.textTertiary}>Messaging</AppText>
         </View>
+        <Pressable
+          style={styles.langBtn}
+          onPress={() => setShowLangPicker(!showLangPicker)}
+        >
+          <Globe size={16} color={Colors.cta} />
+          <AppText variant="caption" weight="semiBold" color={Colors.cta}>
+            {LANGUAGES.find((l) => l.code === targetLang)?.label}
+          </AppText>
+          <ChevronDown size={12} color={Colors.cta} />
+        </Pressable>
       </View>
 
+      {/* Language Picker Dropdown */}
+      {showLangPicker && (
+        <View style={styles.langDropdown}>
+          {LANGUAGES.map((lang) => (
+            <Pressable
+              key={lang.code}
+              style={[styles.langOption, targetLang === lang.code && styles.langOptionActive]}
+              onPress={() => { setTargetLang(lang.code); setShowLangPicker(false); }}
+            >
+              <AppText variant="bodySm" color={targetLang === lang.code ? Colors.cta : Colors.textPrimary}>
+                {lang.label}
+              </AppText>
+            </Pressable>
+          ))}
+          <Pressable
+            style={styles.langOption}
+            onPress={() => setAutoTranslate(!autoTranslate)}
+          >
+            <AppText variant="bodySm" color={autoTranslate ? Colors.verified : Colors.textPrimary}>
+              Auto-translate: {autoTranslate ? 'ON' : 'OFF'}
+            </AppText>
+          </Pressable>
+        </View>
+      )}
+
+      {/* Messages */}
       <ScrollView
         ref={scrollRef}
         style={styles.messageList}
@@ -84,12 +258,78 @@ export const BookingChat = React.memo(function BookingChat({
               msg.sender === 'worker' ? styles.workerBubble : styles.customerBubble,
             ]}
           >
-            <AppText
-              variant="bodySm"
-              color={msg.sender === 'worker' ? Colors.white : Colors.textPrimary}
-            >
-              {msg.text}
-            </AppText>
+            {/* Text Message */}
+            {msg.type === 'text' && (
+              <>
+                <AppText
+                  variant="bodySm"
+                  color={msg.sender === 'worker' ? Colors.white : Colors.textPrimary}
+                >
+                  {msg.text}
+                </AppText>
+                {msg.translatedText && msg.translatedText !== msg.text && (
+                  <AppText
+                    variant="caption"
+                    color={msg.sender === 'worker' ? 'rgba(255,255,255,0.7)' : Colors.textTertiary}
+                    style={styles.translatedText}
+                  >
+                    {msg.translatedText}
+                  </AppText>
+                )}
+              </>
+            )}
+
+            {/* Voice Message */}
+            {msg.type === 'voice' && (
+              <Pressable
+                style={styles.voiceBubble}
+                onPress={() => toggleVoicePlayback(msg.id)}
+              >
+                {playingVoiceId === msg.id ? (
+                  <Pause size={16} color={Colors.white} />
+                ) : (
+                  <Play size={16} color={Colors.white} />
+                )}
+                <View style={styles.voiceWaveform}>
+                  {[...Array(12)].map((_, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.voiceBar,
+                        { height: 4 + Math.random() * 12 },
+                        playingVoiceId === msg.id && styles.voiceBarActive,
+                      ]}
+                    />
+                  ))}
+                </View>
+                <AppText variant="caption" color={Colors.white}>
+                  {formatDuration(msg.voiceDuration || 0)}
+                </AppText>
+              </Pressable>
+            )}
+
+            {/* Image Message */}
+            {msg.type === 'image' && msg.imageUrl && (
+              <Pressable onPress={() => {}}>
+                <Image source={{ uri: msg.imageUrl }} style={styles.chatImage} />
+              </Pressable>
+            )}
+
+            {/* Location Message */}
+            {msg.type === 'location' && msg.location && (
+              <View style={styles.locationBubble}>
+                <View style={styles.locationPreview}>
+                  <MapPin size={24} color={Colors.error} />
+                </View>
+                <AppText variant="caption" weight="semiBold" color={Colors.textPrimary}>
+                  {msg.location.address}
+                </AppText>
+                <AppText variant="caption" color={Colors.textTertiary}>
+                  {msg.location.lat.toFixed(4)}, {msg.location.lng.toFixed(4)}
+                </AppText>
+              </View>
+            )}
+
             <AppText
               variant="caption"
               color={msg.sender === 'worker' ? 'rgba(255,255,255,0.7)' : Colors.textTertiary}
@@ -101,7 +341,19 @@ export const BookingChat = React.memo(function BookingChat({
         ))}
       </ScrollView>
 
+      {/* Input Row */}
       <View style={styles.inputRow}>
+        {/* Image Button */}
+        <Pressable style={styles.actionBtn} onPress={() => setShowImagePicker(true)}>
+          <ImageIcon size={20} color={Colors.cta} />
+        </Pressable>
+
+        {/* Location Button */}
+        <Pressable style={styles.actionBtn} onPress={() => setShowLocationConfirm(true)}>
+          <MapPin size={20} color={Colors.cta} />
+        </Pressable>
+
+        {/* Text Input */}
         <TextInput
           style={styles.textInput}
           placeholder="Type a message..."
@@ -111,15 +363,46 @@ export const BookingChat = React.memo(function BookingChat({
           multiline
           maxLength={500}
         />
-        <Pressable
-          style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
-          onPress={handleSend}
-          disabled={!inputText.trim()}
-        >
-          <Send size={18} color={Colors.white} />
-        </Pressable>
+
+        {/* Mic/Send Button */}
+        {inputText.trim() ? (
+          <Pressable style={styles.sendBtn} onPress={handleSendText}>
+            <Send size={18} color={Colors.white} />
+          </Pressable>
+        ) : (
+          <Pressable
+            style={[styles.micBtn, isRecording && styles.micBtnActive]}
+            onPress={() => {
+              if (isRecording) {
+                handleSendVoice();
+              } else {
+                setIsRecording(true);
+              }
+            }}
+          >
+            {isRecording ? (
+              <MicOff size={18} color={Colors.white} />
+            ) : (
+              <Mic size={18} color={Colors.white} />
+            )}
+          </Pressable>
+        )}
       </View>
 
+      {/* Recording Indicator */}
+      {isRecording && (
+        <View style={styles.recordingBar}>
+          <View style={styles.recordingDot} />
+          <AppText variant="caption" weight="semiBold" color={Colors.error}>
+            Recording {formatDuration(recordingDuration)}
+          </AppText>
+          <Pressable onPress={() => setIsRecording(false)}>
+            <AppText variant="caption" weight="semiBold" color={Colors.textTertiary}>Cancel</AppText>
+          </Pressable>
+        </View>
+      )}
+
+      {/* Confirm Button */}
       <Pressable
         style={[styles.confirmBtn, !canConfirm && styles.confirmBtnDisabled]}
         onPress={canConfirm ? onConfirmDetails : undefined}
@@ -133,6 +416,57 @@ export const BookingChat = React.memo(function BookingChat({
           {canConfirm ? '✓ Confirm Details' : 'Send a message to confirm'}
         </AppText>
       </Pressable>
+
+      {/* Image Picker Modal */}
+      <Modal visible={showImagePicker} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.imagePickerSheet}>
+            <View style={styles.sheetHandle} />
+            <View style={styles.sheetHeader}>
+              <AppText variant="h4" weight="bold">Select Photo</AppText>
+              <Pressable onPress={() => setShowImagePicker(false)}>
+                <X size={20} color={Colors.textTertiary} />
+              </Pressable>
+            </View>
+            <View style={styles.imageGrid}>
+              {MOCK_IMAGES.map((uri) => (
+                <Pressable
+                  key={uri}
+                  style={[styles.imageOption, selectedImage === uri && styles.imageOptionActive]}
+                  onPress={() => setSelectedImage(uri)}
+                >
+                  <Image source={{ uri }} style={styles.imageThumbnail} />
+                </Pressable>
+              ))}
+            </View>
+            <AppButton
+              label="Send Photo"
+              variant="primary"
+              fullWidth
+              disabled={!selectedImage}
+              onPress={() => selectedImage && handleSendImage(selectedImage)}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Location Confirm Modal */}
+      <Modal visible={showLocationConfirm} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.confirmSheet}>
+            <View style={styles.sheetHandle} />
+            <MapPin size={32} color={Colors.cta} />
+            <AppText variant="h4" weight="bold">Share Location?</AppText>
+            <AppText variant="bodySm" color={Colors.textSecondary} style={{ textAlign: 'center' }}>
+              Your current location will be shared with {customerName}.
+            </AppText>
+            <View style={styles.confirmActions}>
+              <AppButton label="Cancel" variant="outline" onPress={() => setShowLocationConfirm(false)} style={{ flex: 1 }} />
+              <AppButton label="Share" variant="primary" onPress={handleSendLocation} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 });
@@ -152,16 +486,34 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
   },
-  chatHeaderInfo: {
-    gap: 2,
+  chatHeaderInfo: { flex: 1, gap: 2 },
+  langBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing['2'],
+    paddingVertical: Spacing['1'],
+    backgroundColor: Colors.primarySurface,
+    borderRadius: Radius.full,
   },
-  messageList: {
-    maxHeight: 200,
+  langDropdown: {
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+    paddingHorizontal: Spacing['3'],
+    paddingBottom: Spacing['2'],
   },
-  messageListContent: {
-    padding: Spacing['3'],
-    gap: Spacing['2'],
+  langOption: {
+    paddingVertical: Spacing['2'],
+    paddingHorizontal: Spacing['3'],
+    borderRadius: Radius.md,
   },
+  langOptionActive: {
+    backgroundColor: Colors.primarySurface,
+  },
+
+  messageList: { maxHeight: 200 },
+  messageListContent: { padding: Spacing['3'], gap: Spacing['2'] },
   messageBubble: {
     maxWidth: '80%',
     paddingHorizontal: Spacing['3'],
@@ -178,9 +530,57 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderBottomLeftRadius: Radius.xs,
   },
-  msgTime: {
-    marginTop: 2,
+  translatedText: {
+    marginTop: 4,
+    fontStyle: 'italic',
+    opacity: 0.8,
   },
+  msgTime: { marginTop: 2 },
+
+  // Voice
+  voiceBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+    minWidth: 140,
+  },
+  voiceWaveform: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  voiceBar: {
+    width: 3,
+    borderRadius: 1.5,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  voiceBarActive: {
+    backgroundColor: Colors.white,
+  },
+
+  // Image
+  chatImage: {
+    width: 160,
+    height: 120,
+    borderRadius: Radius.md,
+  },
+
+  // Location
+  locationBubble: {
+    gap: 4,
+  },
+  locationPreview: {
+    width: 160,
+    height: 80,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.surfaceLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+
+  // Input
   inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -189,6 +589,14 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing['2'],
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
+  },
+  actionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.primarySurface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textInput: {
     flex: 1,
@@ -209,9 +617,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sendBtnDisabled: {
-    backgroundColor: Colors.border,
+  micBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.cta,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  micBtnActive: {
+    backgroundColor: Colors.error,
+  },
+
+  // Recording
+  recordingBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+    paddingHorizontal: Spacing['3'],
+    paddingVertical: Spacing['2'],
+    backgroundColor: Colors.errorBg,
+  },
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.error,
+  },
+
+  // Confirm
   confirmBtn: {
     marginHorizontal: Spacing['3'],
     marginBottom: Spacing['3'],
@@ -222,5 +656,65 @@ const styles = StyleSheet.create({
   },
   confirmBtnDisabled: {
     backgroundColor: Colors.surfaceLight,
+  },
+
+  // Overlays
+  overlay: {
+    flex: 1,
+    backgroundColor: Colors.overlay,
+    justifyContent: 'flex-end',
+  },
+  imagePickerSheet: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: Radius.xxl,
+    borderTopRightRadius: Radius.xxl,
+    padding: Spacing['5'],
+    gap: Spacing['4'],
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.border,
+    alignSelf: 'center',
+    marginBottom: Spacing['2'],
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  imageGrid: {
+    flexDirection: 'row',
+    gap: Spacing['2'],
+  },
+  imageOption: {
+    flex: 1,
+    aspectRatio: 1,
+    borderRadius: Radius.lg,
+    overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: 'transparent',
+  },
+  imageOptionActive: {
+    borderColor: Colors.cta,
+  },
+  imageThumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+
+  confirmSheet: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: Radius.xxl,
+    borderTopRightRadius: Radius.xxl,
+    padding: Spacing['5'],
+    alignItems: 'center',
+    gap: Spacing['3'],
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    gap: Spacing['3'],
+    width: '100%',
   },
 });

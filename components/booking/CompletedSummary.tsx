@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { CheckCircle2 } from 'lucide-react-native';
+import { CheckCircle2, Receipt } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -10,6 +10,7 @@ interface CompletedSummaryProps {
   duration: string;
   earnings: string;
   onLeaveFeedback: () => void;
+  onViewReceipt?: () => void;
 }
 
 export const CompletedSummary = React.memo(function CompletedSummary({
@@ -17,7 +18,10 @@ export const CompletedSummary = React.memo(function CompletedSummary({
   duration,
   earnings,
   onLeaveFeedback,
+  onViewReceipt,
 }: CompletedSummaryProps) {
+  const transactionId = `TXN-2026-${bookingId.padStart(4, '0')}`;
+
   return (
     <View style={styles.container}>
       <View style={styles.iconRow}>
@@ -39,6 +43,11 @@ export const CompletedSummary = React.memo(function CompletedSummary({
         </View>
         <View style={styles.divider} />
         <View style={styles.summaryRow}>
+          <AppText variant="body" color={Colors.textTertiary}>Transaction ID</AppText>
+          <AppText variant="body" weight="semiBold">{transactionId}</AppText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.summaryRow}>
           <AppText variant="body" color={Colors.textTertiary}>Duration</AppText>
           <AppText variant="body" weight="semiBold">{duration}</AppText>
         </View>
@@ -49,12 +58,23 @@ export const CompletedSummary = React.memo(function CompletedSummary({
         </View>
       </View>
 
-      <AppButton
-        label="Leave Feedback"
-        variant="outline"
-        fullWidth
-        onPress={onLeaveFeedback}
-      />
+      <View style={styles.actions}>
+        <AppButton
+          label="Leave Feedback"
+          variant="outline"
+          fullWidth
+          onPress={onLeaveFeedback}
+        />
+        {onViewReceipt && (
+          <AppButton
+            label="View Receipt"
+            variant="primary"
+            fullWidth
+            leftIcon={<Receipt size={14} color={Colors.white} />}
+            onPress={onViewReceipt}
+          />
+        )}
+      </View>
     </View>
   );
 });
@@ -94,5 +114,9 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: Colors.borderLight,
+  },
+  actions: {
+    width: '100%',
+    gap: Spacing['3'],
   },
 });

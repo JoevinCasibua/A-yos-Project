@@ -81,6 +81,38 @@ export default function WorkerProfileScreen() {
       router.push('/(worker)/portfolio?from=profile');
       return;
     }
+    if (id === 'help') {
+      router.push('/(worker)/help?from=profile');
+      return;
+    }
+    if (id === 'personal') {
+      router.push('/(worker)/personal-info?from=profile');
+      return;
+    }
+    if (id === 'payout-methods') {
+      router.push('/(worker)/payout-methods?from=profile');
+      return;
+    }
+    if (id === 'payout-history') {
+      router.push('/(worker)/payout-history?from=profile');
+      return;
+    }
+    if (id === 'topup-methods') {
+      router.push('/(worker)/payout-methods?from=profile');
+      return;
+    }
+    if (id === 'topup-history') {
+      router.push('/(worker)/payout-history?from=profile');
+      return;
+    }
+    if (id === 'areas') {
+      router.push('/(worker)/service-areas?from=profile');
+      return;
+    }
+    if (id === 'privacy') {
+      router.push('/(worker)/privacy?from=profile');
+      return;
+    }
     Alert.alert('Coming Soon', 'This feature is under development.');
   };
 

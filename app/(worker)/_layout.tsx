@@ -115,6 +115,34 @@ export default function WorkerTabLayout() {
         name="portfolio"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="help"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="personal-info"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="payout-methods"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="payout-history"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="service-areas"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="privacy"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="earnings-receipt"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

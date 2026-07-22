@@ -24,6 +24,7 @@ import { BookingChat } from '@/components/booking/BookingChat';
 import { BookingMap } from '@/components/booking/BookingMap';
 import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
+import { DeclineReasonDialog } from '@/components/booking/DeclineReasonDialog';
 import { workerJobs, workerBookings, statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
@@ -58,19 +59,12 @@ export default function BookingRequestScreen() {
   };
 
   const [feedbackGiven, setFeedbackGiven] = useState(false);
+  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
 
-  const handleDecline = () => {
-    Alert.alert('Decline Booking', 'Are you sure you want to decline?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Decline',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert('Declined', 'Booking has been declined. Another worker will be matched.');
-          router.back();
-        },
-      },
-    ]);
+  const handleDeclineConfirm = (reason: string) => {
+    setShowDeclineDialog(false);
+    Alert.alert('Declined', `Booking has been declined. Another worker will be matched.\n\nReason: ${reason}`);
+    router.back();
   };
 
   const handleConfirmDetails = () => {
@@ -273,7 +267,7 @@ export default function BookingRequestScreen() {
                 label="Decline"
                 variant="outline"
                 fullWidth
-                onPress={handleDecline}
+                onPress={() => setShowDeclineDialog(true)}
               />
             </View>
           </View>
@@ -381,6 +375,7 @@ export default function BookingRequestScreen() {
             duration="1h 15m"
             earnings={booking.price}
             onLeaveFeedback={handleLeaveFeedback}
+            onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking`)}
           />
         )}
 
@@ -394,6 +389,13 @@ export default function BookingRequestScreen() {
           </View>
         )}
       </ScrollView>
+
+      <DeclineReasonDialog
+        visible={showDeclineDialog}
+        onClose={() => setShowDeclineDialog(false)}
+        onConfirm={handleDeclineConfirm}
+        customerName={job.customerName}
+      />
     </View>
   );
 }

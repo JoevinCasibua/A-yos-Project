@@ -51,15 +51,16 @@ export default function WorkerDashboardScreen() {
               contentFit="cover"
             />
           </Pressable>
-          <View style={styles.searchBar}>
+          <Pressable style={styles.searchBar} onPress={() => router.push('/(worker)/search')}>
             <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
             <TextInput
               placeholder="Search for everything"
               style={styles.searchInput}
               placeholderTextColor={theme.colors.textTertiary}
               editable={false}
+              pointerEvents="none"
             />
-          </View>
+          </Pressable>
           <Pressable style={styles.iconButton} onPress={() => router.push('/notifications')}>
             <Bell color={theme.colors.surface} size={24} />
             <View style={styles.badge} />
@@ -135,10 +136,10 @@ export default function WorkerDashboardScreen() {
           <View style={styles.perfCard}>
             <View style={styles.perfHeader}>
               <View style={styles.perfAvatar}>
-                <Text style={[theme.typography.h4, { color: theme.colors.surface }]}>JR</Text>
+                <Text style={[theme.typography.h4, { color: theme.colors.surface }]}>CM</Text>
               </View>
               <View style={styles.perfInfo}>
-                <Text style={theme.typography.h4}>Juan Reyes</Text>
+                <Text style={theme.typography.h4}>Carlos Mendez</Text>
                 <Badge label="TOP WORKER" variant="warning" size="sm" />
               </View>
             </View>
