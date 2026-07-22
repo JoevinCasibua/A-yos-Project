@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, TextInput, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
-  ArrowLeft, HelpCircle, ChevronDown, ChevronUp, MessageSquare,
+  HelpCircle, ChevronDown, ChevronUp, MessageSquare,
   Phone, Mail, Send,
 } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 const FAQ_ITEMS = [
@@ -66,117 +67,104 @@ export default function HelpCenterScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <PageHeader
-        title="Help Center"
-        from={from}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Quick Contact */}
-        <View style={styles.contactRow}>
-          <Pressable style={styles.contactCard} onPress={() => Alert.alert('Call Support', 'Calling +63 917 123 4567...')}>
-            <View style={[styles.contactIcon, { backgroundColor: `${Colors.cta}15` }]}>
-              <Phone size={20} color={Colors.cta} />
-            </View>
-            <AppText variant="bodySm" weight="semiBold">Call Us</AppText>
-            <AppText variant="caption" color={Colors.textTertiary}>+63 917 123 4567</AppText>
-          </Pressable>
-          <Pressable style={styles.contactCard} onPress={() => Alert.alert('Email Support', 'Opening email client...')}>
-            <View style={[styles.contactIcon, { backgroundColor: `${Colors.verified}15` }]}>
-              <Mail size={20} color={Colors.verified} />
-            </View>
-            <AppText variant="bodySm" weight="semiBold">Email Us</AppText>
-            <AppText variant="caption" color={Colors.textTertiary}>support@ayos.com</AppText>
-          </Pressable>
-          <Pressable style={styles.contactCard} onPress={() => Alert.alert('Live Chat', 'Connecting to support agent...')}>
-            <View style={[styles.contactIcon, { backgroundColor: `${Colors.info}15` }]}>
-              <MessageSquare size={20} color={Colors.info} />
-            </View>
-            <AppText variant="bodySm" weight="semiBold">Live Chat</AppText>
-            <AppText variant="caption" color={Colors.textTertiary}>Chat Now</AppText>
-          </Pressable>
-        </View>
+    <Screen safeArea scrollable header={<PageHeader title="Help Center" from={from} />}>
 
-        {/* FAQ Section */}
-        <View style={styles.section}>
-          <AppText variant="h4" weight="bold" style={styles.sectionTitle}>Frequently Asked Questions</AppText>
-          <View style={styles.faqList}>
-            {FAQ_ITEMS.map((item) => {
-              const isExpanded = expandedFaq === item.q;
-              return (
-                <View key={item.q} style={styles.faqItem}>
-                  <Pressable
-                    style={styles.faqQuestion}
-                    onPress={() => toggleFaq(item.q)}
-                  >
-                    <AppText variant="bodySm" weight="semiBold" style={{ flex: 1 }}>{item.q}</AppText>
-                    {isExpanded ? (
-                      <ChevronUp size={18} color={Colors.textTertiary} />
-                    ) : (
-                      <ChevronDown size={18} color={Colors.textTertiary} />
-                    )}
-                  </Pressable>
-                  {isExpanded && (
-                    <View style={styles.faqAnswer}>
-                      <AppText variant="bodySm" color={Colors.textSecondary}>{item.a}</AppText>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
+      {/* Quick Contact */}
+      <View style={styles.contactRow}>
+        <Pressable style={styles.contactCard} onPress={() => Alert.alert('Call Support', 'Calling +63 917 123 4567...')}>
+          <View style={[styles.contactIcon, { backgroundColor: `${Colors.cta}15` }]}>
+            <Phone size={20} color={Colors.cta} />
           </View>
-        </View>
+          <AppText variant="bodySm" weight="semiBold">Call Us</AppText>
+          <AppText variant="caption" color={Colors.textTertiary}>+63 917 123 4567</AppText>
+        </Pressable>
+        <Pressable style={styles.contactCard} onPress={() => Alert.alert('Email Support', 'Opening email client...')}>
+          <View style={[styles.contactIcon, { backgroundColor: `${Colors.verified}15` }]}>
+            <Mail size={20} color={Colors.verified} />
+          </View>
+          <AppText variant="bodySm" weight="semiBold">Email Us</AppText>
+          <AppText variant="caption" color={Colors.textTertiary}>support@ayos.com</AppText>
+        </Pressable>
+        <Pressable style={styles.contactCard} onPress={() => Alert.alert('Live Chat', 'Connecting to support agent...')}>
+          <View style={[styles.contactIcon, { backgroundColor: `${Colors.info}15` }]}>
+            <MessageSquare size={20} color={Colors.info} />
+          </View>
+          <AppText variant="bodySm" weight="semiBold">Live Chat</AppText>
+          <AppText variant="caption" color={Colors.textTertiary}>Chat Now</AppText>
+        </Pressable>
+      </View>
 
-        {/* Report Issue Form */}
-        <View style={styles.section}>
-          <AppText variant="h4" weight="bold" style={styles.sectionTitle}>Report an Issue</AppText>
-          <View style={styles.formCard}>
-            <View style={styles.inputGroup}>
-              <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.inputLabel}>SUBJECT</AppText>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Brief description of the issue"
-                placeholderTextColor={Colors.textTertiary}
-                value={subject}
-                onChangeText={setSubject}
-              />
-            </View>
-            <View style={styles.inputGroup}>
-              <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.inputLabel}>MESSAGE</AppText>
-              <TextInput
-                style={[styles.textInput, styles.textArea]}
-                placeholder="Describe what happened in detail..."
-                placeholderTextColor={Colors.textTertiary}
-                value={message}
-                onChangeText={setMessage}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-            </View>
-            <AppButton
-              label="Submit Issue"
-              variant="primary"
-              fullWidth
-              leftIcon={<Send size={14} color={Colors.white} />}
-              onPress={handleSubmitIssue}
+      {/* FAQ Section */}
+      <View style={styles.section}>
+        <AppText variant="h4" weight="bold" style={styles.sectionTitle}>Frequently Asked Questions</AppText>
+        <View style={styles.faqList}>
+          {FAQ_ITEMS.map((item) => {
+            const isExpanded = expandedFaq === item.q;
+            return (
+              <View key={item.q} style={styles.faqItem}>
+                <Pressable
+                  style={styles.faqQuestion}
+                  onPress={() => toggleFaq(item.q)}
+                >
+                  <AppText variant="bodySm" weight="semiBold" style={{ flex: 1 }}>{item.q}</AppText>
+                  {isExpanded ? (
+                    <ChevronUp size={18} color={Colors.textTertiary} />
+                  ) : (
+                    <ChevronDown size={18} color={Colors.textTertiary} />
+                  )}
+                </Pressable>
+                {isExpanded && (
+                  <View style={styles.faqAnswer}>
+                    <AppText variant="bodySm" color={Colors.textSecondary}>{item.a}</AppText>
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Report Issue Form */}
+      <View style={styles.section}>
+        <AppText variant="h4" weight="bold" style={styles.sectionTitle}>Report an Issue</AppText>
+        <View style={styles.formCard}>
+          <View style={styles.inputGroup}>
+            <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.inputLabel}>SUBJECT</AppText>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Brief description of the issue"
+              placeholderTextColor={Colors.textTertiary}
+              value={subject}
+              onChangeText={setSubject}
             />
           </View>
+          <View style={styles.inputGroup}>
+            <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.inputLabel}>MESSAGE</AppText>
+            <TextInput
+              style={[styles.textInput, styles.textArea]}
+              placeholder="Describe what happened in detail..."
+              placeholderTextColor={Colors.textTertiary}
+              value={message}
+              onChangeText={setMessage}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+          </View>
+          <AppButton
+            label="Submit Issue"
+            variant="primary"
+            fullWidth
+            leftIcon={<Send size={14} color={Colors.white} />}
+            onPress={handleSubmitIssue}
+          />
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxxl },
-
   contactRow: {
     flexDirection: 'row',
     gap: Spacing['3'],

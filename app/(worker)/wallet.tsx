@@ -202,7 +202,15 @@ export default function WalletScreen() {
           </View>
           <View style={styles.txList}>
             {filteredTransactions.map((tx) => (
-              <View key={tx.id + tx.date} style={styles.txRow}>
+              <Pressable
+                key={tx.id + tx.date}
+                style={styles.txRow}
+                onPress={() =>
+                  router.push(
+                    `/(worker)/earnings-receipt?transactionId=${tx.id}&from=wallet`,
+                  )
+                }
+              >
                 <View
                   style={[
                     styles.txIcon,
@@ -244,7 +252,7 @@ export default function WalletScreen() {
                     </View>
                   </View>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
 

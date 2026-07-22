@@ -1,19 +1,21 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
-import { router } from 'expo-router';
+import { View, StyleSheet, TextInput, Pressable } from 'react-native';
 import {
   TrendingUp,
   TrendingDown,
-  ArrowLeft,
   Search,
   CheckCircle,
   Clock,
   AlertCircle,
   ArrowDownToLine,
 } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, Layout, Typography } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Chip } from '@/components/Chip';
+import { SearchBar } from '@/components/SearchBar';
+import { Screen } from '@/components/layout/Screen';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { useLocalSearchParams, router } from 'expo-router';
 import { walletTransactions } from '@/constants/workerMockData';
 import type { WalletTransaction, TransactionStatus } from '@/constants/workerMockData';
 
@@ -32,6 +34,7 @@ const statusColor = (s: TransactionStatus) => {
 };
 
 export default function TransactionsHistoryScreen() {
+  const { from } = useLocalSearchParams<{ from?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [txFilter, setTxFilter] = useState<TxFilter>('all');
   const [fromDate, setFromDate] = useState('');
@@ -96,180 +99,176 @@ export default function TransactionsHistoryScreen() {
   }, [filteredTransactions]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={8}>
-          <ArrowLeft size={22} color={Colors.textPrimary} />
-        </Pressable>
-        <AppText variant="h3" weight="bold" style={{ flex: 1 }}>Transaction History</AppText>
+    <Screen safeArea scrollable header={<PageHeader title="Transaction History" from={from} />}>
+
+      {/* Search */}
+      <View style={styles.searchSection}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search transactions..."
+        />
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Search */}
-        <View style={styles.searchBar}>
-          <Search size={18} color={Colors.textSecondary} />
+      {/* Type Filters */}
+      <View style={styles.filterSection}>
+        {(['all', 'credit', 'debit'] as TxFilter[]).map((f) => (
+          <Chip
+            key={f}
+            label={f === 'all' ? 'All' : f === 'credit' ? 'Income' : 'Deductions'}
+            selected={txFilter === f}
+            onPress={() => setTxFilter(f)}
+            size="sm"
+          />
+        ))}
+      </View>
+
+      {/* Date Range */}
+      <View style={styles.dateRangeSection}>
+        <View style={styles.dateInputWrap}>
+          <AppText variant="caption" color={Colors.textTertiary}>From</AppText>
           <TextInput
-            style={styles.searchInput}
-            placeholder="Search transactions..."
+            style={styles.dateInput}
+            placeholder="e.g. Oct 10"
             placeholderTextColor={Colors.textTertiary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            value={fromDate}
+            onChangeText={setFromDate}
           />
         </View>
-
-        {/* Type Filters */}
-        <View style={styles.filterRow}>
-          {(['all', 'credit', 'debit'] as TxFilter[]).map((f) => (
-            <Chip
-              key={f}
-              label={f === 'all' ? 'All' : f === 'credit' ? 'Income' : 'Deductions'}
-              selected={txFilter === f}
-              onPress={() => setTxFilter(f)}
-              size="sm"
-            />
-          ))}
+        <AppText variant="body" color={Colors.textTertiary}>—</AppText>
+        <View style={styles.dateInputWrap}>
+          <AppText variant="caption" color={Colors.textTertiary}>To</AppText>
+          <TextInput
+            style={styles.dateInput}
+            placeholder="e.g. Oct 14"
+            placeholderTextColor={Colors.textTertiary}
+            value={toDate}
+            onChangeText={setToDate}
+          />
         </View>
+      </View>
 
-        {/* Date Range */}
-        <View style={styles.dateRangeRow}>
-          <View style={styles.dateInputWrap}>
-            <AppText variant="caption" color={Colors.textTertiary}>From</AppText>
-            <TextInput
-              style={styles.dateInput}
-              placeholder="e.g. Oct 10"
-              placeholderTextColor={Colors.textTertiary}
-              value={fromDate}
-              onChangeText={setFromDate}
-            />
-          </View>
-          <AppText variant="body" color={Colors.textTertiary}>—</AppText>
-          <View style={styles.dateInputWrap}>
-            <AppText variant="caption" color={Colors.textTertiary}>To</AppText>
-            <TextInput
-              style={styles.dateInput}
-              placeholder="e.g. Oct 14"
-              placeholderTextColor={Colors.textTertiary}
-              value={toDate}
-              onChangeText={setToDate}
-            />
-          </View>
+      {/* Transaction Groups */}
+      {groupedTransactions.length === 0 ? (
+        <View style={styles.emptyState}>
+          <AppText variant="body" color={Colors.textSecondary} align="center">No transactions found</AppText>
         </View>
-
-        {/* Transaction Groups */}
-        {groupedTransactions.length === 0 ? (
-          <View style={styles.emptyState}>
-            <AppText variant="body" color={Colors.textSecondary} align="center">No transactions found</AppText>
-          </View>
-        ) : (
-          groupedTransactions.map(([date, txs]) => (
-            <View key={date} style={styles.dateGroup}>
-              <AppText variant="bodySm" weight="bold" color={Colors.textSecondary} style={styles.dateHeader}>
-                {date}
-              </AppText>
-              <View style={styles.txList}>
-                {txs.map((tx) => (
-                  <View key={tx.id + tx.date} style={styles.txRow}>
-                    <View
-                      style={[
-                        styles.txIcon,
-                        {
-                          backgroundColor: tx.credit
-                            ? Colors.successBg
-                            : tx.label.includes('Commission')
-                              ? Colors.errorBg
-                              : Colors.infoBg,
-                        },
-                      ]}
-                    >
-                      {tx.credit ? (
-                        <TrendingUp size={14} color={Colors.verified} />
-                      ) : tx.label.includes('Commission') ? (
-                        <TrendingDown size={14} color={Colors.error} />
-                      ) : (
-                        <ArrowDownToLine size={14} color={Colors.info} />
-                      )}
+      ) : (
+        groupedTransactions.map(([date, txs]) => (
+          <View key={date} style={styles.dateGroup}>
+            <AppText variant="bodySm" weight="bold" color={Colors.textSecondary} style={styles.dateHeader}>
+              {date}
+            </AppText>
+            <View style={styles.txList}>
+              {txs.map((tx) => (
+                <Pressable
+                  key={tx.id + tx.date}
+                  style={styles.txRow}
+                  onPress={() => router.push(`/(worker)/earnings-receipt?transactionId=${tx.id}&from=transactions`)}
+                >
+                  <View
+                    style={[
+                      styles.txIcon,
+                      {
+                        backgroundColor: tx.credit
+                          ? Colors.successBg
+                          : tx.label.includes('Commission')
+                            ? Colors.errorBg
+                            : Colors.infoBg,
+                      },
+                    ]}
+                  >
+                    {tx.credit ? (
+                      <TrendingUp size={14} color={Colors.verified} />
+                    ) : tx.label.includes('Commission') ? (
+                      <TrendingDown size={14} color={Colors.error} />
+                    ) : (
+                      <ArrowDownToLine size={14} color={Colors.info} />
+                    )}
+                  </View>
+                  <View style={styles.txBody}>
+                    <View style={styles.txTop}>
+                      <AppText variant="bodySm" weight="bold" numberOfLines={1}>{tx.label}</AppText>
+                      <AppText
+                        variant="bodySm"
+                        weight="bold"
+                        color={tx.credit ? Colors.verified : tx.label.includes('Payout') ? Colors.info : Colors.error}
+                      >
+                        {tx.amount}
+                      </AppText>
                     </View>
-                    <View style={styles.txBody}>
-                      <View style={styles.txTop}>
-                        <AppText variant="bodySm" weight="bold" numberOfLines={1}>{tx.label}</AppText>
-                        <AppText
-                          variant="bodySm"
-                          weight="bold"
-                          color={tx.credit ? Colors.verified : tx.label.includes('Payout') ? Colors.info : Colors.error}
-                        >
-                          {tx.amount}
+                    <View style={styles.txBottom}>
+                      <AppText variant="caption" color={Colors.textTertiary}>{tx.sub}</AppText>
+                      <View style={styles.txStatus}>
+                        {statusIcon(tx.status)}
+                        <AppText variant="caption" weight="bold" color={statusColor(tx.status)}>
+                          {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
                         </AppText>
                       </View>
-                      <View style={styles.txBottom}>
-                        <AppText variant="caption" color={Colors.textTertiary}>{tx.sub}</AppText>
-                        <View style={styles.txStatus}>
-                          {statusIcon(tx.status)}
-                          <AppText variant="caption" weight="bold" color={statusColor(tx.status)}>
-                            {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
-                          </AppText>
-                        </View>
-                      </View>
                     </View>
-                  </View>
-                ))}
-              </View>
+                   </View>
+                </Pressable>
+              ))}
             </View>
-          ))
-        )}
-      </ScrollView>
-    </View>
+          </View>
+        ))
+      )}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingTop: Spacing['16'], paddingBottom: Spacing['3'],
-    paddingHorizontal: Layout.screenPadding,
-    backgroundColor: Colors.white, borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
+  searchSection: {
+    paddingHorizontal: theme.layout.screenPadding,
+    marginBottom: theme.spacing.md,
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', marginRight: Spacing['2'] },
-  scrollView: { flex: 1 },
-  scrollContent: { padding: Layout.screenPadding, paddingBottom: Spacing['10'], gap: Spacing['3'] },
-
-  searchBar: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Colors.white, borderRadius: Radius.full,
-    paddingHorizontal: Spacing['4'], height: 44, gap: Spacing['3'],
-    borderWidth: 1, borderColor: Colors.borderLight,
+  filterSection: {
+    flexDirection: 'row',
+    gap: Spacing['2'],
+    paddingHorizontal: theme.layout.screenPadding,
+    marginBottom: theme.spacing.md,
   },
-  searchInput: { flex: 1, fontSize: 14, color: Colors.textPrimary },
-
-  filterRow: { flexDirection: 'row', gap: Spacing['2'] },
-
-  dateRangeRow: {
-    flexDirection: 'row', alignItems: 'flex-end', gap: Spacing['2'],
+  dateRangeSection: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Spacing['2'],
+    paddingHorizontal: theme.layout.screenPadding,
+    marginBottom: theme.spacing.xl,
   },
   dateInputWrap: { flex: 1, gap: Spacing['1'] },
   dateInput: {
-    backgroundColor: Colors.white, borderRadius: Radius.md,
-    paddingHorizontal: Spacing['3'], paddingVertical: Spacing['2'],
-    fontSize: 14, color: Colors.textPrimary,
-    borderWidth: 1, borderColor: Colors.borderLight,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing['3'],
+    paddingVertical: Spacing['2'],
+    fontSize: 14,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
 
-  dateGroup: { gap: Spacing['2'] },
+  dateGroup: {
+    gap: Spacing['2'],
+    paddingHorizontal: theme.layout.screenPadding,
+    marginBottom: theme.spacing.md,
+  },
   dateHeader: { marginTop: Spacing['1'] },
   txList: { gap: Spacing['2'] },
   txRow: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: Spacing['3'],
-    backgroundColor: Colors.white, borderRadius: Radius.xl,
-    padding: Spacing['3'], ...Elevation.sm,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing['3'],
+    backgroundColor: Colors.white,
+    borderRadius: Radius.xl,
+    padding: Spacing['3'],
+    ...Elevation.sm,
   },
   txIcon: {
-    width: 36, height: 36, borderRadius: Radius.md,
-    alignItems: 'center', justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   txBody: { flex: 1, gap: 2 },
   txTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

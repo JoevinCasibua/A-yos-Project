@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CheckCircle, Clock, AlertCircle, TrendingUp, ArrowDownToLine } from 'lucide-react-native';
+import { CheckCircle, Clock, AlertCircle, ArrowDownToLine } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { Chip } from '@/components/Chip';
+import { SearchBar } from '@/components/SearchBar';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 interface PayoutRecord {
@@ -41,82 +43,97 @@ const statusColor = (s: string) => {
 export default function PayoutHistoryScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
   const [filter, setFilter] = useState<StatusFilter>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return MOCK_PAYOUTS;
-    return MOCK_PAYOUTS.filter((p) => p.status === filter);
-  }, [filter]);
+    let result = [...MOCK_PAYOUTS];
+
+    if (filter !== 'all') {
+      result = result.filter((p) => p.status === filter);
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.method.toLowerCase().includes(q) ||
+          p.amount.toLowerCase().includes(q) ||
+          p.reference.toLowerCase().includes(q),
+      );
+    }
+
+    return result;
+  }, [filter, searchQuery]);
 
   return (
-    <View style={styles.container}>
-      <PageHeader
-        title="Payout History"
-        from={from}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Filters */}
-        <View style={styles.filters}>
-          {(['all', 'completed', 'pending', 'failed'] as StatusFilter[]).map((f) => (
-            <Chip
-              key={f}
-              label={f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
-              selected={filter === f}
-              onPress={() => setFilter(f)}
-              size="sm"
-            />
-          ))}
-        </View>
+    <Screen safeArea scrollable header={<PageHeader title="Payout History" from={from} />}>
 
-        {/* Payout List */}
-        <View style={styles.payoutList}>
-          {filtered.map((payout) => (
-            <View key={payout.id} style={styles.payoutCard}>
-              <View style={styles.payoutTop}>
-                <View style={styles.payoutIcon}>
-                  <ArrowDownToLine size={16} color={Colors.cta} />
-                </View>
-                <View style={styles.payoutInfo}>
-                  <AppText variant="body" weight="semiBold">{payout.method}</AppText>
-                  <AppText variant="caption" color={Colors.textTertiary}>{payout.date}</AppText>
-                </View>
-                <AppText variant="body" weight="bold" color={Colors.cta}>{payout.amount}</AppText>
+      {/* Search */}
+      <View style={styles.searchSection}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search payouts..."
+        />
+      </View>
+
+      {/* Filters */}
+      <View style={styles.filters}>
+        {(['all', 'completed', 'pending', 'failed'] as StatusFilter[]).map((f) => (
+          <Chip
+            key={f}
+            label={f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            selected={filter === f}
+            onPress={() => setFilter(f)}
+            size="sm"
+          />
+        ))}
+      </View>
+
+      {/* Payout List */}
+      <View style={styles.payoutList}>
+        {filtered.map((payout) => (
+          <View key={payout.id} style={styles.payoutCard}>
+            <View style={styles.payoutTop}>
+              <View style={styles.payoutIcon}>
+                <ArrowDownToLine size={16} color={Colors.cta} />
               </View>
-              <View style={styles.payoutBottom}>
-                <AppText variant="caption" color={Colors.textTertiary}>Ref: {payout.reference}</AppText>
-                <View style={styles.statusRow}>
-                  {statusIcon(payout.status)}
-                  <AppText variant="caption" weight="semiBold" color={statusColor(payout.status)}>
-                    {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
-                  </AppText>
-                </View>
+              <View style={styles.payoutInfo}>
+                <AppText variant="body" weight="semiBold">{payout.method}</AppText>
+                <AppText variant="caption" color={Colors.textTertiary}>{payout.date}</AppText>
+              </View>
+              <AppText variant="body" weight="bold" color={Colors.cta}>{payout.amount}</AppText>
+            </View>
+            <View style={styles.payoutBottom}>
+              <AppText variant="caption" color={Colors.textTertiary}>Ref: {payout.reference}</AppText>
+              <View style={styles.statusRow}>
+                {statusIcon(payout.status)}
+                <AppText variant="caption" weight="semiBold" color={statusColor(payout.status)}>
+                  {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
+                </AppText>
               </View>
             </View>
-          ))}
-        </View>
-
-        {filtered.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={{ fontSize: 48, marginBottom: Spacing['3'] }}>💸</Text>
-            <AppText variant="h4" weight="bold">No payouts found</AppText>
-            <AppText variant="bodySm" color={Colors.textSecondary}>
-              {filter === 'all' ? 'You haven\'t made any payouts yet.' : `No ${filter} payouts.`}
-            </AppText>
           </View>
-        )}
-      </ScrollView>
-    </View>
+        ))}
+      </View>
+
+      {filtered.length === 0 && (
+        <View style={styles.emptyState}>
+          <AppText variant="h4" weight="bold">No payouts found</AppText>
+          <AppText variant="bodySm" color={Colors.textSecondary}>
+            {filter === 'all' ? 'You haven\'t made any payouts yet.' : `No ${filter} payouts.`}
+          </AppText>
+        </View>
+      )}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxxl },
-
+  searchSection: {
+    paddingHorizontal: theme.layout.screenPadding,
+    marginBottom: theme.spacing.md,
+  },
   filters: {
     flexDirection: 'row',
     gap: Spacing['2'],

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { MapPin, X, Plus } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
+import { SearchBar } from '@/components/SearchBar';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { workerProfile } from '@/constants/workerData';
 
@@ -53,110 +55,96 @@ export default function ServiceAreasScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <PageHeader
-        title="Service Areas"
-        from={from}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Current Areas */}
-        <View style={styles.section}>
-          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.sectionLabel}>
-            YOUR SERVICE AREAS ({areas.length})
-          </AppText>
-          <View style={styles.chipContainer}>
-            {areas.map((area) => (
-              <View key={area} style={styles.areaChip}>
-                <MapPin size={12} color={Colors.cta} />
-                <AppText variant="bodySm" weight="semiBold">{area}</AppText>
-                <Pressable onPress={() => handleRemoveArea(area)}>
-                  <X size={14} color={Colors.textTertiary} />
-                </Pressable>
-              </View>
-            ))}
-          </View>
-        </View>
+    <Screen safeArea scrollable header={<PageHeader title="Service Areas" from={from} />}>
 
-        {/* Search / Add */}
-        <View style={styles.section}>
-          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.sectionLabel}>
-            ADD SERVICE AREA
-          </AppText>
-          <View style={styles.searchRow}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search or type area name..."
-              placeholderTextColor={Colors.textTertiary}
+      {/* Current Areas */}
+      <View style={styles.section}>
+        <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.sectionLabel}>
+          YOUR SERVICE AREAS ({areas.length})
+        </AppText>
+        <View style={styles.chipContainer}>
+          {areas.map((area) => (
+            <View key={area} style={styles.areaChip}>
+              <MapPin size={12} color={Colors.cta} />
+              <AppText variant="bodySm" weight="semiBold">{area}</AppText>
+              <Pressable onPress={() => handleRemoveArea(area)}>
+                <X size={14} color={Colors.textTertiary} />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Search / Add */}
+      <View style={styles.section}>
+        <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.sectionLabel}>
+          ADD SERVICE AREA
+        </AppText>
+        <View style={styles.searchRow}>
+          <View style={styles.searchBarFlex}>
+            <SearchBar
               value={searchQuery}
               onChangeText={(text) => { setSearchQuery(text); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
+              placeholder="Search or type area name..."
             />
-            {searchQuery.trim() && !filteredSuggestions.includes(searchQuery.trim()) && (
-              <Pressable style={styles.addCustomBtn} onPress={handleAddCustom}>
-                <Plus size={18} color={Colors.white} />
-              </Pressable>
-            )}
           </View>
-
-          {/* Suggestions */}
-          {showSuggestions && searchQuery.length > 0 && filteredSuggestions.length > 0 && (
-            <View style={styles.suggestions}>
-              {filteredSuggestions.slice(0, 6).map((area) => (
-                <Pressable
-                  key={area}
-                  style={styles.suggestionItem}
-                  onPress={() => handleAddArea(area)}
-                >
-                  <MapPin size={14} color={Colors.textTertiary} />
-                  <AppText variant="bodySm">{area}</AppText>
-                  <Plus size={14} color={Colors.cta} />
-                </Pressable>
-              ))}
-            </View>
+          {searchQuery.trim() && !filteredSuggestions.includes(searchQuery.trim()) && (
+            <Pressable style={styles.addCustomBtn} onPress={handleAddCustom}>
+              <Plus size={18} color={Colors.white} />
+            </Pressable>
           )}
         </View>
 
-        {/* Popular Areas */}
-        <View style={styles.section}>
-          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.sectionLabel}>
-            POPULAR AREAS
-          </AppText>
-          <View style={styles.popularGrid}>
-            {SUGGESTED_AREAS.filter((a) => !areas.includes(a)).slice(0, 8).map((area) => (
+        {/* Suggestions */}
+        {showSuggestions && searchQuery.length > 0 && filteredSuggestions.length > 0 && (
+          <View style={styles.suggestions}>
+            {filteredSuggestions.slice(0, 6).map((area) => (
               <Pressable
                 key={area}
-                style={styles.popularChip}
+                style={styles.suggestionItem}
                 onPress={() => handleAddArea(area)}
               >
-                <AppText variant="caption" weight="semiBold">{area}</AppText>
-                <Plus size={12} color={Colors.cta} />
+                <MapPin size={14} color={Colors.textTertiary} />
+                <AppText variant="bodySm">{area}</AppText>
+                <Plus size={14} color={Colors.cta} />
               </Pressable>
             ))}
           </View>
-        </View>
+        )}
+      </View>
 
-        <View style={styles.actions}>
-          <AppButton
-            label={`Save ${areas.length} Area(s)`}
-            variant="primary"
-            fullWidth
-            onPress={handleSave}
-          />
+      {/* Popular Areas */}
+      <View style={styles.section}>
+        <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.sectionLabel}>
+          POPULAR AREAS
+        </AppText>
+        <View style={styles.popularGrid}>
+          {SUGGESTED_AREAS.filter((a) => !areas.includes(a)).slice(0, 8).map((area) => (
+            <Pressable
+              key={area}
+              style={styles.popularChip}
+              onPress={() => handleAddArea(area)}
+            >
+              <AppText variant="caption" weight="semiBold">{area}</AppText>
+              <Plus size={12} color={Colors.cta} />
+            </Pressable>
+          ))}
         </View>
-      </ScrollView>
-    </View>
+      </View>
+
+      <View style={styles.actions}>
+        <AppButton
+          label={`Save ${areas.length} Area(s)`}
+          variant="primary"
+          fullWidth
+          onPress={handleSave}
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxxl },
-
   section: {
     paddingHorizontal: theme.layout.screenPadding,
     marginBottom: theme.spacing.xl,
@@ -188,16 +176,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing['2'],
     marginBottom: Spacing['2'],
+    alignItems: 'center',
   },
-  searchInput: {
+  searchBarFlex: {
     flex: 1,
-    backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    paddingHorizontal: Spacing['3'],
-    paddingVertical: Spacing['2'],
-    fontSize: 14,
-    color: Colors.textPrimary,
-    ...Elevation.sm,
   },
   addCustomBtn: {
     width: 40,

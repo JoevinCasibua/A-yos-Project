@@ -51,7 +51,7 @@ export default function WorkerDashboardScreen() {
               contentFit="cover"
             />
           </Pressable>
-          <Pressable style={styles.searchBar} onPress={() => router.push('/(worker)/search')}>
+          <Pressable style={styles.searchBar} onPress={() => router.push('/(worker)/universal-search')}>
             <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
             <TextInput
               placeholder="Search for everything"

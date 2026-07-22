@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CheckCircle2, Download, Share2, Clock, DollarSign } from 'lucide-react-native';
+import { CheckCircle2, Download, Share2 } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function EarningsReceiptScreen() {
@@ -33,122 +34,105 @@ export default function EarningsReceiptScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <PageHeader
-        title="Earnings Receipt"
-        from={params.from}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Success Header */}
-        <View style={styles.successHeader}>
-          <View style={styles.successIcon}>
-            <CheckCircle2 size={48} color={Colors.verified} />
-          </View>
-          <AppText variant="h3" weight="bold" color={Colors.verified}>Payment Received</AppText>
-          <AppText variant="h1" weight="bold">{earnings}</AppText>
+    <Screen safeArea scrollable header={<PageHeader title="Earnings Receipt" from={params.from} />}>
+
+      {/* Success Header */}
+      <View style={styles.successHeader}>
+        <View style={styles.successIcon}>
+          <CheckCircle2 size={48} color={Colors.verified} />
+        </View>
+        <AppText variant="h3" weight="bold" color={Colors.verified}>Payment Received</AppText>
+        <AppText variant="h1" weight="bold">{earnings}</AppText>
+      </View>
+
+      {/* Receipt Card */}
+      <View style={styles.receiptCard}>
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Transaction ID</AppText>
+          <AppText variant="bodySm" weight="semiBold">{transactionId}</AppText>
+        </View>
+        <View style={styles.divider} />
+
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Date</AppText>
+          <AppText variant="bodySm" weight="semiBold">{date}</AppText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Time</AppText>
+          <AppText variant="bodySm" weight="semiBold">{time}</AppText>
+        </View>
+        <View style={styles.divider} />
+
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Service</AppText>
+          <AppText variant="bodySm" weight="semiBold">{serviceType}</AppText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Customer</AppText>
+          <AppText variant="bodySm" weight="semiBold">{customerName}</AppText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Location</AppText>
+          <AppText variant="bodySm" weight="semiBold" style={{ textAlign: 'right', flex: 1 }}>{address}</AppText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Duration</AppText>
+          <AppText variant="bodySm" weight="semiBold">{duration}</AppText>
         </View>
 
-        {/* Receipt Card */}
-        <View style={styles.receiptCard}>
-          {/* Transaction ID */}
+        {/* Earnings Breakdown */}
+        <View style={styles.breakdownSection}>
+          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.breakdownLabel}>
+            EARNINGS BREAKDOWN
+          </AppText>
           <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Transaction ID</AppText>
-            <AppText variant="bodySm" weight="semiBold">{transactionId}</AppText>
+            <AppText variant="bodySm" color={Colors.textSecondary}>Base Amount</AppText>
+            <AppText variant="bodySm" weight="semiBold">{baseAmount}</AppText>
           </View>
-          <View style={styles.divider} />
-
-          {/* Date & Time */}
           <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Date</AppText>
-            <AppText variant="bodySm" weight="semiBold">{date}</AppText>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Time</AppText>
-            <AppText variant="bodySm" weight="semiBold">{time}</AppText>
-          </View>
-          <View style={styles.divider} />
-
-          {/* Service Details */}
-          <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Service</AppText>
-            <AppText variant="bodySm" weight="semiBold">{serviceType}</AppText>
+            <AppText variant="bodySm" color={Colors.textSecondary}>Platform Fee (10%)</AppText>
+            <AppText variant="bodySm" weight="semiBold" color={Colors.error}>-{platformFee}</AppText>
           </View>
           <View style={styles.divider} />
           <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Customer</AppText>
-            <AppText variant="bodySm" weight="semiBold">{customerName}</AppText>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Location</AppText>
-            <AppText variant="bodySm" weight="semiBold" style={{ textAlign: 'right', flex: 1 }}>{address}</AppText>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Duration</AppText>
-            <AppText variant="bodySm" weight="semiBold">{duration}</AppText>
-          </View>
-
-          {/* Earnings Breakdown */}
-          <View style={styles.breakdownSection}>
-            <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.breakdownLabel}>
-              EARNINGS BREAKDOWN
-            </AppText>
-            <View style={styles.receiptRow}>
-              <AppText variant="bodySm" color={Colors.textSecondary}>Base Amount</AppText>
-              <AppText variant="bodySm" weight="semiBold">{baseAmount}</AppText>
-            </View>
-            <View style={styles.receiptRow}>
-              <AppText variant="bodySm" color={Colors.textSecondary}>Platform Fee (10%)</AppText>
-              <AppText variant="bodySm" weight="semiBold" color={Colors.error}>-{platformFee}</AppText>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.receiptRow}>
-              <AppText variant="body" weight="bold">Net Earnings</AppText>
-              <AppText variant="h4" weight="bold" color={Colors.verified}>{netEarnings}</AppText>
-            </View>
-          </View>
-
-          {/* Payment Method */}
-          <View style={styles.divider} />
-          <View style={styles.receiptRow}>
-            <AppText variant="caption" color={Colors.textTertiary}>Payment Method</AppText>
-            <AppText variant="bodySm" weight="semiBold">{paymentMethod}</AppText>
+            <AppText variant="body" weight="bold">Net Earnings</AppText>
+            <AppText variant="h4" weight="bold" color={Colors.verified}>{netEarnings}</AppText>
           </View>
         </View>
 
-        {/* Actions */}
-        <View style={styles.actions}>
-          <AppButton
-            label="Download Receipt"
-            variant="primary"
-            fullWidth
-            leftIcon={<Download size={14} color={Colors.white} />}
-            onPress={handleDownload}
-          />
-          <AppButton
-            label="Share Receipt"
-            variant="outline"
-            fullWidth
-            leftIcon={<Share2 size={14} color={Colors.cta} />}
-            onPress={handleShare}
-          />
+        <View style={styles.divider} />
+        <View style={styles.receiptRow}>
+          <AppText variant="caption" color={Colors.textTertiary}>Payment Method</AppText>
+          <AppText variant="bodySm" weight="semiBold">{paymentMethod}</AppText>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+
+      {/* Actions */}
+      <View style={styles.actions}>
+        <AppButton
+          label="Download Receipt"
+          variant="primary"
+          fullWidth
+          leftIcon={<Download size={14} color={Colors.white} />}
+          onPress={handleDownload}
+        />
+        <AppButton
+          label="Share Receipt"
+          variant="outline"
+          fullWidth
+          leftIcon={<Share2 size={14} color={Colors.cta} />}
+          onPress={handleShare}
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxxl },
-
   successHeader: {
     alignItems: 'center',
     paddingVertical: Spacing['5'],

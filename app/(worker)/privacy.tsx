@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
+import { Colors, Spacing, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 const SECTIONS = [
@@ -69,39 +70,26 @@ export default function PrivacyPolicyScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
 
   return (
-    <View style={styles.container}>
-      <PageHeader
-        title="Privacy Policy"
-        from={from}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.headerSection}>
-          <AppText variant="h3" weight="bold">Privacy Policy</AppText>
-          <AppText variant="caption" color={Colors.textTertiary}>Last updated: July 20, 2026</AppText>
-        </View>
+    <Screen safeArea scrollable header={<PageHeader title="Privacy Policy" from={from} />}>
 
-        {SECTIONS.map((section) => (
-          <View key={section.title} style={styles.section}>
-            <AppText variant="h4" weight="bold" style={styles.sectionTitle}>{section.title}</AppText>
-            <AppText variant="bodySm" color={Colors.textSecondary} style={styles.sectionContent}>
-              {section.content}
-            </AppText>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+      <View style={styles.headerSection}>
+        <AppText variant="h3" weight="bold">Privacy Policy</AppText>
+        <AppText variant="caption" color={Colors.textTertiary}>Last updated: July 20, 2026</AppText>
+      </View>
+
+      {SECTIONS.map((section) => (
+        <View key={section.title} style={styles.section}>
+          <AppText variant="h4" weight="bold" style={styles.sectionTitle}>{section.title}</AppText>
+          <AppText variant="bodySm" color={Colors.textSecondary} style={styles.sectionContent}>
+            {section.content}
+          </AppText>
+        </View>
+      ))}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxxl },
-
   headerSection: {
     alignItems: 'center',
     paddingVertical: Spacing['5'],

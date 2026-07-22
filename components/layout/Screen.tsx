@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ViewStyle, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ViewStyle, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { theme } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface ScreenProps {
   children: React.ReactNode;
+  header?: React.ReactNode;
   scrollable?: boolean;
   style?: ViewStyle;
   contentContainerStyle?: ViewStyle;
@@ -15,6 +16,7 @@ export interface ScreenProps {
 
 export const Screen: React.FC<ScreenProps> = ({
   children,
+  header,
   scrollable = false,
   style,
   contentContainerStyle,
@@ -24,14 +26,13 @@ export const Screen: React.FC<ScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
 
-  const Container = View;
-  
   const content = scrollable ? (
-    <ScrollView 
-      style={styles.flex} 
+    <ScrollView
+      style={styles.flex}
       contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
     >
       {children}
     </ScrollView>
@@ -42,8 +43,8 @@ export const Screen: React.FC<ScreenProps> = ({
   );
 
   const wrapper = keyboardAvoiding ? (
-    <KeyboardAvoidingView 
-      style={styles.flex} 
+    <KeyboardAvoidingView
+      style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {content}
@@ -51,14 +52,15 @@ export const Screen: React.FC<ScreenProps> = ({
   ) : content;
 
   return (
-    <Container style={[
-      styles.container, 
+    <View style={[
+      styles.container,
       { backgroundColor },
       safeArea && { paddingTop: insets.top, paddingBottom: insets.bottom },
       style
     ]}>
+      {header}
       {wrapper}
-    </Container>
+    </View>
   );
 };
 

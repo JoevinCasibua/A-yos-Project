@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
+
+export const PAGE_HEADER_HEIGHT = 56;
 
 interface PageHeaderProps {
   title: string;
@@ -18,13 +20,11 @@ export function PageHeader({ title, from }: PageHeaderProps) {
 
   return (
     <View style={styles.header}>
-      <View style={styles.sideSlot}>
-        <Pressable onPress={handleBack} hitSlop={12} style={styles.backButton}>
-          <ChevronLeft size={24} color={theme.colors.textPrimary} />
-        </Pressable>
-      </View>
+      <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+        <ArrowLeft color={theme.colors.textPrimary} size={24} />
+      </TouchableOpacity>
       <Text style={[theme.typography.h4, styles.title]}>{title}</Text>
-      <View style={styles.sideSlot} />
+      <View style={styles.spacer} />
     </View>
   );
 }
@@ -32,24 +32,23 @@ export function PageHeader({ title, from }: PageHeaderProps) {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.layout.screenPadding,
   },
-  sideSlot: {
-    width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   title: {
     flex: 1,
     textAlign: 'center',
+    color: theme.colors.textPrimary,
+  },
+  spacer: {
+    width: 40,
   },
 });

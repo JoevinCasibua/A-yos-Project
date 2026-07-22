@@ -143,6 +143,10 @@ export default function WorkerTabLayout() {
         name="earnings-receipt"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="universal-search"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

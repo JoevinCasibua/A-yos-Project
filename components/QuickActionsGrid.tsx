@@ -27,6 +27,9 @@ export const QuickActionsGrid = React.memo(function QuickActionsGrid() {
           style={({ pressed }) => [styles.card, { opacity: pressed ? 0.9 : 1 }]}
           onPress={() => {
             if (action.id === 'schedule') router.push('/(worker)/availability');
+            else if (action.id === 'earnings') router.push('/(worker)/wallet');
+            else if (action.id === 'premium') router.push('/(worker)/settings');
+            else if (action.id === 'verification') router.push('/(worker)/verification');
           }}
         >
           <View style={[styles.iconContainer, { backgroundColor: action.bg }]}>

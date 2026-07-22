@@ -291,12 +291,12 @@ export const BookingChat = React.memo(function BookingChat({
                   <Play size={16} color={Colors.white} />
                 )}
                 <View style={styles.voiceWaveform}>
-                  {[...Array(12)].map((_, i) => (
+                  {[6, 10, 14, 8, 16, 12, 6, 14, 10, 8, 16, 6].map((h, i) => (
                     <View
                       key={i}
                       style={[
                         styles.voiceBar,
-                        { height: 4 + Math.random() * 12 },
+                        { height: h },
                         playingVoiceId === msg.id && styles.voiceBarActive,
                       ]}
                     />
@@ -549,6 +549,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
+    height: 24,
+    overflow: 'hidden',
+    borderRadius: 4,
   },
   voiceBar: {
     width: 3,

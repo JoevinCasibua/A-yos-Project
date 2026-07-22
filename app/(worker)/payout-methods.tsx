@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import {
-  CheckCircle, CreditCard, Plus, Trash2, Star,
-} from 'lucide-react-native';
+import { Plus, Trash2, Star } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
+import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { walletPayoutMethods } from '@/constants/workerMockData';
 
@@ -47,60 +46,47 @@ export default function PayoutMethodsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <PageHeader
-        title="Payout Methods"
-        from={from}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.methodsList}>
-          {methods.map((method) => (
-            <View key={method.id} style={styles.methodCard}>
-              <View style={styles.methodHeader}>
-                <View style={[styles.methodDot, { backgroundColor: method.color }]} />
-                <View style={styles.methodInfo}>
-                  <AppText variant="body" weight="semiBold">{method.label}</AppText>
-                  <AppText variant="caption" color={Colors.textTertiary}>{method.account}</AppText>
-                </View>
-                {method.isDefault && (
-                  <View style={styles.defaultBadge}>
-                    <Star size={12} color={Colors.warning} fill={Colors.warning} />
-                    <AppText variant="caption" weight="semiBold" color={Colors.warning}>Default</AppText>
-                  </View>
-                )}
-              </View>
-              <View style={styles.methodActions}>
-                {!method.isDefault && (
-                  <Pressable style={styles.setDefaultBtn} onPress={() => handleSetDefault(method.id)}>
-                    <AppText variant="caption" weight="semiBold" color={Colors.cta}>Set as Default</AppText>
-                  </Pressable>
-                )}
-                <Pressable style={styles.removeBtn} onPress={() => handleRemove(method.id)}>
-                  <Trash2 size={14} color={Colors.error} />
-                </Pressable>
-              </View>
-            </View>
-          ))}
-        </View>
+    <Screen safeArea scrollable header={<PageHeader title="Payout Methods" from={from} />}>
 
-        <Pressable style={styles.addBtn} onPress={handleAddMethod}>
-          <Plus size={20} color={Colors.cta} />
-          <AppText variant="body" weight="semiBold" color={Colors.cta}>Add New Method</AppText>
-        </Pressable>
-      </ScrollView>
-    </View>
+      <View style={styles.methodsList}>
+        {methods.map((method) => (
+          <View key={method.id} style={styles.methodCard}>
+            <View style={styles.methodHeader}>
+              <View style={[styles.methodDot, { backgroundColor: method.color }]} />
+              <View style={styles.methodInfo}>
+                <AppText variant="body" weight="semiBold">{method.label}</AppText>
+                <AppText variant="caption" color={Colors.textTertiary}>{method.account}</AppText>
+              </View>
+              {method.isDefault && (
+                <View style={styles.defaultBadge}>
+                  <Star size={12} color={Colors.warning} fill={Colors.warning} />
+                  <AppText variant="caption" weight="semiBold" color={Colors.warning}>Default</AppText>
+                </View>
+              )}
+            </View>
+            <View style={styles.methodActions}>
+              {!method.isDefault && (
+                <Pressable style={styles.setDefaultBtn} onPress={() => handleSetDefault(method.id)}>
+                  <AppText variant="caption" weight="semiBold" color={Colors.cta}>Set as Default</AppText>
+                </Pressable>
+              )}
+              <Pressable style={styles.removeBtn} onPress={() => handleRemove(method.id)}>
+                <Trash2 size={14} color={Colors.error} />
+              </Pressable>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <Pressable style={styles.addBtn} onPress={handleAddMethod}>
+        <Plus size={20} color={Colors.cta} />
+        <AppText variant="body" weight="semiBold" color={Colors.cta}>Add New Method</AppText>
+      </Pressable>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxxl },
-
   methodsList: {
     gap: Spacing['3'],
     paddingHorizontal: theme.layout.screenPadding,
