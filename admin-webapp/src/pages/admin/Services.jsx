@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, Filter, Plus, Edit2, Trash2, RotateCcw,
   Copy, Layers, ArrowUpRight, ArrowDownRight,
-  Wrench, Box, CheckCircle, XCircle
+  Wrench, Box, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react';
 import Modal from '../../components/ui/Modal';
 import Pagination from '../../components/ui/Pagination';
