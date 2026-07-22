@@ -147,6 +147,10 @@ export default function WorkerTabLayout() {
         name="universal-search"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="rate-setting"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
