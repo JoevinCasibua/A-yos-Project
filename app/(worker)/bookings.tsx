@@ -287,7 +287,11 @@ export default function WorkerBookingsScreen() {
                 <View style={[styles.bookingCard, styles.cancelledCard]}>
                   <View style={styles.cardHeader}>
                     <View style={styles.customerRow}>
-                      <XCircle size={20} color={theme.colors.textTertiary} />
+                      {booking.cancelledBy === 'worker' ? (
+                        <XCircle size={20} color={theme.colors.warning} />
+                      ) : (
+                        <XCircle size={20} color={theme.colors.error} />
+                      )}
                       <View>
                         <Text style={[theme.typography.h4, { color: theme.colors.textTertiary }]}>{booking.customerName}</Text>
                         <Text style={[theme.typography.body2, { color: theme.colors.textTertiary }]}>{booking.service}</Text>
@@ -317,8 +321,8 @@ export default function WorkerBookingsScreen() {
 
                   {booking.cancelledReason && (
                     <View style={[styles.cancelledReason, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
-                      <Text style={[theme.typography.caption, { color: theme.colors.error, fontStyle: 'italic' }]}>
-                        {booking.cancelledReason}
+                      <Text style={[theme.typography.caption, { color: booking.cancelledBy === 'worker' ? theme.colors.warning : theme.colors.error, fontStyle: 'italic' }]}>
+                        {booking.cancelledBy === 'worker' ? `You cancelled: ${booking.cancelledReason}` : booking.cancelledReason}
                       </Text>
                     </View>
                   )}

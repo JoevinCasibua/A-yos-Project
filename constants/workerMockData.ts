@@ -406,6 +406,22 @@ export const workerBookings: WorkerBooking[] = [
     cancelledReason: 'Customer no longer available',
     cancelledBy: 'customer',
   },
+  {
+    id: 'cancelled-2',
+    customerName: 'Mark Santos',
+    customerAvatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Faucet Installation',
+    date: 'Jul 10, 2024',
+    time: '3:00 PM',
+    address: '456 Oak Lane',
+    lat: 14.5800,
+    lng: 121.0100,
+    status: 'cancelled',
+    price: '$65',
+    hourlyRate: 50,
+    cancelledReason: 'Vehicle breakdown',
+    cancelledBy: 'worker',
+  },
 ];
 
 export const statusConfig: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'error' | 'neutral' }> = {

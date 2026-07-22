@@ -20,9 +20,15 @@ const MENU_SECTIONS = [
     items: [
       { id: 'personal', title: 'Personal Information', icon: User },
       { id: 'industry', title: 'Industry & Skills', icon: Wrench },
+      { id: 'rate-setting', title: 'Rate Setting', icon: DollarSign },
       { id: 'experience', title: 'Work Experience', icon: FileText },
       { id: 'availability', title: 'Availability', icon: Clock },
       { id: 'areas', title: 'Service Areas', icon: MapPin },
+    ],
+  },
+  {
+    title: 'Work Portfolio',
+    items: [
       { id: 'portfolio', title: 'Portfolio', icon: Briefcase },
       { id: 'reviews', title: 'My Reviews', icon: Star },
     ],
@@ -79,6 +85,10 @@ export default function WorkerProfileScreen() {
     }
     if (id === 'portfolio') {
       router.push('/(worker)/portfolio?from=profile');
+      return;
+    }
+    if (id === 'rate-setting') {
+      router.push('/(worker)/rate-setting?from=profile');
       return;
     }
     if (id === 'help') {

@@ -77,6 +77,12 @@ export default function BookingRequestScreen() {
     }
   }, [autoAccept, booking.status]);
 
+  useEffect(() => {
+    if (booking.status === 'pending_review' && !completionTimestamp) {
+      setCompletionTimer();
+    }
+  }, [booking.status]);
+
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
 
@@ -203,7 +209,9 @@ export default function BookingRequestScreen() {
             <AppText variant="h3" weight="bold" style={{ flex: 1 }}>
               {job.service}
             </AppText>
-            <ThreeDotMenu onReportUser={handleReport} onCancelService={handleCancelService} />
+            {!isCompleted && !isCancelled && booking.status !== 'pending_review' && (
+              <ThreeDotMenu onReportUser={handleReport} onCancelService={handleCancelService} />
+            )}
           </View>
 
           <AppText variant="caption" color={Colors.textTertiary}>
