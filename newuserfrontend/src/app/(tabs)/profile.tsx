@@ -14,31 +14,31 @@ const SETTINGS_SECTIONS = [
   {
     title: 'Account',
     items: [
-      { id: 'personal', title: 'Personal Information', icon: Fingerprint, route: '/(tabs)/profile' },
-      { id: 'addresses', title: 'Saved Addresses', icon: MapPin, route: '/(tabs)/profile' },
-      { id: 'favorites', title: 'Favorite Workers', icon: Heart, route: '/(tabs)/profile' },
+      { id: 'personal', title: 'Personal Information', icon: Fingerprint, route: '/(settings)/account' },
+      { id: 'addresses', title: 'Saved Addresses', icon: MapPin, route: '/(settings)/account' },
+      { id: 'favorites', title: 'Favorite Workers', icon: Heart, route: '/(settings)/account' },
     ]
   },
   {
     title: 'Payments',
     items: [
-      { id: 'payment-methods', title: 'Payment Methods', icon: CreditCard, route: '/(tabs)/profile' },
-      { id: 'history', title: 'Payment History', icon: BookOpen, route: '/(tabs)/profile' },
+      { id: 'payment-methods', title: 'Payment Methods', icon: CreditCard, route: '/(settings)/payment' },
+      { id: 'history', title: 'Payment History', icon: BookOpen, route: '/(settings)/payment' },
     ]
   },
   {
     title: 'Preferences',
     items: [
       { id: 'budget', title: 'Budget & Price Range', icon: Wallet, route: '/new-request/budget-config' },
-      { id: 'notifications', title: 'Notifications', icon: Bell, route: '/(tabs)/profile' },
-      { id: 'appearance', title: 'App Appearance', icon: Settings, route: '/(tabs)/profile' },
+      { id: 'notifications', title: 'Notifications', icon: Bell, route: '/(settings)/preferences' },
+      { id: 'appearance', title: 'App Appearance', icon: Settings, route: '/(settings)/preferences' },
     ]
   },
   {
     title: 'Support & Legal',
     items: [
-      { id: 'help', title: 'Help Center', icon: HelpCircle, route: '/(tabs)/profile' },
-      { id: 'privacy', title: 'Privacy Policy', icon: Shield, route: '/(tabs)/profile' },
+      { id: 'help', title: 'Help Center', icon: HelpCircle, route: '/(settings)/support' },
+      { id: 'privacy', title: 'Privacy Policy', icon: Shield, route: '/(settings)/support' },
     ]
   },
 ];

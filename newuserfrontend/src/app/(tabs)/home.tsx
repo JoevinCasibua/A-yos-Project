@@ -89,7 +89,7 @@ export default function HomeScreen() {
 
           {/* Widgets Row */}
           <View style={styles.widgetsRow}>
-            <TouchableOpacity style={styles.widgetCard}>
+            <TouchableOpacity style={styles.widgetCard} onPress={() => router.push('/wallet')}>
               <View>
                 <Text style={theme.typography.caption}>Finance</Text>
                 <Text style={theme.typography.h4}>₱0.00</Text>

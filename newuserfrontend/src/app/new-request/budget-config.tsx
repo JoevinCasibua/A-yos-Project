@@ -28,9 +28,6 @@ export default function BudgetConfigScreen() {
     setMaxBudget(preset.max);
   };
 
-  const handleCustomInput = () => {
-    setActivePreset(null);
-  };
 
   const handleSave = () => {
     // In a real app, save to state/store
@@ -74,32 +71,7 @@ export default function BudgetConfigScreen() {
             ))}
           </View>
 
-          <Text style={[theme.typography.label, { marginTop: theme.spacing.xl, marginBottom: theme.spacing.md }]}>Custom Range (₱)</Text>
-          <View style={styles.customRow}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.currencySymbol}>₱</Text>
-              <TextInput 
-                style={styles.input}
-                keyboardType="numeric"
-                value={minBudget}
-                onChangeText={(val) => { setMinBudget(val); handleCustomInput(); }}
-                placeholder="Min"
-                placeholderTextColor={theme.colors.textTertiary}
-              />
-            </View>
-            <Text style={{ marginHorizontal: theme.spacing.md, color: theme.colors.textSecondary }}>to</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.currencySymbol}>₱</Text>
-              <TextInput 
-                style={styles.input}
-                keyboardType="numeric"
-                value={maxBudget}
-                onChangeText={(val) => { setMaxBudget(val); handleCustomInput(); }}
-                placeholder="Max"
-                placeholderTextColor={theme.colors.textTertiary}
-              />
-            </View>
-          </View>
+
         </View>
       </KeyboardAvoidingView>
 
@@ -128,10 +100,7 @@ const styles = StyleSheet.create({
   presetBtn: { width: '48%', paddingVertical: theme.spacing.md, paddingHorizontal: theme.spacing.sm, backgroundColor: theme.colors.background, borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.colors.borderLight, alignItems: 'center', marginBottom: theme.spacing.md },
   presetBtnActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
   
-  customRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  inputContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.borderLight, borderRadius: theme.radius.md, paddingHorizontal: theme.spacing.md, height: 50 },
-  currencySymbol: { fontSize: 16, color: theme.colors.textSecondary, marginRight: 8 },
-  input: { flex: 1, fontSize: 16, color: theme.colors.textPrimary, padding: 0 },
+
 
   footer: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding, backgroundColor: theme.colors.background },
 });

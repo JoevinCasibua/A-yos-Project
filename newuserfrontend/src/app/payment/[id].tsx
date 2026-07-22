@@ -4,10 +4,11 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { Button } from '../../components/buttons/Button';
 import { theme } from '../../theme';
-import { ArrowLeft, CreditCard, Banknote, Smartphone, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, CreditCard, Banknote, Smartphone, ChevronRight, Wallet } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PAYMENT_METHODS = [
+  { id: 'wallet', title: 'A-yos Wallet', icon: Wallet, color: '#10b981', available: true },
   { id: 'cash', title: 'Cash on Service', icon: Banknote, color: theme.colors.success, available: true },
   { id: 'gcash', title: 'GCash', icon: Smartphone, color: '#0052cc', available: false },
   { id: 'maya', title: 'Maya', icon: Smartphone, color: '#00e57b', available: false },

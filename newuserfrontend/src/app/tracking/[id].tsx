@@ -6,7 +6,7 @@ import { Button } from '../../components/buttons/Button';
 import { theme } from '../../theme';
 import { ArrowLeft, Phone, MessageSquare, MapPin, CheckCircle2, Circle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { Image } from 'expo-image';
 const TIMELINE_STEPS = [
   { id: '1', title: 'Provider Accepted', subtitle: '10:00 AM' },
   { id: '2', title: 'Preparing tools', subtitle: '10:05 AM' },
@@ -41,10 +41,13 @@ export default function TrackingScreen() {
         {/* Mock Map Area */}
         <View style={styles.mapContainer}>
           <View style={styles.mockMap}>
-            <MapPin color={theme.colors.error} size={32} style={styles.mapIcon} />
-            <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
-              Map tracking will be displayed here
-            </Text>
+            <Image 
+              source={require('../../../assets/map-bg.png')} 
+              style={StyleSheet.absoluteFillObject} 
+              contentFit="cover" 
+            />
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(255,255,255,0.2)' }]} />
+            <MapPin color={theme.colors.error} size={40} style={styles.mapIcon} />
           </View>
           
           <View style={styles.etaBadge}>
@@ -126,8 +129,8 @@ const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
   content: { flex: 1 },
   mapContainer: { height: 250, position: 'relative' },
-  mockMap: { flex: 1, backgroundColor: theme.colors.borderLight, justifyContent: 'center', alignItems: 'center' },
-  mapIcon: { opacity: 0.5 },
+  mockMap: { flex: 1, backgroundColor: theme.colors.borderLight, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  mapIcon: { zIndex: 10, ...theme.shadows.md },
   etaBadge: { position: 'absolute', bottom: theme.spacing.md, right: theme.spacing.md, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.lg, alignItems: 'center', ...theme.shadows.md },
   workerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.lg },
   workerInfo: { flexDirection: 'row', alignItems: 'center' },

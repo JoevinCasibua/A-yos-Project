@@ -100,14 +100,26 @@ export default function MatchingScreen() {
 
       {matchState === 'searching' && (
         <View style={styles.searchingContainer}>
-          <Animated.View style={[styles.radarCenter, { transform: [{ scale: pulseAnim }] }]} />
-          <View style={styles.radarCenterSolid}>
-            <MapPin color={theme.colors.surface} size={32} />
+          <Image 
+            source={require('../../../assets/map-bg.png')} 
+            style={[StyleSheet.absoluteFillObject, { opacity: 0.4 }]} 
+            contentFit="cover" 
+          />
+          <View style={styles.radarWrapper}>
+            <Animated.View style={[styles.radarCenter, { transform: [{ scale: pulseAnim }] }]} />
+            <View style={styles.radarCenterSolid}>
+              <MapPin color={theme.colors.surface} size={32} />
+            </View>
           </View>
-          <Text style={[theme.typography.h3, { marginTop: theme.spacing.xxxl }]}>Broadcasting Request...</Text>
-          <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm, textAlign: 'center' }]}>
-            Finding the best available plumbers near you based on AI compatibility.
-          </Text>
+          
+          <View style={styles.textContainer}>
+            <View style={styles.textBackground}>
+              <Text style={[theme.typography.h3, { textAlign: 'center' }]}>Broadcasting Request...</Text>
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm, textAlign: 'center' }]}>
+                Finding the best available plumbers near you based on AI compatibility.
+              </Text>
+            </View>
+          </View>
         </View>
       )}
 
@@ -172,9 +184,12 @@ export default function MatchingScreen() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
-  searchingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: theme.spacing.xl },
+  searchingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  radarWrapper: { justifyContent: 'center', alignItems: 'center', width: 120, height: 120 },
   radarCenter: { position: 'absolute', width: 120, height: 120, borderRadius: 60, backgroundColor: `${theme.colors.primary}30` },
-  radarCenterSolid: { width: 80, height: 80, borderRadius: 40, backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center' },
+  radarCenterSolid: { position: 'absolute', width: 80, height: 80, borderRadius: 40, backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center' },
+  textContainer: { position: 'absolute', bottom: 80, left: 20, right: 20, alignItems: 'center' },
+  textBackground: { backgroundColor: 'rgba(255,255,255,0.9)', padding: theme.spacing.lg, borderRadius: theme.radius.lg, alignItems: 'center', width: '100%' },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: theme.spacing.xl },
   resultsContainer: { flex: 1, paddingVertical: theme.spacing.md },
   workerCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.md },
