@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: GAP,
-    paddingHorizontal: theme.layout.screenPadding,
   },
   tile: {
     width: TILE_SIZE,
