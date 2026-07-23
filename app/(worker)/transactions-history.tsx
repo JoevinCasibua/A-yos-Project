@@ -35,21 +35,23 @@ function formatDateInput(text: string): string {
   const digits = text.replace(/\D/g, '').slice(0, 8);
   if (digits.length <= 2) {
     const m = parseInt(digits);
+    if (digits.length === 2 && m === 0) return '01';
     if (digits.length === 2 && m > 12) return '12';
     return digits;
   }
   if (digits.length <= 4) {
     const m = parseInt(digits.slice(0, 2));
     const day = parseInt(digits.slice(2));
+    if (m === 0) return `01/${digits.slice(2)}`;
     if (m > 12) return `12/${digits.slice(2)}`;
+    if (digits.length === 4 && day === 0) return `${digits.slice(0, 2)}/01`;
     if (digits.length === 4 && day > 31) return `${digits.slice(0, 2)}/31`;
     return `${digits.slice(0, 2)}/${digits.slice(2)}`;
   }
   const m = parseInt(digits.slice(0, 2));
   const d = parseInt(digits.slice(2, 4));
-  const y = parseInt(digits.slice(4));
-  const mm = m > 12 ? '12' : digits.slice(0, 2);
-  const dd = d > 31 ? '31' : digits.slice(2, 4);
+  const mm = m === 0 ? '01' : m > 12 ? '12' : digits.slice(0, 2);
+  const dd = d === 0 ? '01' : d > 31 ? '31' : digits.slice(2, 4);
   const yy = digits[4] && parseInt(digits[4]) < 2 ? '2' + digits.slice(5) : digits.slice(4);
   return `${mm}/${dd}/${yy}`;
 }
