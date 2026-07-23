@@ -15,8 +15,8 @@ const SETTINGS_SECTIONS = [
     title: 'Account',
     items: [
       { id: 'personal', title: 'Personal Information', icon: Fingerprint, route: '/(settings)/account' },
-      { id: 'addresses', title: 'Saved Addresses', icon: MapPin, route: '/(settings)/account' },
-      { id: 'favorites', title: 'Favorite Workers', icon: Heart, route: '/(settings)/account' },
+      { id: 'addresses', title: 'Saved Addresses', icon: MapPin, route: '/(settings)/saved-addresses' },
+      { id: 'favorites', title: 'Favorite Workers', icon: Heart, route: '/(settings)/favorites' },
       { id: 'drafts', title: 'Saved Drafts', icon: FileEdit, route: '/drafts' },
     ]
   },
@@ -24,7 +24,7 @@ const SETTINGS_SECTIONS = [
     title: 'Payments',
     items: [
       { id: 'payment-methods', title: 'Payment Methods', icon: CreditCard, route: '/(settings)/payment' },
-      { id: 'history', title: 'Payment History', icon: BookOpen, route: '/(settings)/payment' },
+      { id: 'history', title: 'Payment History', icon: BookOpen, route: '/(settings)/payment-history' },
     ]
   },
   {
@@ -32,14 +32,14 @@ const SETTINGS_SECTIONS = [
     items: [
       { id: 'budget', title: 'Budget & Price Range', icon: Wallet, route: '/new-request/budget-config' },
       { id: 'notifications', title: 'Notifications', icon: Bell, route: '/(settings)/preferences' },
-      { id: 'appearance', title: 'App Appearance', icon: Settings, route: '/(settings)/preferences' },
+      { id: 'appearance', title: 'App Appearance', icon: Settings, route: '/(settings)/appearance' },
     ]
   },
   {
     title: 'Support & Legal',
     items: [
       { id: 'help', title: 'Help Center', icon: HelpCircle, route: '/(settings)/support' },
-      { id: 'privacy', title: 'Privacy Policy', icon: Shield, route: '/(settings)/support' },
+      { id: 'privacy', title: 'Privacy Policy', icon: Shield, route: '/(settings)/privacy-policy' },
     ]
   },
 ];

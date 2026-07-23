@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { theme } from '../../theme';
-import { ArrowLeft, User, Mail, Phone, MapPin, Heart, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, User, Mail, Phone } from 'lucide-react-native';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export default function AccountScreen() {
@@ -22,13 +22,12 @@ export default function AccountScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft color={theme.colors.textPrimary} size={24} />
         </TouchableOpacity>
-        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Account</Text>
+        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Personal Information</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
         <View style={styles.section}>
-          <Text style={[theme.typography.h4, styles.sectionTitle]}>Personal Information</Text>
           <View style={styles.card}>
             {INFO_ITEMS.map((item, index) => {
               const Icon = item.icon;
@@ -49,27 +48,6 @@ export default function AccountScreen() {
             })}
           </View>
         </View>
-
-        <View style={styles.section}>
-          <Text style={[theme.typography.h4, styles.sectionTitle]}>Manage Details</Text>
-          <View style={styles.card}>
-            <TouchableOpacity style={[styles.menuItem, styles.borderBottom]}>
-              <View style={[styles.menuIconContainer, { backgroundColor: '#e0f2fe' }]}>
-                <MapPin color="#0ea5e9" size={20} />
-              </View>
-              <Text style={[theme.typography.body1, { flex: 1 }]}>Saved Addresses</Text>
-              <ChevronRight color={theme.colors.textTertiary} size={20} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuItem}>
-              <View style={[styles.menuIconContainer, { backgroundColor: '#fee2e2' }]}>
-                <Heart color="#ef4444" size={20} />
-              </View>
-              <Text style={[theme.typography.body1, { flex: 1 }]}>Favorite Workers</Text>
-              <ChevronRight color={theme.colors.textTertiary} size={20} />
-            </TouchableOpacity>
-          </View>
-        </View>
       </ScrollView>
     </Screen>
   );
@@ -81,13 +59,8 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.md },
   
   section: { marginBottom: theme.spacing.xl },
-  sectionTitle: { marginBottom: theme.spacing.md, marginLeft: theme.spacing.xs },
-  
   card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, ...theme.shadows.sm, overflow: 'hidden' },
   infoRow: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
   borderBottom: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
   iconContainer: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
-  
-  menuItem: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
-  menuIconContainer: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
 });
