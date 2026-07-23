@@ -56,14 +56,6 @@ export default function WorkerBookingsScreen() {
         <Text style={theme.typography.h2}>My Bookings</Text>
       </View>
 
-      {isCurrentlyWorking && (
-        <View style={styles.workingBanner}>
-          <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>
-            You are currently working on a job
-          </Text>
-        </View>
-      )}
-
       <View style={styles.tabsContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
           {BOOKING_TABS.map(tab => (
@@ -343,12 +335,6 @@ export default function WorkerBookingsScreen() {
 
 const styles = StyleSheet.create({
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
-  workingBanner: {
-    backgroundColor: theme.colors.warning,
-    paddingHorizontal: theme.layout.screenPadding,
-    paddingVertical: theme.spacing.sm,
-    alignItems: 'center',
-  },
   tabsContainer: { borderBottomWidth: 1, borderBottomColor: theme.colors.border },
   tabsScroll: { paddingHorizontal: theme.layout.screenPadding },
   tabButton: {

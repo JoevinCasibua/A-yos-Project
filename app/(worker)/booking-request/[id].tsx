@@ -13,6 +13,7 @@ import {
   XCircle,
   Wrench,
   AudioLines,
+  Banknote,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout, AvatarSize } from '@/constants/theme';
@@ -211,16 +212,30 @@ export default function BookingRequestScreen() {
             <AppText variant="h3" weight="bold" style={{ flex: 1 }}>
               {job.service}
             </AppText>
-            {!isCompleted && !isCancelled && booking.status !== 'pending_review' && (
-              <ThreeDotMenu onReportUser={handleReport} onCancelService={handleCancelService} />
-            )}
+            <ThreeDotMenu
+              onReportUser={handleReport}
+              onCancelService={handleCancelService}
+              showCancel={!isCompleted && !isCancelled && booking.status !== 'pending_review'}
+            />
           </View>
 
           <AppText variant="caption" color={Colors.textTertiary}>
             Booking #{booking.id.padStart(4, '0')}
           </AppText>
 
-          {job.urgency === 'urgent' && <Badge label="URGENT" variant="error" size="md" />}
+          <View style={styles.infoBadgeRow}>
+            {job.urgency === 'urgent' && (
+              <Badge label="URGENT" variant="error" size="sm" />
+            )}
+            <Badge
+              label={booking.paymentMethod === 'cash' ? 'Cash Payment' : 'Online Payment'}
+              variant={booking.paymentMethod === 'cash' ? 'warning' : 'info'}
+              size="sm"
+            />
+            {booking.pricingType === 'hourly' && (
+              <Badge label="Hourly Rate" variant="neutral" size="sm" />
+            )}
+          </View>
 
           {job.imageUrl && (
             <Image source={{ uri: job.imageUrl }} style={styles.jobImage} resizeMode="cover" />
@@ -229,6 +244,27 @@ export default function BookingRequestScreen() {
           <AppText variant="body" color={Colors.textSecondary} style={styles.description}>
             "{job.description}"
           </AppText>
+
+          {booking.issueIdentified && (
+            <View style={styles.analysisCard}>
+              <View style={styles.analysisRow}>
+                <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Issue Identified</AppText>
+                <AppText variant="bodySm" color={Colors.textPrimary}>{booking.issueIdentified}</AppText>
+              </View>
+              {booking.estimatedRepairTime && (
+                <View style={styles.analysisRow}>
+                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Estimated Repair Time</AppText>
+                  <AppText variant="bodySm" color={Colors.textPrimary}>{booking.estimatedRepairTime}</AppText>
+                </View>
+              )}
+              {booking.recommendedAction && (
+                <View style={styles.analysisRow}>
+                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Recommended Action</AppText>
+                  <AppText variant="bodySm" color={Colors.textPrimary}>{booking.recommendedAction}</AppText>
+                </View>
+              )}
+            </View>
+          )}
 
           <View style={styles.divider} />
 
@@ -258,10 +294,12 @@ export default function BookingRequestScreen() {
           <View style={styles.detailRow}>
             <View style={styles.detailLabel}>
               <DollarSign size={14} color={Colors.textTertiary} />
-              <AppText variant="label" color={Colors.textTertiary}>Est. Earnings</AppText>
+              <AppText variant="label" color={Colors.textTertiary}>
+                {booking.pricingType === 'hourly' ? 'Est. Earnings (Hourly)' : 'Est. Earnings'}
+              </AppText>
             </View>
             <AppText variant="body" weight="semiBold" color={Colors.cta}>
-              {booking.price}
+              {booking.pricingType === 'hourly' ? `₱${booking.hourlyRate}/hr` : booking.price}
             </AppText>
           </View>
 
@@ -403,13 +441,23 @@ export default function BookingRequestScreen() {
                 <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>Message</AppText>
               </Pressable>
             </View>
-            <AppButton
-              label="Complete Job"
-              variant="primary"
-              leftIcon={<CheckCircle2 size={18} color={Colors.white} />}
-              fullWidth
-              onPress={handleComplete}
-            />
+            {booking.paymentMethod === 'cash' ? (
+              <AppButton
+                label="Collect Cash Payment"
+                variant="primary"
+                leftIcon={<Banknote size={18} color={Colors.white} />}
+                fullWidth
+                onPress={() => router.push(`/(worker)/cash-confirm/${booking.id}`)}
+              />
+            ) : (
+              <AppButton
+                label="Complete Job"
+                variant="primary"
+                leftIcon={<CheckCircle2 size={18} color={Colors.white} />}
+                fullWidth
+                onPress={handleComplete}
+              />
+            )}
           </>
         )}
 
@@ -448,10 +496,6 @@ export default function BookingRequestScreen() {
             bookingId={booking.id}
             duration="1h 15m"
             earnings={booking.price}
-            serviceType={booking.serviceType}
-            issueIdentified={booking.issueIdentified}
-            estimatedRepairTime={booking.estimatedRepairTime}
-            recommendedAction={booking.recommendedAction}
             onLeaveFeedback={handleLeaveFeedback}
             onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
           />
@@ -522,6 +566,11 @@ const styles = StyleSheet.create({
   },
   jobImage: { width: '100%', height: 180, borderRadius: Radius.lg },
   description: { fontStyle: 'italic' },
+  analysisCard: {
+    backgroundColor: Colors.surfaceLight, borderRadius: Radius.lg,
+    padding: Spacing['3'], gap: Spacing['2'],
+  },
+  analysisRow: { gap: Spacing['1'] },
   voiceTranscriptSection: { gap: Spacing['2'] },
   voiceTranscriptText: { fontStyle: 'italic', lineHeight: 20 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginVertical: Spacing['1'] },
@@ -534,6 +583,7 @@ const styles = StyleSheet.create({
   clientHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
   clientInfo: { gap: Spacing['1'] },
   statusBadgeRow: { flexDirection: 'row', gap: Spacing['2'], marginBottom: Spacing['2'] },
+  infoBadgeRow: { flexDirection: 'row', gap: Spacing['2'], flexWrap: 'wrap' },
 
   // Hired
   hiredBanner: {

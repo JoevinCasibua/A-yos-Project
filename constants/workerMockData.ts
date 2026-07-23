@@ -302,6 +302,8 @@ export interface WorkerBooking {
   issueIdentified?: string;
   estimatedRepairTime?: string;
   recommendedAction?: string;
+  paymentMethod?: 'cash' | 'online';
+  pricingType?: 'hourly' | 'fixed';
 }
 
 export const workerBookings: WorkerBooking[] = [
@@ -325,6 +327,8 @@ export const workerBookings: WorkerBooking[] = [
     issueIdentified: 'Leaking P-trap connection under kitchen sink with water damage to cabinet base.',
     estimatedRepairTime: '1 - 2 hours',
     recommendedAction: 'Replace P-trap assembly, reseal drain joint, and apply water-resistant sealant to cabinet base.',
+    paymentMethod: 'online',
+    pricingType: 'fixed',
   },
   {
     id: '2',
@@ -346,6 +350,8 @@ export const workerBookings: WorkerBooking[] = [
     issueIdentified: 'Clogged floor drain with organic buildup causing slow drainage and odor.',
     estimatedRepairTime: '45 minutes - 1 hour',
     recommendedAction: 'Snaking the drain line followed by hydro-jet cleaning to remove buildup.',
+    paymentMethod: 'cash',
+    pricingType: 'hourly',
   },
   {
     id: '3',
@@ -365,6 +371,8 @@ export const workerBookings: WorkerBooking[] = [
     issueIdentified: 'Water heater replacement — old unit decommissioned, ready for new installation.',
     estimatedRepairTime: '3 - 4 hours',
     recommendedAction: 'Install new 50-gallon water heater, connect gas line, test pressure relief valve, and verify venting.',
+    paymentMethod: 'online',
+    pricingType: 'fixed',
   },
   {
     id: '4',
@@ -385,6 +393,8 @@ export const workerBookings: WorkerBooking[] = [
     issueIdentified: 'Worn-out faucet cartridge causing drip and stiff handle operation.',
     estimatedRepairTime: '1 - 1.5 hours',
     recommendedAction: 'Remove old faucet, install new single-lever kitchen faucet, connect supply lines, and test for leaks.',
+    paymentMethod: 'cash',
+    pricingType: 'fixed',
   },
   {
     id: '5',
@@ -405,6 +415,8 @@ export const workerBookings: WorkerBooking[] = [
     issueIdentified: 'Burst copper pipe in bathroom wall causing water damage to adjacent room.',
     estimatedRepairTime: '2 - 3 hours',
     recommendedAction: 'Cut access to burst section, replace damaged copper pipe segment, solder joints, and test under pressure.',
+    paymentMethod: 'online',
+    pricingType: 'hourly',
   },
   {
     id: '6',
@@ -424,6 +436,8 @@ export const workerBookings: WorkerBooking[] = [
     issueIdentified: 'Mineral buildup in shower head and partially clogged supply line reducing water pressure.',
     estimatedRepairTime: '1 - 2 hours',
     recommendedAction: 'Descale shower head, flush supply lines, and replace washers if needed.',
+    paymentMethod: 'cash',
+    pricingType: 'fixed',
   },
   {
     id: 'cancelled-1',
@@ -440,6 +454,8 @@ export const workerBookings: WorkerBooking[] = [
     hourlyRate: 45,
     cancelledReason: 'Customer no longer available',
     cancelledBy: 'customer',
+    paymentMethod: 'online',
+    pricingType: 'fixed',
   },
   {
     id: 'cancelled-2',
@@ -456,6 +472,8 @@ export const workerBookings: WorkerBooking[] = [
     hourlyRate: 50,
     cancelledReason: 'Vehicle breakdown',
     cancelledBy: 'worker',
+    paymentMethod: 'cash',
+    pricingType: 'hourly',
   },
 ];
 

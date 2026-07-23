@@ -7,11 +7,13 @@ import { AppText } from '@/components/AppText';
 interface ThreeDotMenuProps {
   onReportUser: () => void;
   onCancelService: () => void;
+  showCancel?: boolean;
 }
 
 export const ThreeDotMenu = React.memo(function ThreeDotMenu({
   onReportUser,
   onCancelService,
+  showCancel = true,
 }: ThreeDotMenuProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -58,16 +60,20 @@ export const ThreeDotMenu = React.memo(function ThreeDotMenu({
                 Report User
               </AppText>
             </Pressable>
-            <View style={styles.divider} />
-            <Pressable
-              style={styles.menuItem}
-              onPress={handleCancelService}
-            >
-              <XCircle size={18} color={Colors.error} />
-              <AppText variant="body" color={Colors.error}>
-                Cancel Service
-              </AppText>
-            </Pressable>
+            {showCancel && (
+              <>
+                <View style={styles.divider} />
+                <Pressable
+                  style={styles.menuItem}
+                  onPress={handleCancelService}
+                >
+                  <XCircle size={18} color={Colors.error} />
+                  <AppText variant="body" color={Colors.error}>
+                    Cancel Service
+                  </AppText>
+                </Pressable>
+              </>
+            )}
           </Pressable>
         </Pressable>
       </Modal>

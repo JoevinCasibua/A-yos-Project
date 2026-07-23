@@ -36,6 +36,7 @@ const MENU_SECTIONS = [
   {
     title: 'Payments',
     items: [
+      { id: 'transaction-history', title: 'Transaction History', icon: Clock },
       { id: 'payout-methods', title: 'Payout Methods', icon: Wallet },
       { id: 'payout-history', title: 'Payout History', icon: Clock },
       { id: 'topup-methods', title: 'Top-Up Methods', icon: ArrowUpFromLine },
@@ -103,16 +104,20 @@ export default function WorkerProfileScreen() {
       router.push('/(worker)/payout-methods?from=profile');
       return;
     }
+    if (id === 'transaction-history') {
+      router.push('/(worker)/transactions-history?from=profile');
+      return;
+    }
     if (id === 'payout-history') {
       router.push('/(worker)/payout-history?from=profile');
       return;
     }
     if (id === 'topup-methods') {
-      router.push('/(worker)/payout-methods?from=profile');
+      router.push('/(worker)/topup-methods?from=profile');
       return;
     }
     if (id === 'topup-history') {
-      router.push('/(worker)/payout-history?from=profile');
+      router.push('/(worker)/topup-history?from=profile');
       return;
     }
     if (id === 'areas') {

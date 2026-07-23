@@ -31,18 +31,7 @@ export default function WorkerDashboardScreen() {
 
   return (
     <View style={styles.container}>
-      {isCurrentlyWorking && (
-        <Pressable
-          style={[styles.workingBanner, { paddingTop: insets.top + theme.spacing.sm }]}
-          onPress={() => router.push(`/(worker)/booking-request/${currentBookingId}?from=dashboard`)}
-        >
-          <Briefcase size={16} color={theme.colors.surface} />
-          <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '600' }]}>
-            You are currently working on a job — Tap to view
-          </Text>
-        </Pressable>
-      )}
-      <View style={[styles.topNav, { paddingTop: (isCurrentlyWorking ? 0 : insets.top) + theme.spacing.sm }]}>
+      <View style={[styles.topNav, { paddingTop: insets.top + theme.spacing.sm }]}>
         <View style={styles.headerTopRow}>
           <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
             <Image
@@ -207,12 +196,4 @@ const styles = StyleSheet.create({
   perfRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   perfTrack: { height: 6, backgroundColor: theme.colors.borderLight, borderRadius: theme.radius.full, overflow: 'hidden' },
   perfFill: { height: '100%', borderRadius: theme.radius.full },
-  workingBanner: {
-    backgroundColor: theme.colors.warning,
-    paddingHorizontal: theme.layout.screenPadding,
-    paddingBottom: theme.spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-  },
 });

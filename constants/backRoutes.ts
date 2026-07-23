@@ -8,6 +8,10 @@ const BACK_ROUTES: Record<string, Href> = {
   bookings: '/(worker)/bookings',
   wallet: '/(worker)/wallet',
   transactions: '/(worker)/transactions-history',
+  'payout-history': '/(worker)/profile',
+  'topup-methods': '/(worker)/profile',
+  'topup-history': '/(worker)/profile',
+  'cash-confirm': '/(worker)/bookings',
 };
 
 export function getBackRoute(from?: string): Href | '' {
