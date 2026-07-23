@@ -143,6 +143,32 @@ export default function WorkerProfileScreen() {
           ))}
         </View>
 
+        {/* Safety Reminder */}
+        <View style={styles.safetySection}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.sm }}>
+            <ShieldCheck color={theme.colors.warning} size={20} />
+            <Text style={[theme.typography.h4, { marginLeft: 8 }]}>Safety Reminder</Text>
+          </View>
+          <View style={styles.safetyList}>
+            <View style={styles.safetyItem}>
+              <View style={styles.bullet} />
+              <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Verify the worker's identity before allowing entry.</Text>
+            </View>
+            <View style={styles.safetyItem}>
+              <View style={styles.bullet} />
+              <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Keep valuables secure.</Text>
+            </View>
+            <View style={styles.safetyItem}>
+              <View style={styles.bullet} />
+              <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Use the in-app chat for communication.</Text>
+            </View>
+            <View style={styles.safetyItem}>
+              <View style={styles.bullet} />
+              <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Report suspicious behavior immediately.</Text>
+            </View>
+          </View>
+        </View>
+
       </ScrollView>
 
       {/* Floating Action Bar */}
@@ -216,6 +242,11 @@ const styles = StyleSheet.create({
   reviewCard: { backgroundColor: theme.colors.background, padding: theme.spacing.md, borderRadius: theme.radius.lg, marginBottom: theme.spacing.md },
   reviewHeader: { flexDirection: 'row', alignItems: 'center' },
   reviewerAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.textSecondary, justifyContent: 'center', alignItems: 'center' },
+
+  safetySection: { paddingHorizontal: theme.layout.screenPadding, paddingVertical: theme.spacing.lg, backgroundColor: '#fffbeb', marginBottom: 20 },
+  safetyList: { marginTop: theme.spacing.xs },
+  safetyItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 },
+  bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.textSecondary, marginTop: 7, marginRight: 10 },
 
   bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: theme.colors.surface, flexDirection: 'row', paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.sm, borderTopWidth: 1, borderTopColor: theme.colors.borderLight, elevation: 20, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10 },
   compareBtn: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: theme.radius.md, backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' },

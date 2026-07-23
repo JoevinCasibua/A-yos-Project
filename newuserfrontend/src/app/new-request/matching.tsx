@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { Button } from '../../components/buttons/Button';
 import { theme } from '../../theme';
-import { ArrowLeft, MapPin, Star, MessageSquare, AlertCircle } from 'lucide-react-native';
+import { ArrowLeft, MapPin, Star, MessageSquare, AlertCircle, ShieldCheck } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -178,8 +178,35 @@ export default function MatchingScreen() {
 
       {matchState === 'results' && (
         <View style={styles.resultsContainer}>
-          <Text style={[theme.typography.h3, { marginBottom: theme.spacing.md }]}>Top AI Matches</Text>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+          <Text style={[theme.typography.h3, { marginBottom: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding }]}>Top AI Matches</Text>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: theme.layout.screenPadding }}>
+            
+            {/* Safety Reminder */}
+            <View style={styles.safetySection}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.sm }}>
+                <ShieldCheck color={theme.colors.warning} size={20} />
+                <Text style={[theme.typography.h4, { marginLeft: 8 }]}>Safety Reminder</Text>
+              </View>
+              <View style={styles.safetyList}>
+                <View style={styles.safetyItem}>
+                  <View style={styles.bullet} />
+                  <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Verify the worker's identity before allowing entry.</Text>
+                </View>
+                <View style={styles.safetyItem}>
+                  <View style={styles.bullet} />
+                  <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Keep valuables secure.</Text>
+                </View>
+                <View style={styles.safetyItem}>
+                  <View style={styles.bullet} />
+                  <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Use the in-app chat for communication.</Text>
+                </View>
+                <View style={styles.safetyItem}>
+                  <View style={styles.bullet} />
+                  <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Report suspicious behavior immediately.</Text>
+                </View>
+              </View>
+            </View>
+
             {matchedWorkers.map((worker, index) => {
               const animValue = cardAnims[index];
               const translateY = animValue.interpolate({
@@ -276,4 +303,9 @@ const styles = StyleSheet.create({
   stat: { flexDirection: 'row', alignItems: 'center' },
   workerActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: theme.spacing.xs },
   compareBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: theme.radius.sm, borderWidth: 1, borderColor: theme.colors.borderLight },
+  
+  safetySection: { backgroundColor: '#fffbeb', borderRadius: theme.radius.lg, padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.sm },
+  safetyList: { marginTop: theme.spacing.xs },
+  safetyItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 },
+  bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.textSecondary, marginTop: 7, marginRight: 10 },
 });

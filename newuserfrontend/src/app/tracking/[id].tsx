@@ -37,9 +37,9 @@ export default function TrackingScreen() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isCancelled, setIsCancelled] = useState(false);
 
-  // Modals state
   const [showCancelPolicy, setShowCancelPolicy] = useState(false);
   const [showCancelReason, setShowCancelReason] = useState(false);
+  const [showSOS, setShowSOS] = useState(false);
   
   // Cancel form
   const [selectedReason, setSelectedReason] = useState('');
@@ -87,7 +87,9 @@ export default function TrackingScreen() {
           <ArrowLeft color={theme.colors.textPrimary} size={24} />
         </TouchableOpacity>
         <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Live Tracking</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={() => setShowSOS(true)} style={styles.sosButton}>
+          <Text style={styles.sosText}>SOS</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -253,6 +255,52 @@ export default function TrackingScreen() {
         </View>
       </Modal>
 
+      {/* SOS Emergency Modal */}
+      <Modal visible={showSOS} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom || 24 }]}>
+            <View style={styles.modalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <AlertTriangle color={theme.colors.error} size={24} style={{ marginRight: 8 }} />
+                <Text style={[theme.typography.h3, { color: theme.colors.error }]}>Emergency SOS</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowSOS(false)}>
+                <X color={theme.colors.textSecondary} size={24} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalBody}>
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg }]}>
+                If you are in immediate danger, please contact local authorities immediately.
+              </Text>
+              
+              <Button 
+                title="Call Local Emergency (911)" 
+                variant="outlined"
+                icon={Phone}
+                style={{ marginBottom: theme.spacing.md, borderColor: theme.colors.error }}
+                textStyle={{ color: theme.colors.error }}
+                onPress={() => { alert('Dialing 911...'); setShowSOS(false); }}
+              />
+              
+              <Button 
+                title="Alert Emergency Contact" 
+                variant="outlined"
+                icon={MapPin}
+                style={{ marginBottom: theme.spacing.md }}
+                onPress={() => { alert('Live location & booking details sent to your emergency contact.'); setShowSOS(false); }}
+              />
+
+              <Button 
+                title="Alert A-yos Support Team" 
+                icon={AlertTriangle}
+                style={{ backgroundColor: theme.colors.error }}
+                onPress={() => { alert('A-yos Support has been alerted and will review this booking immediately.'); setShowSOS(false); }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Cancellation Reason Modal */}
       <Modal visible={showCancelReason} transparent animationType="slide">
         <KeyboardAvoidingView 
@@ -326,6 +374,8 @@ export default function TrackingScreen() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
+  sosButton: { backgroundColor: '#fef2f2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#fecaca' },
+  sosText: { color: theme.colors.error, fontWeight: 'bold', fontSize: 13 },
   content: { flex: 1 },
   
   mapContainer: { width: '100%', height: 250, position: 'relative' },

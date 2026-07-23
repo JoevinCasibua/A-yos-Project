@@ -3,14 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { theme } from '../../theme';
-import { ArrowLeft, HelpCircle, Shield, FileText, MessageSquare, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, HelpCircle, Shield, FileText, MessageSquare, ChevronRight, AlertTriangle } from 'lucide-react-native';
 
 export default function SupportScreen() {
   const router = useRouter();
 
   const SUPPORT_ITEMS = [
-    { id: '1', title: 'Help Center', subtitle: 'FAQs and guides', icon: HelpCircle, color: '#3b82f6', bg: '#dbeafe' },
-    { id: '2', title: 'Contact Us', subtitle: 'Chat with our support team', icon: MessageSquare, color: '#10b981', bg: '#d1fae5' },
+    { id: '1', title: 'Help Center', subtitle: 'FAQs and guides', icon: HelpCircle, color: '#3b82f6', bg: '#dbeafe', route: null },
+    { id: '2', title: 'Contact Us', subtitle: 'Chat with our support team', icon: MessageSquare, color: '#10b981', bg: '#d1fae5', route: null },
+    { id: '3', title: 'Report a User', subtitle: 'Report misconduct or block someone', icon: AlertTriangle, color: '#ef4444', bg: '#fee2e2', route: '/(settings)/report-user' },
   ];
 
   const LEGAL_ITEMS = [
@@ -35,7 +36,11 @@ export default function SupportScreen() {
             {SUPPORT_ITEMS.map((item, index) => {
               const Icon = item.icon;
               return (
-                <TouchableOpacity key={item.id} style={[styles.menuRow, index !== SUPPORT_ITEMS.length - 1 && styles.borderBottom]}>
+                <TouchableOpacity 
+                  key={item.id} 
+                  style={[styles.menuRow, index !== SUPPORT_ITEMS.length - 1 && styles.borderBottom]}
+                  onPress={() => item.route ? router.push(item.route as any) : null}
+                >
                   <View style={[styles.iconContainer, { backgroundColor: item.bg }]}>
                     <Icon color={item.color} size={20} />
                   </View>

@@ -4,7 +4,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { Button } from '../../components/buttons/Button';
 import { theme } from '../../theme';
-import { useAuthStore } from '../../store/useAuthStore';
 import { ArrowLeft } from 'lucide-react-native';
 
 const OTP_LENGTH = 6;
@@ -12,7 +11,6 @@ const OTP_LENGTH = 6;
 export default function OTPScreen() {
   const router = useRouter();
   const { phone } = useLocalSearchParams<{ phone: string }>();
-  const login = useAuthStore(state => state.login);
   
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const [loading, setLoading] = useState(false);
@@ -63,14 +61,8 @@ export default function OTPScreen() {
 
     setLoading(true);
     setTimeout(() => {
-      login({
-        id: '1',
-        name: 'Juan Dela Cruz',
-        email: 'juan@example.com',
-        phone: phone || '09171234567'
-      });
       setLoading(false);
-      router.replace('/(tabs)');
+      router.replace('/(auth)/id-verification');
     }, 1500);
   };
 

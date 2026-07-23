@@ -12,6 +12,7 @@ export default function RegisterScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   const { control, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -26,6 +27,10 @@ export default function RegisterScreen() {
   const password = watch('password');
 
   const onSubmit = (data: any) => {
+    if (!emailVerified) {
+      alert("Please verify your email address.");
+      return;
+    }
     if (!acceptedTerms) {
       alert("Please accept the terms and conditions.");
       return;
@@ -99,17 +104,31 @@ export default function RegisterScreen() {
               pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' }
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                label="Email"
-                placeholder="juan@example.com"
-                leftIcon={Mail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                error={errors.email?.message}
-              />
+              <View style={{ position: 'relative' }}>
+                <TextInput
+                  label="Email"
+                  placeholder="juan@example.com"
+                  leftIcon={Mail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  onBlur={onBlur}
+                  onChangeText={(val) => {
+                    onChange(val);
+                    if (emailVerified) setEmailVerified(false);
+                  }}
+                  value={value}
+                  error={errors.email?.message}
+                />
+                <View style={{ position: 'absolute', right: 0, top: 28, height: 48, justifyContent: 'center', paddingRight: 12 }}>
+                  {emailVerified ? (
+                    <Text style={{ color: theme.colors.success, fontWeight: 'bold' }}>Verified</Text>
+                  ) : (
+                    <TouchableOpacity onPress={() => value && !errors.email ? setEmailVerified(true) : alert('Please enter a valid email first.')}>
+                      <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>Verify</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
             )}
             name="email"
           />
@@ -173,7 +192,7 @@ export default function RegisterScreen() {
         </View>
 
         <Button 
-          title="Sign Up" 
+          title="Next" 
           onPress={handleSubmit(onSubmit)} 
           loading={loading}
           fullWidth 
@@ -197,6 +216,7 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingBottom: theme.spacing.xxxl },
   title: { color: theme.colors.textPrimary, marginBottom: theme.spacing.xs },
   subtitle: { color: theme.colors.textSecondary, marginBottom: theme.spacing.xl },
+  
   form: { marginBottom: theme.spacing.xl },
   termsContainer: { flexDirection: 'row', alignItems: 'flex-start', marginTop: theme.spacing.sm },
   termsText: { flex: 1, marginLeft: theme.spacing.sm, color: theme.colors.textSecondary },
