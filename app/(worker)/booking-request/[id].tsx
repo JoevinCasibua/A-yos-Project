@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   MapPin,
   Clock,
-  DollarSign,
   Calendar,
   Phone,
   MessageSquare,
@@ -14,6 +13,8 @@ import {
   Wrench,
   AudioLines,
   Banknote,
+  PhilippinePeso,
+  User,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout, AvatarSize } from '@/constants/theme';
@@ -269,7 +270,10 @@ export default function BookingRequestScreen() {
           <View style={styles.divider} />
 
           <View style={styles.detailRow}>
-            <AppText variant="label" color={Colors.textTertiary}>Client</AppText>
+            <View style={styles.detailLabel}>
+              <User size={14} color={Colors.textTertiary} />
+              <AppText variant="label" color={Colors.textTertiary}>Client</AppText>
+            </View>
             <AppText variant="body" weight="semiBold">{job.customerName}</AppText>
           </View>
 
@@ -293,7 +297,7 @@ export default function BookingRequestScreen() {
 
           <View style={styles.detailRow}>
             <View style={styles.detailLabel}>
-              <DollarSign size={14} color={Colors.textTertiary} />
+              <PhilippinePeso size={14} color={Colors.textTertiary} />
               <AppText variant="label" color={Colors.textTertiary}>
                 {booking.pricingType === 'hourly' ? 'Est. Earnings (Hourly)' : 'Est. Earnings'}
               </AppText>

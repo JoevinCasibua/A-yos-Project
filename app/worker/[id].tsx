@@ -170,7 +170,7 @@ export default function WorkerProfileScreen() {
           variant="outlined" 
           icon={MessageSquare} 
           style={{ flex: 1, marginHorizontal: theme.spacing.sm }} 
-          onPress={() => router.push(`/messages/chat?id=${worker.id}`)}
+          onPress={() => router.push(`/user-messages/chat?id=${worker.id}`)}
         />
         <Button 
           title="Book Now" 

@@ -124,7 +124,7 @@ export default function TrackingScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.circleBtn, { marginLeft: theme.spacing.sm }]}
-            onPress={() => router.push(`/messages/chat?id=${worker.id}` as any)}
+            onPress={() => router.push(`/user-messages/chat?id=${worker.id}` as any)}
           >
             <MessageSquare color={theme.colors.textPrimary} size={20} />
           </TouchableOpacity>

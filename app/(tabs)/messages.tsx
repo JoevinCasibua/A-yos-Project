@@ -36,7 +36,7 @@ export default function MessagesListScreen() {
           <TouchableOpacity 
             key={chat.id} 
             style={styles.chatRow}
-            onPress={() => router.push(`/messages/chat?id=${chat.id}` as any)}
+            onPress={() => router.push(`/user-messages/chat?id=${chat.id}` as any)}
           >
             <Image source={chat.avatar} style={styles.avatarPlaceholder} contentFit="cover" />
             <View style={styles.chatDetails}>

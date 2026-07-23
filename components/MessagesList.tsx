@@ -41,7 +41,7 @@ export function MessagesList({ chats, emptyDescription }: MessagesListProps) {
             <TouchableOpacity
               key={chat.id}
               style={styles.chatRow}
-              onPress={() => router.push(`/messages/chat?id=${chat.id}`)}
+              onPress={() => router.push(`/user-messages/chat?id=${chat.id}`)}
             >
               <Image source={chat.avatar} style={styles.avatar} contentFit="cover" />
               <View style={styles.chatDetails}>

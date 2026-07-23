@@ -237,7 +237,7 @@ export default function MatchingScreen() {
                       variant="outlined" 
                       style={{ flex: 1, marginRight: theme.spacing.xs, paddingVertical: 8 }} 
                       textStyle={{ fontSize: 12 }}
-                      onPress={() => router.push(`/messages/chat?id=${worker.id}` as any)}
+                      onPress={() => router.push(`/user-messages/chat?id=${worker.id}` as any)}
                     />
                     <Button 
                       title="Hire Now" 
