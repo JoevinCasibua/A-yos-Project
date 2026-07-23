@@ -7,7 +7,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ChevronRight, Shield, Bell, CreditCard, Settings, HelpCircle, LogOut, MapPin, Heart, BookOpen, Fingerprint, Wallet } from 'lucide-react-native';
+import { ChevronRight, Shield, Bell, CreditCard, Settings, HelpCircle, LogOut, MapPin, Heart, BookOpen, Fingerprint, Wallet, FileEdit } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 const SETTINGS_SECTIONS = [
@@ -17,6 +17,7 @@ const SETTINGS_SECTIONS = [
       { id: 'personal', title: 'Personal Information', icon: Fingerprint, route: '/(settings)/account' },
       { id: 'addresses', title: 'Saved Addresses', icon: MapPin, route: '/(settings)/account' },
       { id: 'favorites', title: 'Favorite Workers', icon: Heart, route: '/(settings)/account' },
+      { id: 'drafts', title: 'Saved Drafts', icon: FileEdit, route: '/drafts' },
     ]
   },
   {

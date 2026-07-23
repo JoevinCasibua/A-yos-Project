@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { theme } from '../../theme';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useDraftStore } from '../../store/useDraftStore';
 import { Image } from 'expo-image';
 import { Search, Bell, MapPin, Star, Wrench, Zap, Droplets, Paintbrush, ChevronRight, Fan, Bug, Shovel, Monitor, Sparkles, Wallet, Clock } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -33,6 +34,7 @@ const RECOMMENDED_WORKERS = [
 export default function HomeScreen() {
   const router = useRouter();
   const user = useAuthStore(state => state.user);
+  const clearCurrentDraft = useDraftStore(state => state.clearCurrentDraft);
   const insets = useSafeAreaInsets();
 
   return (
@@ -46,15 +48,14 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.headerTopRow}>
-            <View style={styles.searchBar}>
+            <TouchableOpacity 
+              style={styles.searchBar} 
+              activeOpacity={0.8}
+              onPress={() => router.push('/search' as any)}
+            >
               <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
-              <TextInput 
-                placeholder="Search services" 
-                style={styles.searchInput} 
-                placeholderTextColor={theme.colors.textTertiary}
-                editable={false}
-              />
-            </View>
+              <Text style={{ color: theme.colors.textTertiary, fontSize: 14 }}>Search workers...</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/notifications')}>
               <Bell color={theme.colors.surface} size={24} />
               <View style={styles.badge} />
@@ -114,7 +115,7 @@ export default function HomeScreen() {
             <Text style={[theme.typography.caption, { color: theme.colors.surface, opacity: 0.9, marginBottom: 16 }]}>
               Let A-yos AI understand your needs, recommend the right service, and connect you with trusted, verified workers near you.
             </Text>
-            <TouchableOpacity style={styles.aiPromoButton} onPress={() => router.push('/new-request/create')}>
+            <TouchableOpacity style={styles.aiPromoButton} onPress={() => { clearCurrentDraft(); router.push('/new-request/create'); }}>
               <Text style={[theme.typography.button, { color: theme.colors.primary, fontSize: 13 }]}>Try A-yos AI</Text>
               <Sparkles color={theme.colors.primary} size={14} style={{ marginLeft: 6 }} />
             </TouchableOpacity>

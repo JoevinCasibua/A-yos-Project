@@ -3,10 +3,12 @@ import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { theme } from '../../theme';
 import { Search, Calendar, MessageSquare, User, Plus, Home, FileText } from 'lucide-react-native';
+import { useDraftStore } from '../../store/useDraftStore';
 
 const CreateButton = (props: any) => {
   const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const clearCurrentDraft = useDraftStore(state => state.clearCurrentDraft);
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -23,6 +25,7 @@ const CreateButton = (props: any) => {
       useNativeDriver: true,
     }).start();
     // Navigate immediately to request creation flow
+    clearCurrentDraft();
     router.push('/new-request/create');
   };
 
