@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  FileText, Download, Filter, Search, Calendar,
+  FileText, Download, Filter, Search, Calendar, Printer,
   BarChart2, Users, Briefcase, CreditCard, Star
 } from 'lucide-react';
 import Pagination from '../../components/ui/Pagination';
@@ -56,6 +56,10 @@ const Reports = () => {
 
   const handleDownloadCSV = (id) => {
     alert(`Downloading report ${id} as CSV...`);
+  };
+
+  const handlePrint = (id) => {
+    window.print();
   };
 
   return (
@@ -173,6 +177,12 @@ const Reports = () => {
                       className="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg font-medium transition-colors text-xs"
                     >
                       CSV
+                    </button>
+                    <button 
+                      onClick={() => handlePrint(report.id)}
+                      className="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg font-medium transition-colors text-xs flex items-center"
+                    >
+                      <Printer size={14} className="mr-1" /> Print
                     </button>
                     <button 
                       onClick={() => handleDownload(report.id)}

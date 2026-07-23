@@ -250,6 +250,46 @@ const Profile = () => {
               </div>
             </div>
           </div>
+
+          {/* Login History */}
+          <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+              <h2 className="text-lg font-bold text-gray-900">Login History</h2>
+              <p className="text-sm text-gray-500 mt-1">Recent login attempts and access logs</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device & Location</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100 text-sm">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-900">Today, 10:32 AM</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">MacBook Pro (Chrome) • New York, USA</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">192.168.1.1</td>
+                    <td className="px-6 py-4 whitespace-nowrap"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Success</span></td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-900">Yesterday, 8:15 PM</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">iPhone 13 (Safari) • New York, USA</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">192.168.1.45</td>
+                    <td className="px-6 py-4 whitespace-nowrap"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Success</span></td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-900">Oct 12, 2023, 2:45 AM</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">Unknown Device (Firefox) • Moscow, RU</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">185.20.10.2</td>
+                    <td className="px-6 py-4 whitespace-nowrap"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Failed (Wrong Password)</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
       </div>
