@@ -141,7 +141,7 @@ export default function BookingRequestScreen() {
   }, [booking.status, completionTimestamp]);
 
   const handleReport = () => {
-    Alert.alert('Coming Soon', 'Report user feature will be available soon.', [{ text: 'OK' }]);
+    router.push(`/(worker)/report-user/${booking.id}?from=booking-request/${booking.id}`);
   };
 
   const handleCancelService = () => {
@@ -269,10 +269,7 @@ export default function BookingRequestScreen() {
           <View style={styles.divider} />
 
           <View style={styles.detailRow}>
-            <View style={styles.detailLabel}>
-              <View style={{ width: 14 }} />
-              <AppText variant="label" color={Colors.textTertiary}>Client</AppText>
-            </View>
+            <AppText variant="label" color={Colors.textTertiary}>Client</AppText>
             <AppText variant="body" weight="semiBold">{job.customerName}</AppText>
           </View>
 
@@ -577,8 +574,8 @@ const styles = StyleSheet.create({
   voiceTranscriptSection: { gap: Spacing['2'] },
   voiceTranscriptText: { fontStyle: 'italic', lineHeight: 20 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginVertical: Spacing['1'] },
-  detailRow: { gap: Spacing['1'] },
-  detailLabel: { flexDirection: 'row', alignItems: 'center', gap: Spacing['1'] },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing['2'] },
+  detailLabel: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing['1'] },
   clientCard: {
     backgroundColor: Colors.white, borderRadius: Radius.xl, padding: Layout.cardPadding,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', ...Elevation.sm,

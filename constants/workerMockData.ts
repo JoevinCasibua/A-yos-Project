@@ -582,6 +582,24 @@ export const jobStages = [
   { label: 'After Inspecting', value: 'after_inspecting' as const },
 ];
 
+export interface ReportReason {
+  id: string;
+  label: string;
+  category: 'safety' | 'service' | 'fraud';
+}
+
+export const reportReasons: ReportReason[] = [
+  { id: 'sr1', label: 'Unsafe environment', category: 'safety' },
+  { id: 'sr2', label: 'Harassment or abusive behavior', category: 'safety' },
+  { id: 'sr3', label: 'Illegal or prohibited request', category: 'safety' },
+  { id: 'sr4', label: 'Wrong location / address', category: 'service' },
+  { id: 'sr5', label: 'Communication issues', category: 'service' },
+  { id: 'sr6', label: 'Customer not qualified for service', category: 'service' },
+  { id: 'sr7', label: 'Fraud or suspicious activity', category: 'fraud' },
+  { id: 'sr8', label: 'Fake booking or identity', category: 'fraud' },
+  { id: 'sr9', label: 'Payment dispute', category: 'fraud' },
+];
+
 export const SKILLS_BY_INDUSTRY: Record<string, { label: string; value: string }[]> = {
   plumbing: [
     { label: 'Pipe Repair', value: 'pipe_repair' },

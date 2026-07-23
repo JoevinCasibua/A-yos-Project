@@ -52,8 +52,8 @@ export const workerProfile: WorkerProfile = {
   rating: 4.9,
   reviewCount: 127,
   completedJobs: 47,
-  earnings: '$2,340',
-  hourlyRate: '$45/hr',
+  earnings: '₱2,340',
+  hourlyRate: '₱45/hr',
   skills: ['Pipe Repair', 'Drain Cleaning', 'Water Heater Installation', 'Fixture Installation', 'Emergency Repair', 'Sewer Line Maintenance'],
   serviceAreas: ['Downtown', 'Midtown', 'Westside', 'North Hills'],
   portfolioImages: [

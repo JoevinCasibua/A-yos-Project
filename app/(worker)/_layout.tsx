@@ -95,6 +95,7 @@ export default function WorkerTabLayout() {
         <Tabs.Screen name="topup-methods" options={{ href: null }} />
         <Tabs.Screen name="topup-history" options={{ href: null }} />
         <Tabs.Screen name="cash-confirm/[id]" options={{ href: null }} />
+        <Tabs.Screen name="report-user/[id]" options={{ href: null }} />
       </Tabs>
 
       {isCurrentlyWorking && currentBookingId && (

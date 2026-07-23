@@ -11,7 +11,7 @@ export const providers: ProviderData[] = [
     distance: '1.2 mi away',
     eta: '~25 min',
     verified: true,
-    price: '$45/hr',
+    price: '₱45/hr',
   },
   {
     id: '2',
@@ -23,7 +23,7 @@ export const providers: ProviderData[] = [
     distance: '0.8 mi away',
     eta: '~15 min',
     verified: true,
-    price: '$55/hr',
+    price: '₱55/hr',
   },
   {
     id: '3',
@@ -35,7 +35,7 @@ export const providers: ProviderData[] = [
     distance: '2.5 mi away',
     eta: '~40 min',
     verified: true,
-    price: '$65/hr',
+    price: '₱65/hr',
   },
   {
     id: '4',
@@ -47,7 +47,7 @@ export const providers: ProviderData[] = [
     distance: '1.5 mi away',
     eta: '~30 min',
     verified: true,
-    price: '$50/hr',
+    price: '₱50/hr',
   },
   {
     id: '5',
@@ -59,7 +59,7 @@ export const providers: ProviderData[] = [
     distance: '3.1 mi away',
     eta: '~45 min',
     verified: false,
-    price: '$40/hr',
+    price: '₱40/hr',
   },
 ];
 
@@ -124,7 +124,7 @@ export const bookings = [
     time: '2:00 PM',
     status: 'upcoming' as const,
     address: '123 Oak Street, Apt 4B',
-    price: '$45/hr',
+    price: '₱45/hr',
     rating: 4.9,
   },
   {
@@ -137,7 +137,7 @@ export const bookings = [
     time: '10:00 AM',
     status: 'upcoming' as const,
     address: '123 Oak Street, Apt 4B',
-    price: '$55/hr',
+    price: '₱55/hr',
     rating: 4.8,
   },
   {
@@ -150,7 +150,7 @@ export const bookings = [
     time: '3:30 PM',
     status: 'completed' as const,
     address: '123 Oak Street, Apt 4B',
-    price: '$130',
+    price: '₱130',
     rating: 5.0,
     reviewed: true,
   },
@@ -164,7 +164,7 @@ export const bookings = [
     time: '11:00 AM',
     status: 'completed' as const,
     address: '123 Oak Street, Apt 4B',
-    price: '$100',
+    price: '₱100',
     rating: 4.7,
     reviewed: false,
   },
