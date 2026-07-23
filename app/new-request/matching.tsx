@@ -8,11 +8,20 @@ import { ArrowLeft, MapPin, Star, MessageSquare, AlertCircle } from 'lucide-reac
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const MOCK_WORKERS = [
-  { id: '1', name: 'Mario Rossi', skill: 'Plumber', rating: 4.8, distance: '1.2km', confidence: 95, price: '₱800 - 1,000', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop' },
-  { id: '2', name: 'Luigi Verdi', skill: 'Plumber', rating: 4.9, distance: '2.5km', confidence: 92, price: '₱900 - 1,200', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop' },
-  { id: '3', name: 'Pedro Penduko', skill: 'Master Plumber', rating: 4.7, distance: '3.1km', confidence: 88, price: '₱750 - 950', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop' },
-];
+import { useDraftStore } from '@/store/useDraftStore';
+import { useWorkerStore, WorkerProfile } from '@/store/useWorkerStore';
+
+// We'll define a mapping similar to the one in issue-summary if needed to convert categoryId to category name
+const CATEGORY_MAP: Record<string, string> = {
+  '1': 'Plumbing',
+  '2': 'Electrical',
+  '3': 'Carpentry',
+  '4': 'Cleaning',
+  '5': 'Appliance',
+  '6': 'AC Repair',
+  '7': 'Painting',
+  '8': 'Gardening',
+};
 
 export default function MatchingScreen() {
   const router = useRouter();
@@ -20,6 +29,16 @@ export default function MatchingScreen() {
   const [matchState, setMatchState] = useState<'searching' | 'results' | 'no_workers' | 'declined'>('searching');
   const [pulseAnim] = useState(new Animated.Value(1));
   const [retryCount, setRetryCount] = useState(0);
+
+  // Animation values for the 5 worker cards
+  const [cardAnims] = useState(() => [...Array(5)].map(() => new Animated.Value(0)));
+
+  const { workers } = useWorkerStore();
+  const currentDraft = useDraftStore(state => state.currentDraft);
+  
+  const [matchedWorkers, setMatchedWorkers] = useState<WorkerProfile[]>([]);
+  const [declinedWorkers, setDeclinedWorkers] = useState<string[]>([]);
+  const [declinedName, setDeclinedName] = useState('');
 
   useEffect(() => {
     if (matchState === 'searching') {
@@ -30,24 +49,48 @@ export default function MatchingScreen() {
         ])
       ).start();
 
+      // Determine requested category
+      const requestedCatName = currentDraft.categoryId ? CATEGORY_MAP[currentDraft.categoryId] : 'Plumbing';
+
+      // Find top 5 matches excluding declined workers
+      const matches = workers
+        .filter(w => w.category === requestedCatName && !declinedWorkers.includes(w.id))
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 5);
+
+      setMatchedWorkers(matches);
+
       const timer = setTimeout(() => {
-        // Simulate no workers on first attempt, then success
-        if (retryCount === 0) {
+        if (matches.length === 0) {
           setMatchState('no_workers');
         } else {
           setMatchState('results');
+          // Trigger stagger animation for the cards
+          Animated.stagger(150, 
+            matches.map((_, i) => 
+              Animated.spring(cardAnims[i], {
+                toValue: 1,
+                friction: 6,
+                tension: 40,
+                useNativeDriver: true,
+              })
+            )
+          ).start();
         }
-      }, 3000);
+      }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [matchState, pulseAnim, retryCount]);
+  }, [matchState, pulseAnim, currentDraft, workers, cardAnims, declinedWorkers]);
 
   const handleHire = (workerId: string) => {
-    // Simulate Worker Decline error loop on specific mock worker
-    if (workerId === '2') {
+    // Simulate Worker Decline on specific mock workers for demo
+    // The node script generated IDs like w1, w2, etc. We will make 'w2' and 'w3' decline.
+    if (workerId === 'w2' || workerId === 'w3') {
+      const worker = workers.find(w => w.id === workerId);
+      setDeclinedName(worker ? worker.name : 'Worker');
       setMatchState('declined');
     } else {
-      router.push(`/tracking/${workerId}`);
+      router.push(`/tracking/${workerId}` as any);
     }
   };
 
@@ -76,13 +119,20 @@ export default function MatchingScreen() {
   const renderDeclined = () => (
     <View style={styles.errorContainer}>
       <AlertCircle color={theme.colors.warning} size={64} style={{ marginBottom: theme.spacing.lg }} />
-      <Text style={[theme.typography.h3, { marginBottom: theme.spacing.md }]}>Worker Declined</Text>
+      <Text style={[theme.typography.h3, { marginBottom: theme.spacing.md }]}>Worker Unavailable</Text>
       <Text style={[theme.typography.body1, { textAlign: 'center', color: theme.colors.textSecondary, marginBottom: theme.spacing.xxxl }]}>
-        Luigi Verdi is unable to take the job right now. Please select another recommended worker.
+        {declinedName} is unable to take the job right now. We are finding you another top-rated professional.
       </Text>
       <Button 
-        title="View Other Matches" 
-        onPress={() => setMatchState('results')} 
+        title="Find Another Match" 
+        onPress={() => {
+          // Add to declined list so they are filtered out
+          const declinedWorker = workers.find(w => w.name === declinedName);
+          if (declinedWorker) {
+            setDeclinedWorkers(prev => [...prev, declinedWorker.id]);
+          }
+          setMatchState('searching'); // Restart radar
+        }} 
         fullWidth
       />
     </View>
@@ -100,14 +150,26 @@ export default function MatchingScreen() {
 
       {matchState === 'searching' && (
         <View style={styles.searchingContainer}>
-          <Animated.View style={[styles.radarCenter, { transform: [{ scale: pulseAnim }] }]} />
-          <View style={styles.radarCenterSolid}>
-            <MapPin color={theme.colors.surface} size={32} />
+          <Image 
+            source={require('../../../assets/map-bg.png')} 
+            style={[StyleSheet.absoluteFillObject, { opacity: 0.4 }]} 
+            contentFit="cover" 
+          />
+          <View style={styles.radarWrapper}>
+            <Animated.View style={[styles.radarCenter, { transform: [{ scale: pulseAnim }] }]} />
+            <View style={styles.radarCenterSolid}>
+              <MapPin color={theme.colors.surface} size={32} />
+            </View>
           </View>
-          <Text style={[theme.typography.h3, { marginTop: theme.spacing.xxxl }]}>Broadcasting Request...</Text>
-          <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm, textAlign: 'center' }]}>
-            Finding the best available plumbers near you based on AI compatibility.
-          </Text>
+          
+          <View style={styles.textContainer}>
+            <View style={styles.textBackground}>
+              <Text style={[theme.typography.h3, { textAlign: 'center' }]}>Broadcasting Request...</Text>
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm, textAlign: 'center' }]}>
+                Finding the best available plumbers near you based on AI compatibility.
+              </Text>
+            </View>
+          </View>
         </View>
       )}
 
@@ -117,51 +179,76 @@ export default function MatchingScreen() {
       {matchState === 'results' && (
         <View style={styles.resultsContainer}>
           <Text style={[theme.typography.h3, { marginBottom: theme.spacing.md }]}>Top AI Matches</Text>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {MOCK_WORKERS.map(worker => (
-              <View key={worker.id} style={styles.workerCard}>
-                <View style={styles.workerHeader}>
-                  <Image source={worker.avatar} style={styles.avatarPlaceholder} contentFit="cover" />
-                  <View style={styles.workerInfo}>
-                    <Text style={theme.typography.h4}>{worker.name}</Text>
-                    <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{worker.skill}</Text>
-                  </View>
-                  <View style={styles.matchBadge}>
-                    <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '700' }]}>{worker.confidence}% Match</Text>
-                  </View>
-                </View>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+            {matchedWorkers.map((worker, index) => {
+              const animValue = cardAnims[index];
+              const translateY = animValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0] // Start 50px below and slide up
+              });
 
-                <View style={styles.workerStats}>
-                  <View style={styles.stat}>
-                    <Star color={theme.colors.warning} size={16} fill={theme.colors.warning} />
-                    <Text style={[theme.typography.label, { marginLeft: 4 }]}>{worker.rating}</Text>
-                  </View>
-                  <Text style={{ color: theme.colors.border }}>|</Text>
-                  <View style={styles.stat}>
-                    <Text style={[theme.typography.label, { color: theme.colors.textSecondary }]}>{worker.distance} away</Text>
-                  </View>
-                  <Text style={{ color: theme.colors.border }}>|</Text>
-                  <View style={styles.stat}>
-                    <Text style={[theme.typography.label, { color: theme.colors.primary }]}>{worker.price}</Text>
-                  </View>
-                </View>
+              return (
+                <Animated.View 
+                  key={worker.id} 
+                  style={[
+                    styles.workerCard, 
+                    { 
+                      opacity: animValue, 
+                      transform: [{ translateY }] 
+                    }
+                  ]}
+                >
+                  <TouchableOpacity style={styles.workerHeader} onPress={() => router.push(`/worker/${worker.id}` as any)}>
+                    <Image source={worker.avatar} style={styles.avatarPlaceholder} contentFit="cover" />
+                    <View style={styles.workerInfo}>
+                      <Text style={theme.typography.h4}>{worker.name}</Text>
+                      <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{worker.skill}</Text>
+                    </View>
+                    <View style={styles.matchBadge}>
+                      <Text style={[theme.typography.caption, { color: theme.colors.surface, fontWeight: '700' }]}>Top Match</Text>
+                    </View>
+                  </TouchableOpacity>
 
-                <View style={styles.workerActions}>
-                  <Button 
-                    title="Message" 
-                    variant="outlined" 
-                    icon={MessageSquare} 
-                    style={{ flex: 1, marginRight: theme.spacing.sm }} 
-                    onPress={() => router.push(`/messages/chat?id=${worker.id}`)}
-                  />
-                  <Button 
-                    title={worker.id === '2' ? "Hire (Will Decline)" : "Hire Now"} 
-                    style={{ flex: 1 }} 
-                    onPress={() => handleHire(worker.id)} 
-                  />
-                </View>
-              </View>
-            ))}
+                  <View style={styles.workerStats}>
+                    <View style={styles.stat}>
+                      <Star color={theme.colors.warning} size={16} fill={theme.colors.warning} />
+                      <Text style={[theme.typography.label, { marginLeft: 4 }]}>{worker.rating}</Text>
+                    </View>
+                    <Text style={{ color: theme.colors.border }}>|</Text>
+                    <View style={styles.stat}>
+                      <Text style={[theme.typography.label, { color: theme.colors.textSecondary }]}>{worker.distance} away</Text>
+                    </View>
+                    <Text style={{ color: theme.colors.border }}>|</Text>
+                    <View style={styles.stat}>
+                      <Text style={[theme.typography.label, { color: theme.colors.primary }]}>{worker.price.split(' ')[0]}/hr</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.workerActions}>
+                    <Button 
+                      title="Profile" 
+                      variant="outlined" 
+                      style={{ flex: 1, marginRight: theme.spacing.xs, paddingVertical: 8 }} 
+                      textStyle={{ fontSize: 12 }}
+                      onPress={() => router.push(`/worker/${worker.id}` as any)}
+                    />
+                    <Button 
+                      title="Message" 
+                      variant="outlined" 
+                      style={{ flex: 1, marginRight: theme.spacing.xs, paddingVertical: 8 }} 
+                      textStyle={{ fontSize: 12 }}
+                      onPress={() => router.push(`/messages/chat?id=${worker.id}` as any)}
+                    />
+                    <Button 
+                      title="Hire Now" 
+                      style={{ flex: 1, paddingVertical: 8 }} 
+                      textStyle={{ fontSize: 12 }}
+                      onPress={() => handleHire(worker.id)} 
+                    />
+                  </View>
+                </Animated.View>
+              );
+            })}
           </ScrollView>
         </View>
       )}
@@ -172,9 +259,12 @@ export default function MatchingScreen() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
-  searchingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: theme.spacing.xl },
+  searchingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  radarWrapper: { justifyContent: 'center', alignItems: 'center', width: 120, height: 120 },
   radarCenter: { position: 'absolute', width: 120, height: 120, borderRadius: 60, backgroundColor: `${theme.colors.primary}30` },
-  radarCenterSolid: { width: 80, height: 80, borderRadius: 40, backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center' },
+  radarCenterSolid: { position: 'absolute', width: 80, height: 80, borderRadius: 40, backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center' },
+  textContainer: { position: 'absolute', bottom: 80, left: 20, right: 20, alignItems: 'center' },
+  textBackground: { backgroundColor: 'rgba(255,255,255,0.9)', padding: theme.spacing.lg, borderRadius: theme.radius.lg, alignItems: 'center', width: '100%' },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: theme.spacing.xl },
   resultsContainer: { flex: 1, paddingVertical: theme.spacing.md },
   workerCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, marginBottom: theme.spacing.md, ...theme.shadows.md },
@@ -184,5 +274,6 @@ const styles = StyleSheet.create({
   matchBadge: { backgroundColor: theme.colors.success, paddingHorizontal: 8, paddingVertical: 4, borderRadius: theme.radius.sm },
   workerStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.colors.background, padding: theme.spacing.sm, borderRadius: theme.radius.md, marginBottom: theme.spacing.md },
   stat: { flexDirection: 'row', alignItems: 'center' },
-  workerActions: { flexDirection: 'row', justifyContent: 'space-between' },
+  workerActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: theme.spacing.xs },
+  compareBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: theme.radius.sm, borderWidth: 1, borderColor: theme.colors.borderLight },
 });

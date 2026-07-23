@@ -64,14 +64,14 @@ export default function ASAPMatchScreen() {
     // Cascade popups every 3 seconds
     const worker1 = {
       ...providers[0],
-      estimatedPrice: '$60/hr',
+      estimatedPrice: '₱600/hr',
       eta: '5 mins away',
       message: 'I am nearby and can fix this right now!',
     };
     
     const worker2 = {
       ...providers[1],
-      estimatedPrice: '$55/hr',
+      estimatedPrice: '₱550/hr',
       eta: '8 mins away',
       message: 'Just finishing up a job, I can head over immediately!',
     };

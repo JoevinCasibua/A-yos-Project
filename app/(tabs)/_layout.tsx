@@ -3,8 +3,10 @@ import { View, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-na
 import { Tabs, useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { Home, FileText, MessageSquare, User, Plus } from 'lucide-react-native';
+import { useDraftStore } from '@/store/useDraftStore';
 
 const CreateButton = () => {
+  const clearCurrentDraft = useDraftStore(state => state.clearCurrentDraft);
   const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 

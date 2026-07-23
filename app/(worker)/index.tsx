@@ -18,7 +18,7 @@ const todayStats = [
   { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress' || b.status === 'en_route').length.toString() },
   { label: 'Pending', value: workerBookings.filter((b) => b.status === 'hired' || b.status === 'accepted').length.toString() },
   { label: 'Completed', value: workerBookings.filter((b) => b.status === 'completed').length.toString() },
-  { label: 'Earnings', value: '$180' },
+  { label: 'Earnings', value: '₱1,800' },
 ];
 
 const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review');

@@ -35,13 +35,13 @@ export default function RequestDetailsScreen() {
         setApplicants([
           {
             ...providers[0],
-            estimatedPrice: '$45',
+            estimatedPrice: '₱450',
             eta: '2 hours',
             message: 'I can swing by tomorrow morning to fix this! Should be a quick job.',
           },
           {
             ...providers[1],
-            estimatedPrice: '$55',
+            estimatedPrice: '₱550',
             eta: '3-4 hours',
             message: 'Available anytime this week. I specialize in these types of repairs.',
           },
@@ -51,13 +51,13 @@ export default function RequestDetailsScreen() {
         setApplicants([
           {
             ...providers[0],
-            estimatedPrice: '$60/hr',
+            estimatedPrice: '₱600/hr',
             eta: '15 mins away',
             message: 'Hi! I can repair your issue right now. I have 6 years of experience.',
           },
           {
             ...providers[1],
-            estimatedPrice: '$50/hr',
+            estimatedPrice: '₱500/hr',
             eta: '30 mins away',
             message: 'Available to help you today! Let me know if you need me.',
           },

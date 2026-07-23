@@ -13,7 +13,7 @@ export default function PaymentReceivedScreen() {
 
   const handleGoHome = () => {
     resetRequest();
-    router.replace('/(tabs)');
+    router.replace('/(tabs)/home');
   };
 
   return (
