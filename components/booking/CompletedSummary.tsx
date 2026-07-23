@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { CheckCircle2, Receipt } from 'lucide-react-native';
+import { CheckCircle2, Receipt, Wrench, Clock, AlertTriangle, Lightbulb } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -9,6 +9,10 @@ interface CompletedSummaryProps {
   bookingId: string;
   duration: string;
   earnings: string;
+  serviceType?: string;
+  issueIdentified?: string;
+  estimatedRepairTime?: string;
+  recommendedAction?: string;
   onLeaveFeedback: () => void;
   onViewReceipt?: () => void;
 }
@@ -17,6 +21,10 @@ export const CompletedSummary = React.memo(function CompletedSummary({
   bookingId,
   duration,
   earnings,
+  serviceType,
+  issueIdentified,
+  estimatedRepairTime,
+  recommendedAction,
   onLeaveFeedback,
   onViewReceipt,
 }: CompletedSummaryProps) {
@@ -57,6 +65,62 @@ export const CompletedSummary = React.memo(function CompletedSummary({
           <AppText variant="body" weight="bold" color={Colors.success}>{earnings}</AppText>
         </View>
       </View>
+
+      {(serviceType || issueIdentified || estimatedRepairTime || recommendedAction) && (
+        <View style={styles.analysisCard}>
+          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.analysisLabel}>
+            SERVICE ANALYSIS
+          </AppText>
+
+          {serviceType && (
+            <View style={styles.analysisRow}>
+              <View style={styles.analysisIcon}>
+                <Wrench size={14} color={Colors.cta} />
+              </View>
+              <View style={styles.analysisContent}>
+                <AppText variant="caption" color={Colors.textTertiary}>Service Type</AppText>
+                <AppText variant="body" weight="semiBold">{serviceType}</AppText>
+              </View>
+            </View>
+          )}
+
+          {issueIdentified && (
+            <View style={styles.analysisRow}>
+              <View style={styles.analysisIcon}>
+                <AlertTriangle size={14} color={Colors.warning} />
+              </View>
+              <View style={styles.analysisContent}>
+                <AppText variant="caption" color={Colors.textTertiary}>Issue Identified</AppText>
+                <AppText variant="bodySm">{issueIdentified}</AppText>
+              </View>
+            </View>
+          )}
+
+          {estimatedRepairTime && (
+            <View style={styles.analysisRow}>
+              <View style={styles.analysisIcon}>
+                <Clock size={14} color={Colors.info} />
+              </View>
+              <View style={styles.analysisContent}>
+                <AppText variant="caption" color={Colors.textTertiary}>Estimated Repair Time</AppText>
+                <AppText variant="body" weight="semiBold">{estimatedRepairTime}</AppText>
+              </View>
+            </View>
+          )}
+
+          {recommendedAction && (
+            <View style={styles.analysisRow}>
+              <View style={styles.analysisIcon}>
+                <Lightbulb size={14} color={Colors.verified} />
+              </View>
+              <View style={styles.analysisContent}>
+                <AppText variant="caption" color={Colors.textTertiary}>Recommended Action</AppText>
+                <AppText variant="bodySm">{recommendedAction}</AppText>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
 
       <View style={styles.actions}>
         <AppButton
@@ -118,5 +182,33 @@ const styles = StyleSheet.create({
   actions: {
     width: '100%',
     gap: Spacing['3'],
+  },
+  analysisCard: {
+    width: '100%',
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: Radius.lg,
+    padding: Spacing['4'],
+    gap: Spacing['3'],
+    marginBottom: Spacing['2'],
+  },
+  analysisLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  analysisRow: {
+    flexDirection: 'row',
+    gap: Spacing['3'],
+  },
+  analysisIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  analysisContent: {
+    flex: 1,
+    gap: 2,
   },
 });

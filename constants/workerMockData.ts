@@ -297,6 +297,11 @@ export interface WorkerBooking {
   duration?: string;
   cancelledReason?: string;
   cancelledBy?: 'customer' | 'worker';
+  serviceType?: string;
+  voiceTranscript?: string;
+  issueIdentified?: string;
+  estimatedRepairTime?: string;
+  recommendedAction?: string;
 }
 
 export const workerBookings: WorkerBooking[] = [
@@ -315,6 +320,11 @@ export const workerBookings: WorkerBooking[] = [
     hourlyRate: 45,
     hasParts: true,
     partsDescription: 'PVC pipe and fittings',
+    serviceType: 'Plumbing Repair',
+    voiceTranscript: 'Customer reported a persistent leak under the kitchen sink. Water dripping from the P-trap connection. Damage to cabinet base observed.',
+    issueIdentified: 'Leaking P-trap connection under kitchen sink with water damage to cabinet base.',
+    estimatedRepairTime: '1 - 2 hours',
+    recommendedAction: 'Replace P-trap assembly, reseal drain joint, and apply water-resistant sealant to cabinet base.',
   },
   {
     id: '2',
@@ -331,6 +341,11 @@ export const workerBookings: WorkerBooking[] = [
     hourlyRate: 50,
     hasParts: false,
     duration: '45m',
+    serviceType: 'Drain Cleaning',
+    voiceTranscript: 'Slow drainage in bathroom floor drain. Foul odor noticed for the past week. Customer attempted chemical drain cleaner with no improvement.',
+    issueIdentified: 'Clogged floor drain with organic buildup causing slow drainage and odor.',
+    estimatedRepairTime: '45 minutes - 1 hour',
+    recommendedAction: 'Snaking the drain line followed by hydro-jet cleaning to remove buildup.',
   },
   {
     id: '3',
@@ -345,6 +360,11 @@ export const workerBookings: WorkerBooking[] = [
     status: 'en_route',
     price: '$450',
     hourlyRate: 65,
+    serviceType: 'Water Heater Installation',
+    voiceTranscript: 'Customer needs a new 50-gallon water heater installed. Old unit has been disconnected. Gas line and venting are already in place.',
+    issueIdentified: 'Water heater replacement — old unit decommissioned, ready for new installation.',
+    estimatedRepairTime: '3 - 4 hours',
+    recommendedAction: 'Install new 50-gallon water heater, connect gas line, test pressure relief valve, and verify venting.',
   },
   {
     id: '4',
@@ -360,6 +380,11 @@ export const workerBookings: WorkerBooking[] = [
     price: '$85',
     hourlyRate: 40,
     duration: '1h 15m',
+    serviceType: 'Faucet Replacement',
+    voiceTranscript: 'Kitchen faucet dripping from the spout. Handle is loose and difficult to turn. Customer wants a new single-lever faucet installed.',
+    issueIdentified: 'Worn-out faucet cartridge causing drip and stiff handle operation.',
+    estimatedRepairTime: '1 - 1.5 hours',
+    recommendedAction: 'Remove old faucet, install new single-lever kitchen faucet, connect supply lines, and test for leaks.',
   },
   {
     id: '5',
@@ -375,6 +400,11 @@ export const workerBookings: WorkerBooking[] = [
     price: '$60',
     hourlyRate: 45,
     duration: '2h 30m',
+    serviceType: 'Emergency Plumbing',
+    voiceTranscript: 'Burst pipe in the bathroom wall. Water leaking into the adjacent room. Customer shut off the main valve. Urgent repair needed.',
+    issueIdentified: 'Burst copper pipe in bathroom wall causing water damage to adjacent room.',
+    estimatedRepairTime: '2 - 3 hours',
+    recommendedAction: 'Cut access to burst section, replace damaged copper pipe segment, solder joints, and test under pressure.',
   },
   {
     id: '6',
@@ -389,6 +419,11 @@ export const workerBookings: WorkerBooking[] = [
     status: 'accepted',
     price: '$80',
     hourlyRate: 40,
+    serviceType: 'Plumbing Repair',
+    voiceTranscript: 'Low water pressure in the bathroom shower. Customer noticed gradual decrease over the past month. Other fixtures seem fine.',
+    issueIdentified: 'Mineral buildup in shower head and partially clogged supply line reducing water pressure.',
+    estimatedRepairTime: '1 - 2 hours',
+    recommendedAction: 'Descale shower head, flush supply lines, and replace washers if needed.',
   },
   {
     id: 'cancelled-1',
@@ -613,6 +648,7 @@ export interface WalletTransaction {
   credit: boolean;
   amount: string;
   status: TransactionStatus;
+  type: 'earning' | 'commission' | 'payout' | 'topup';
 }
 
 export interface BarDatum {
@@ -634,16 +670,18 @@ export interface WorkerPerformance {
 }
 
 export const walletTransactions: WalletTransaction[] = [
-  { id: 'tx1', date: 'Oct 14', label: 'Plumbing Repair', sub: 'Mario Rossi', credit: true, amount: '₱1,250', status: 'completed' },
-  { id: 'tx2', date: 'Oct 14', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱125', status: 'completed' },
-  { id: 'tx3', date: 'Oct 13', label: 'Electrical Inspection', sub: 'Luigi Verdi', credit: true, amount: '₱800', status: 'completed' },
-  { id: 'tx4', date: 'Oct 13', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱80', status: 'completed' },
-  { id: 'tx5', date: 'Oct 12', label: 'AC Cleaning', sub: 'Pedro', credit: true, amount: '₱1,500', status: 'completed' },
-  { id: 'tx6', date: 'Oct 12', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱150', status: 'completed' },
-  { id: 'tx7', date: 'Oct 11', label: 'Payout — GCash', sub: 'GCash', credit: false, amount: '-₱5,000', status: 'completed' },
-  { id: 'tx8', date: 'Oct 10', label: 'Painting Service', sub: 'Sofia', credit: true, amount: '₱2,000', status: 'completed' },
-  { id: 'tx9', date: 'Oct 10', label: 'Carpentry', sub: 'Miguel', credit: true, amount: '₱950', status: 'pending' },
-  { id: 'tx10', date: 'Oct 09', label: 'Payout — BPI', sub: 'BPI', credit: false, amount: '-₱8,000', status: 'completed' },
+  { id: 'tx1', date: 'Oct 14', label: 'Plumbing Repair', sub: 'Mario Rossi', credit: true, amount: '₱1,250', status: 'completed', type: 'earning' },
+  { id: 'tx2', date: 'Oct 14', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱125', status: 'completed', type: 'commission' },
+  { id: 'tx3', date: 'Oct 13', label: 'Electrical Inspection', sub: 'Luigi Verdi', credit: true, amount: '₱800', status: 'completed', type: 'earning' },
+  { id: 'tx4', date: 'Oct 13', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱80', status: 'completed', type: 'commission' },
+  { id: 'tx5', date: 'Oct 12', label: 'AC Cleaning', sub: 'Pedro', credit: true, amount: '₱1,500', status: 'completed', type: 'earning' },
+  { id: 'tx6', date: 'Oct 12', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱150', status: 'completed', type: 'commission' },
+  { id: 'tx7', date: 'Oct 11', label: 'Payout — GCash', sub: 'GCash', credit: false, amount: '-₱5,000', status: 'completed', type: 'payout' },
+  { id: 'tx8', date: 'Oct 10', label: 'Painting Service', sub: 'Sofia', credit: true, amount: '₱2,000', status: 'completed', type: 'earning' },
+  { id: 'tx9', date: 'Oct 10', label: 'Carpentry', sub: 'Miguel', credit: true, amount: '₱950', status: 'pending', type: 'earning' },
+  { id: 'tx10', date: 'Oct 09', label: 'Payout — BPI', sub: 'BPI', credit: false, amount: '-₱8,000', status: 'completed', type: 'payout' },
+  { id: 'tx11', date: 'Oct 08', label: 'Top-Up — GCash', sub: 'GCash', credit: true, amount: '₱5,000', status: 'completed', type: 'topup' },
+  { id: 'tx12', date: 'Oct 07', label: 'Top-Up — BPI', sub: 'BPI', credit: true, amount: '₱3,000', status: 'completed', type: 'topup' },
 ];
 
 export const walletBarData: BarDatum[] = [

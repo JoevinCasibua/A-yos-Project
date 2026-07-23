@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   Loader2,
   XCircle,
+  Wrench,
+  AudioLines,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout, AvatarSize } from '@/constants/theme';
@@ -262,6 +264,34 @@ export default function BookingRequestScreen() {
               {booking.price}
             </AppText>
           </View>
+
+          {booking.serviceType && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.detailRow}>
+                <View style={styles.detailLabel}>
+                  <Wrench size={14} color={Colors.textTertiary} />
+                  <AppText variant="label" color={Colors.textTertiary}>Service Type</AppText>
+                </View>
+                <AppText variant="body" weight="semiBold">{booking.serviceType}</AppText>
+              </View>
+            </>
+          )}
+
+          {booking.voiceTranscript && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.voiceTranscriptSection}>
+                <View style={styles.detailLabel}>
+                  <AudioLines size={14} color={Colors.cta} />
+                  <AppText variant="label" weight="semiBold" color={Colors.cta}>AI Voice Transcript</AppText>
+                </View>
+                <AppText variant="bodySm" color={Colors.textSecondary} style={styles.voiceTranscriptText}>
+                  {booking.voiceTranscript}
+                </AppText>
+              </View>
+            </>
+          )}
         </View>
 
         {/* ─── Client Card ─── */}
@@ -418,6 +448,10 @@ export default function BookingRequestScreen() {
             bookingId={booking.id}
             duration="1h 15m"
             earnings={booking.price}
+            serviceType={booking.serviceType}
+            issueIdentified={booking.issueIdentified}
+            estimatedRepairTime={booking.estimatedRepairTime}
+            recommendedAction={booking.recommendedAction}
             onLeaveFeedback={handleLeaveFeedback}
             onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
           />
@@ -488,6 +522,8 @@ const styles = StyleSheet.create({
   },
   jobImage: { width: '100%', height: 180, borderRadius: Radius.lg },
   description: { fontStyle: 'italic' },
+  voiceTranscriptSection: { gap: Spacing['2'] },
+  voiceTranscriptText: { fontStyle: 'italic', lineHeight: 20 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginVertical: Spacing['1'] },
   detailRow: { gap: Spacing['1'] },
   detailLabel: { flexDirection: 'row', alignItems: 'center', gap: Spacing['1'] },

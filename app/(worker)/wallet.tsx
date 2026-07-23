@@ -207,7 +207,7 @@ export default function WalletScreen() {
                 style={styles.txRow}
                 onPress={() =>
                   router.push(
-                    `/(worker)/earnings-receipt?transactionId=${tx.id}&from=wallet`,
+                    `/(worker)/earnings-receipt?transactionId=${tx.id}&type=${tx.type}&from=wallet`,
                   )
                 }
               >
@@ -216,7 +216,7 @@ export default function WalletScreen() {
                     styles.txIcon,
                     {
                       backgroundColor: tx.credit
-                        ? Colors.successBg
+                        ? tx.type === 'topup' ? Colors.infoBg : Colors.successBg
                         : tx.label.includes('Commission')
                           ? Colors.errorBg
                           : Colors.infoBg,
@@ -224,7 +224,11 @@ export default function WalletScreen() {
                   ]}
                 >
                   {tx.credit ? (
-                    <TrendingUp size={14} color={Colors.verified} />
+                    tx.type === 'topup' ? (
+                      <ArrowUpFromLine size={14} color={Colors.info} />
+                    ) : (
+                      <TrendingUp size={14} color={Colors.verified} />
+                    )
                   ) : tx.label.includes('Commission') ? (
                     <TrendingDown size={14} color={Colors.error} />
                   ) : (

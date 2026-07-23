@@ -8,6 +8,7 @@ import {
   Clock,
   AlertCircle,
   ArrowDownToLine,
+  ArrowUpFromLine,
 } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -164,14 +165,14 @@ export default function TransactionsHistoryScreen() {
                 <Pressable
                   key={tx.id + tx.date}
                   style={styles.txRow}
-                  onPress={() => router.push(`/(worker)/earnings-receipt?transactionId=${tx.id}&from=transactions`)}
+                  onPress={() => router.push(`/(worker)/earnings-receipt?transactionId=${tx.id}&type=${tx.type}&from=transactions`)}
                 >
                   <View
                     style={[
                       styles.txIcon,
                       {
                         backgroundColor: tx.credit
-                          ? Colors.successBg
+                          ? tx.type === 'topup' ? Colors.infoBg : Colors.successBg
                           : tx.label.includes('Commission')
                             ? Colors.errorBg
                             : Colors.infoBg,
@@ -179,7 +180,11 @@ export default function TransactionsHistoryScreen() {
                     ]}
                   >
                     {tx.credit ? (
-                      <TrendingUp size={14} color={Colors.verified} />
+                      tx.type === 'topup' ? (
+                        <ArrowUpFromLine size={14} color={Colors.info} />
+                      ) : (
+                        <TrendingUp size={14} color={Colors.verified} />
+                      )
                     ) : tx.label.includes('Commission') ? (
                       <TrendingDown size={14} color={Colors.error} />
                     ) : (
