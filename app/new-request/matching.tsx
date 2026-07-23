@@ -151,7 +151,7 @@ export default function MatchingScreen() {
       {matchState === 'searching' && (
         <View style={styles.searchingContainer}>
           <Image 
-            source={require('../../../assets/map-bg.png')} 
+            source={require('../../assets/map-bg.png')} 
             style={[StyleSheet.absoluteFillObject, { opacity: 0.4 }]} 
             contentFit="cover" 
           />

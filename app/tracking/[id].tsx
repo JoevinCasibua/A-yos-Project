@@ -95,7 +95,7 @@ export default function TrackingScreen() {
         <View style={styles.mapContainer}>
           <View style={styles.mockMap}>
             <Image 
-              source={require('../../../assets/map-bg.png')} 
+              source={require('../../assets/map-bg.png')} 
               style={StyleSheet.absoluteFillObject} 
               contentFit="cover" 
             />
