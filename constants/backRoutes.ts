@@ -8,9 +8,9 @@ const BACK_ROUTES: Record<string, Href> = {
   bookings: '/(worker)/bookings',
   wallet: '/(worker)/wallet',
   transactions: '/(worker)/transactions-history',
-  'payout-history': '/(worker)/profile',
+  'payout-history': '/(worker)/payout-history',
   'topup-methods': '/(worker)/profile',
-  'topup-history': '/(worker)/profile',
+  'topup-history': '/(worker)/topup-history',
   'cash-confirm': '/(worker)/bookings',
 };
 

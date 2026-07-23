@@ -667,6 +667,7 @@ export interface WalletTransaction {
   amount: string;
   status: TransactionStatus;
   type: 'earning' | 'commission' | 'payout' | 'topup';
+  reference?: string;
 }
 
 export interface BarDatum {
@@ -688,18 +689,18 @@ export interface WorkerPerformance {
 }
 
 export const walletTransactions: WalletTransaction[] = [
-  { id: 'tx1', date: 'Oct 14', label: 'Plumbing Repair', sub: 'Mario Rossi', credit: true, amount: '₱1,250', status: 'completed', type: 'earning' },
-  { id: 'tx2', date: 'Oct 14', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱125', status: 'completed', type: 'commission' },
-  { id: 'tx3', date: 'Oct 13', label: 'Electrical Inspection', sub: 'Luigi Verdi', credit: true, amount: '₱800', status: 'completed', type: 'earning' },
-  { id: 'tx4', date: 'Oct 13', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱80', status: 'completed', type: 'commission' },
-  { id: 'tx5', date: 'Oct 12', label: 'AC Cleaning', sub: 'Pedro', credit: true, amount: '₱1,500', status: 'completed', type: 'earning' },
-  { id: 'tx6', date: 'Oct 12', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱150', status: 'completed', type: 'commission' },
-  { id: 'tx7', date: 'Oct 11', label: 'Payout — GCash', sub: 'GCash', credit: false, amount: '-₱5,000', status: 'completed', type: 'payout' },
-  { id: 'tx8', date: 'Oct 10', label: 'Painting Service', sub: 'Sofia', credit: true, amount: '₱2,000', status: 'completed', type: 'earning' },
-  { id: 'tx9', date: 'Oct 10', label: 'Carpentry', sub: 'Miguel', credit: true, amount: '₱950', status: 'pending', type: 'earning' },
-  { id: 'tx10', date: 'Oct 09', label: 'Payout — BPI', sub: 'BPI', credit: false, amount: '-₱8,000', status: 'completed', type: 'payout' },
-  { id: 'tx11', date: 'Oct 08', label: 'Top-Up — GCash', sub: 'GCash', credit: true, amount: '₱5,000', status: 'completed', type: 'topup' },
-  { id: 'tx12', date: 'Oct 07', label: 'Top-Up — BPI', sub: 'BPI', credit: true, amount: '₱3,000', status: 'completed', type: 'topup' },
+  { id: 'tx1', date: 'Oct 14', label: 'Plumbing Repair', sub: 'Mario Rossi', credit: true, amount: '₱1,250', status: 'completed', type: 'earning', reference: 'TXN-2026-0001' },
+  { id: 'tx2', date: 'Oct 14', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱125', status: 'completed', type: 'commission', reference: 'TXN-2026-0002' },
+  { id: 'tx3', date: 'Oct 13', label: 'Electrical Inspection', sub: 'Luigi Verdi', credit: true, amount: '₱800', status: 'completed', type: 'earning', reference: 'TXN-2026-0003' },
+  { id: 'tx4', date: 'Oct 13', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱80', status: 'completed', type: 'commission', reference: 'TXN-2026-0004' },
+  { id: 'tx5', date: 'Oct 12', label: 'AC Cleaning', sub: 'Pedro', credit: true, amount: '₱1,500', status: 'completed', type: 'earning', reference: 'TXN-2026-0005' },
+  { id: 'tx6', date: 'Oct 12', label: 'Commission Deduction', sub: 'Admin', credit: false, amount: '-₱150', status: 'completed', type: 'commission', reference: 'TXN-2026-0006' },
+  { id: 'tx7', date: 'Oct 11', label: 'Payout — GCash', sub: 'GCash', credit: false, amount: '-₱5,000', status: 'completed', type: 'payout', reference: 'TXN-2026-0007' },
+  { id: 'tx8', date: 'Oct 10', label: 'Painting Service', sub: 'Sofia', credit: true, amount: '₱2,000', status: 'completed', type: 'earning', reference: 'TXN-2026-0008' },
+  { id: 'tx9', date: 'Oct 10', label: 'Carpentry', sub: 'Miguel', credit: true, amount: '₱950', status: 'pending', type: 'earning', reference: 'TXN-2026-0009' },
+  { id: 'tx10', date: 'Oct 09', label: 'Payout — BPI', sub: 'BPI', credit: false, amount: '-₱8,000', status: 'completed', type: 'payout', reference: 'TXN-2026-0010' },
+  { id: 'tx11', date: 'Oct 08', label: 'Top-Up — GCash', sub: 'GCash', credit: true, amount: '₱5,000', status: 'completed', type: 'topup', reference: 'TXN-2026-0011' },
+  { id: 'tx12', date: 'Oct 07', label: 'Top-Up — BPI', sub: 'BPI', credit: true, amount: '₱3,000', status: 'completed', type: 'topup', reference: 'TXN-2026-0012' },
 ];
 
 export const walletBarData: BarDatum[] = [

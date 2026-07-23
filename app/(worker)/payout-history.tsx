@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle, Clock, AlertCircle, ArrowDownToLine } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
@@ -28,6 +28,19 @@ const MOCK_PAYOUTS: PayoutRecord[] = [
 
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed';
 
+const parseMMDDYYYY = (s: string): Date | null => {
+  const match = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, mm, dd, yyyy] = match;
+  const date = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
+  if (date.getMonth() !== parseInt(mm) - 1 || date.getDate() !== parseInt(dd)) return null;
+  return date;
+};
+
+const parseRecordDate = (d: string): Date => {
+  return new Date(d);
+};
+
 const statusIcon = (s: string) => {
   if (s === 'completed') return <CheckCircle size={14} color={Colors.verified} />;
   if (s === 'pending') return <Clock size={14} color={Colors.warning} />;
@@ -45,6 +58,8 @@ export default function PayoutHistoryScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
   const [filter, setFilter] = useState<StatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const filtered = useMemo(() => {
     let result = [...MOCK_PAYOUTS];
@@ -63,8 +78,22 @@ export default function PayoutHistoryScreen() {
       );
     }
 
+    if (fromDate.trim()) {
+      const from = parseMMDDYYYY(fromDate.trim());
+      if (from) {
+        result = result.filter((p) => parseRecordDate(p.date) >= from);
+      }
+    }
+
+    if (toDate.trim()) {
+      const to = parseMMDDYYYY(toDate.trim());
+      if (to) {
+        result = result.filter((p) => parseRecordDate(p.date) <= to);
+      }
+    }
+
     return result;
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, fromDate, toDate]);
 
   return (
     <Screen safeArea scrollable header={<PageHeader title="Payout History" from={from} />}>
@@ -89,6 +118,35 @@ export default function PayoutHistoryScreen() {
             size="sm"
           />
         ))}
+      </View>
+
+      {/* Date Range */}
+      <View style={styles.dateRangeSection}>
+        <View style={styles.dateInputWrap}>
+          <AppText variant="caption" color={Colors.textTertiary}>From</AppText>
+          <TextInput
+            style={styles.dateInput}
+            placeholder="MM/DD/YYYY"
+            placeholderTextColor={Colors.textTertiary}
+            value={fromDate}
+            onChangeText={setFromDate}
+            keyboardType="numeric"
+            maxLength={10}
+          />
+        </View>
+        <AppText variant="body" color={Colors.textTertiary}>—</AppText>
+        <View style={styles.dateInputWrap}>
+          <AppText variant="caption" color={Colors.textTertiary}>To</AppText>
+          <TextInput
+            style={styles.dateInput}
+            placeholder="MM/DD/YYYY"
+            placeholderTextColor={Colors.textTertiary}
+            value={toDate}
+            onChangeText={setToDate}
+            keyboardType="numeric"
+            maxLength={10}
+          />
+        </View>
       </View>
 
       {/* Payout List */}
@@ -143,7 +201,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing['2'],
     paddingHorizontal: theme.layout.screenPadding,
+    marginBottom: theme.spacing.md,
+  },
+  dateRangeSection: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Spacing['2'],
+    paddingHorizontal: theme.layout.screenPadding,
     marginBottom: theme.spacing.xl,
+  },
+  dateInputWrap: { flex: 1, gap: Spacing['1'] },
+  dateInput: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing['3'],
+    paddingVertical: Spacing['2'],
+    fontSize: 14,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
 
   payoutList: {

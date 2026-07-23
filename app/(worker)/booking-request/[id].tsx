@@ -269,7 +269,10 @@ export default function BookingRequestScreen() {
           <View style={styles.divider} />
 
           <View style={styles.detailRow}>
-            <AppText variant="label" color={Colors.textTertiary}>Client</AppText>
+            <View style={styles.detailLabel}>
+              <View style={{ width: 14 }} />
+              <AppText variant="label" color={Colors.textTertiary}>Client</AppText>
+            </View>
             <AppText variant="body" weight="semiBold">{job.customerName}</AppText>
           </View>
 

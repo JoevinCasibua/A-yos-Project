@@ -18,7 +18,6 @@ import {
   MicOff,
   Paperclip,
   MapPin,
-  Globe,
   Pause,
   Play,
   CheckCheck,
@@ -27,6 +26,7 @@ import {
   Phone,
   Camera,
   Square,
+  Languages,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
@@ -39,6 +39,7 @@ import { AnimatedWaveform } from '@/components/AnimatedWaveform';
 interface ChatMessage {
   id: string;
   text?: string;
+  translation?: string;
   sender: 'worker' | 'customer';
   timestamp: string;
   type: 'text' | 'voice' | 'image' | 'location';
@@ -48,9 +49,9 @@ interface ChatMessage {
 }
 
 const INITIAL_MESSAGES: ChatMessage[] = [
-  { id: '1', text: 'Hi, I am available for the plumbing job!', sender: 'customer', timestamp: '10:12 AM', type: 'text' },
+  { id: '1', text: 'Hi, I am available for the plumbing job!', translation: 'Kumusta, available ako para sa plumbing job!', sender: 'customer', timestamp: '10:12 AM', type: 'text' },
   { id: '2', text: 'Great, what is your estimated arrival time?', sender: 'worker', timestamp: '10:13 AM', type: 'text' },
-  { id: '3', text: 'I can be there in 15 minutes.', sender: 'customer', timestamp: '10:14 AM', type: 'text' },
+  { id: '3', text: 'I can be there in 15 minutes.', translation: 'Andoon ako sa loob ng 15 minuto.', sender: 'customer', timestamp: '10:14 AM', type: 'text' },
   { id: '4', type: 'voice', sender: 'customer', timestamp: '10:15 AM', voiceDuration: 8 },
   { id: '5', type: 'image', sender: 'customer', timestamp: '10:16 AM', imageUrl: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&auto=format&fit=crop' },
 ];
@@ -69,7 +70,7 @@ export default function ChatScreen() {
   const [voicePreviewDuration, setVoicePreviewDuration] = useState<number | null>(null);
   const [showLocationConfirm, setShowLocationConfirm] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState<string | null>(null);
-  const [translateMode, setTranslateMode] = useState(false);
+  const [translatedMessages, setTranslatedMessages] = useState<Record<string, boolean>>({});
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const recordingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -163,9 +164,11 @@ export default function ChatScreen() {
     });
   };
 
-  const handleToggleTranslate = () => {
-    setTranslateMode((prev) => !prev);
-    setShowAttachMenu(false);
+  const toggleTranslation = (id: string) => {
+    setTranslatedMessages((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   const handleVoicePlay = (msgId: string) => {
@@ -257,15 +260,10 @@ export default function ChatScreen() {
         <AppText variant="body" color={isWorker ? Colors.white : Colors.textPrimary}>
           {msg.text}
         </AppText>
-        {translateMode && !isWorker && msg.text && (
+        {msg.translation && translatedMessages[msg.id] && (
           <View style={styles.translationRow}>
-            <Globe size={10} color={Colors.textTertiary} />
-            <AppText variant="caption" color={Colors.textTertiary} style={{ fontStyle: 'italic' }}>
-              {msg.text === 'Hi, I am available for the plumbing job!'
-                ? 'Kamusta, available ako para sa plumbing job!'
-                : msg.text === 'I can be there in 15 minutes.'
-                  ? 'Andoon ako sa loob ng 15 minuto.'
-                  : `[Filipino translation]`}
+            <AppText variant="caption" color={isWorker ? 'rgba(255,255,255,0.8)' : Colors.cta} style={{ fontStyle: 'italic' }}>
+              {msg.translation}
             </AppText>
           </View>
         )}
@@ -275,6 +273,14 @@ export default function ChatScreen() {
           </AppText>
           {isWorker && <CheckCheck size={12} color="rgba(255,255,255,0.7)" />}
         </View>
+        {msg.translation && (
+          <Pressable style={styles.translateBtn} onPress={() => toggleTranslation(msg.id)}>
+            <Languages size={12} color={isWorker ? 'rgba(255,255,255,0.7)' : Colors.cta} />
+            <AppText variant="caption" weight="semiBold" color={isWorker ? 'rgba(255,255,255,0.7)' : Colors.cta}>
+              {translatedMessages[msg.id] ? 'Hide Translation' : 'See Translation'}
+            </AppText>
+          </Pressable>
+        )}
       </View>
     );
   };
@@ -435,12 +441,6 @@ export default function ChatScreen() {
               </View>
               <AppText variant="bodySm" weight="semiBold">{isRecording ? 'Stop Recording' : 'Voice Message'}</AppText>
             </Pressable>
-            <Pressable style={styles.attachOption} onPress={handleToggleTranslate}>
-              <View style={[styles.attachOptionIcon, { backgroundColor: translateMode ? Colors.primarySurface : Colors.surfaceLight }]}>
-                <Globe size={18} color={translateMode ? Colors.cta : Colors.textTertiary} />
-              </View>
-              <AppText variant="bodySm" weight="semiBold">{translateMode ? 'Translate: ON' : 'Translate'}</AppText>
-            </Pressable>
           </View>
         </>
       )}
@@ -532,6 +532,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing['1'],
     borderTopWidth: 1,
     borderTopColor: `${Colors.textTertiary}30`,
+  },
+  translateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: Spacing['1'],
   },
 
   // Voice

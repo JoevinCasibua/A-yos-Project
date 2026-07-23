@@ -22,6 +22,21 @@ import type { WalletTransaction, TransactionStatus } from '@/constants/workerMoc
 
 type TxFilter = 'all' | 'credit' | 'debit';
 
+const parseMMDDYYYY = (s: string): Date | null => {
+  const match = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, mm, dd, yyyy] = match;
+  const date = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
+  if (date.getMonth() !== parseInt(mm) - 1 || date.getDate() !== parseInt(dd)) return null;
+  return date;
+};
+
+const parseTxDate = (d: string): Date => {
+  const months: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  const [m, day] = d.split(' ');
+  return new Date(2026, months[m] || 0, parseInt(day));
+};
+
 const statusIcon = (s: TransactionStatus) => {
   if (s === 'completed') return <CheckCircle size={12} color={Colors.verified} />;
   if (s === 'pending') return <Clock size={12} color={Colors.warning} />;
@@ -53,34 +68,26 @@ export default function TransactionsHistoryScreen() {
         (t) =>
           t.label.toLowerCase().includes(q) ||
           t.sub.toLowerCase().includes(q) ||
-          t.amount.toLowerCase().includes(q),
+          t.amount.toLowerCase().includes(q) ||
+          (t.reference && t.reference.toLowerCase().includes(q)),
       );
     }
 
     if (fromDate.trim()) {
-      result = result.filter((t) => {
-        const txDate = new Date(t.date);
-        const from = new Date(fromDate);
-        return txDate >= from;
-      });
+      const from = parseMMDDYYYY(fromDate.trim());
+      if (from) {
+        result = result.filter((t) => parseTxDate(t.date) >= from);
+      }
     }
 
     if (toDate.trim()) {
-      result = result.filter((t) => {
-        const txDate = new Date(t.date);
-        const to = new Date(toDate);
-        return txDate <= to;
-      });
+      const to = parseMMDDYYYY(toDate.trim());
+      if (to) {
+        result = result.filter((t) => parseTxDate(t.date) <= to);
+      }
     }
 
-    result.sort((a, b) => {
-      const months: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-      const parseDate = (d: string) => {
-        const [m, day] = d.split(' ');
-        return new Date(2026, months[m] || 0, parseInt(day));
-      };
-      return parseDate(b.date).getTime() - parseDate(a.date).getTime();
-    });
+    result.sort((a, b) => parseTxDate(b.date).getTime() - parseTxDate(a.date).getTime());
 
     return result;
   }, [searchQuery, txFilter, fromDate, toDate]);
@@ -91,12 +98,7 @@ export default function TransactionsHistoryScreen() {
       if (!groups[tx.date]) groups[tx.date] = [];
       groups[tx.date].push(tx);
     });
-    const months: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-    const parseDate = (d: string) => {
-      const [m, day] = d.split(' ');
-      return new Date(2026, months[m] || 0, parseInt(day));
-    };
-    return Object.entries(groups).sort(([a], [b]) => parseDate(b).getTime() - parseDate(a).getTime());
+    return Object.entries(groups).sort(([a], [b]) => parseTxDate(b).getTime() - parseTxDate(a).getTime());
   }, [filteredTransactions]);
 
   return (
@@ -130,10 +132,12 @@ export default function TransactionsHistoryScreen() {
           <AppText variant="caption" color={Colors.textTertiary}>From</AppText>
           <TextInput
             style={styles.dateInput}
-            placeholder="e.g. Oct 10"
+            placeholder="MM/DD/YYYY"
             placeholderTextColor={Colors.textTertiary}
             value={fromDate}
             onChangeText={setFromDate}
+            keyboardType="numeric"
+            maxLength={10}
           />
         </View>
         <AppText variant="body" color={Colors.textTertiary}>—</AppText>
@@ -141,10 +145,12 @@ export default function TransactionsHistoryScreen() {
           <AppText variant="caption" color={Colors.textTertiary}>To</AppText>
           <TextInput
             style={styles.dateInput}
-            placeholder="e.g. Oct 14"
+            placeholder="MM/DD/YYYY"
             placeholderTextColor={Colors.textTertiary}
             value={toDate}
             onChangeText={setToDate}
+            keyboardType="numeric"
+            maxLength={10}
           />
         </View>
       </View>
@@ -203,7 +209,9 @@ export default function TransactionsHistoryScreen() {
                       </AppText>
                     </View>
                     <View style={styles.txBottom}>
-                      <AppText variant="caption" color={Colors.textTertiary}>{tx.sub}</AppText>
+                      <AppText variant="caption" color={Colors.textTertiary}>
+                        {tx.reference ? `${tx.reference} — ` : ''}{tx.sub}
+                      </AppText>
                       <View style={styles.txStatus}>
                         {statusIcon(tx.status)}
                         <AppText variant="caption" weight="bold" color={statusColor(tx.status)}>
