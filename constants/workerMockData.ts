@@ -437,7 +437,7 @@ export const workerBookings: WorkerBooking[] = [
     estimatedRepairTime: '1 - 2 hours',
     recommendedAction: 'Descale shower head, flush supply lines, and replace washers if needed.',
     paymentMethod: 'cash',
-    pricingType: 'fixed',
+    pricingType: 'hourly',
   },
   {
     id: 'cancelled-1',
