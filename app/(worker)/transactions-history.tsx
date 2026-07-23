@@ -31,6 +31,29 @@ const parseMMDDYYYY = (s: string): Date | null => {
   return date;
 };
 
+function formatDateInput(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) {
+    const m = parseInt(digits);
+    if (digits.length === 2 && m > 12) return '12';
+    return digits;
+  }
+  if (digits.length <= 4) {
+    const m = parseInt(digits.slice(0, 2));
+    const day = parseInt(digits.slice(2));
+    if (m > 12) return `12/${digits.slice(2)}`;
+    if (digits.length === 4 && day > 31) return `${digits.slice(0, 2)}/31`;
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+  const m = parseInt(digits.slice(0, 2));
+  const d = parseInt(digits.slice(2, 4));
+  const y = parseInt(digits.slice(4));
+  const mm = m > 12 ? '12' : digits.slice(0, 2);
+  const dd = d > 31 ? '31' : digits.slice(2, 4);
+  const yy = digits[4] && parseInt(digits[4]) < 2 ? '2' + digits.slice(5) : digits.slice(4);
+  return `${mm}/${dd}/${yy}`;
+}
+
 const parseTxDate = (d: string): Date => {
   const months: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
   const [m, day] = d.split(' ');
@@ -135,7 +158,7 @@ export default function TransactionsHistoryScreen() {
             placeholder="MM/DD/YYYY"
             placeholderTextColor={Colors.textTertiary}
             value={fromDate}
-            onChangeText={setFromDate}
+            onChangeText={(t) => setFromDate(formatDateInput(t))}
             keyboardType="numeric"
             maxLength={10}
           />
@@ -148,7 +171,7 @@ export default function TransactionsHistoryScreen() {
             placeholder="MM/DD/YYYY"
             placeholderTextColor={Colors.textTertiary}
             value={toDate}
-            onChangeText={setToDate}
+            onChangeText={(t) => setToDate(formatDateInput(t))}
             keyboardType="numeric"
             maxLength={10}
           />
