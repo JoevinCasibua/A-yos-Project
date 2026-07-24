@@ -11,10 +11,11 @@ import {
   Loader2,
   XCircle,
   Wrench,
-  AudioLines,
   Banknote,
   PhilippinePeso,
   User,
+  FileText,
+  ShieldAlert,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors, Radius, Spacing, Elevation, Layout, AvatarSize } from '@/constants/theme';
@@ -247,22 +248,41 @@ export default function BookingRequestScreen() {
             "{job.description}"
           </AppText>
 
-          {booking.issueIdentified && (
-            <View style={styles.analysisCard}>
-              <View style={styles.analysisRow}>
-                <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Issue Identified</AppText>
-                <AppText variant="bodySm" color={Colors.textPrimary}>{booking.issueIdentified}</AppText>
+          {booking.notes && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.voiceTranscriptSection}>
+                <View style={styles.detailLabel}>
+                  <FileText size={14} color={Colors.cta} />
+                  <AppText variant="label" weight="semiBold" color={Colors.cta}>Additional Notes</AppText>
+                </View>
+                <AppText variant="bodySm" color={Colors.textSecondary} style={styles.voiceTranscriptText}>
+                  {booking.notes}
+                </AppText>
               </View>
-              {booking.estimatedRepairTime && (
+            </>
+          )}
+
+          {(booking.urgency || booking.possibleCause || booking.voiceTranscript) && (
+            <View style={styles.analysisCard}>
+              {booking.urgency && (
                 <View style={styles.analysisRow}>
-                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Estimated Repair Time</AppText>
-                  <AppText variant="bodySm" color={Colors.textPrimary}>{booking.estimatedRepairTime}</AppText>
+                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Urgency</AppText>
+                  <AppText variant="bodySm" color={booking.urgency.includes('Critical') ? Colors.error : Colors.warning}>{booking.urgency}</AppText>
                 </View>
               )}
-              {booking.recommendedAction && (
+              {booking.possibleCause && (
                 <View style={styles.analysisRow}>
-                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Recommended Action</AppText>
-                  <AppText variant="bodySm" color={Colors.textPrimary}>{booking.recommendedAction}</AppText>
+                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Possible Cause</AppText>
+                  <AppText variant="bodySm" color={Colors.textSecondary}>{booking.possibleCause}</AppText>
+                </View>
+              )}
+              {booking.voiceTranscript && (
+                <View style={styles.analysisRow}>
+                  <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>AI Voice Transcript</AppText>
+                  <AppText variant="bodySm" color={Colors.textSecondary} style={styles.voiceTranscriptText}>
+                    {booking.voiceTranscript}
+                  </AppText>
                 </View>
               )}
             </View>
@@ -321,16 +341,14 @@ export default function BookingRequestScreen() {
             </>
           )}
 
-          {booking.voiceTranscript && (
+          {booking.safetyAdvice && (
             <>
               <View style={styles.divider} />
-              <View style={styles.voiceTranscriptSection}>
-                <View style={styles.detailLabel}>
-                  <AudioLines size={14} color={Colors.cta} />
-                  <AppText variant="label" weight="semiBold" color={Colors.cta}>AI Voice Transcript</AppText>
-                </View>
-                <AppText variant="bodySm" color={Colors.textSecondary} style={styles.voiceTranscriptText}>
-                  {booking.voiceTranscript}
+              <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Safety Advice</AppText>
+              <View style={styles.safetyAdviceBox}>
+                <ShieldAlert size={20} color={Colors.error} />
+                <AppText variant="bodySm" color={Colors.error} style={{ flex: 1 }}>
+                  {booking.safetyAdvice}
                 </AppText>
               </View>
             </>
@@ -584,6 +602,11 @@ const styles = StyleSheet.create({
   },
   analysisRow: { gap: Spacing['1'] },
   voiceTranscriptSection: { gap: Spacing['2'] },
+  safetyAdviceBox: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing['2'],
+    backgroundColor: `${Colors.error}10`,
+    padding: Spacing['3'], borderRadius: Radius.lg,
+  },
   voiceTranscriptText: { fontStyle: 'italic', lineHeight: 20 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginVertical: Spacing['1'] },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing['2'] },

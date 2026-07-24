@@ -299,13 +299,14 @@ export interface WorkerBooking {
   cancelledBy?: 'customer' | 'worker';
   serviceType?: string;
   voiceTranscript?: string;
-  issueIdentified?: string;
-  estimatedRepairTime?: string;
-  recommendedAction?: string;
+  urgency?: string;
+  possibleCause?: string;
+  safetyAdvice?: string;
   paymentMethod?: 'cash' | 'online';
   pricingType?: 'hourly' | 'fixed';
   isReported?: boolean;
   reportedReason?: string;
+  notes?: string;
 }
 
 export const workerBookings: WorkerBooking[] = [
@@ -326,11 +327,12 @@ export const workerBookings: WorkerBooking[] = [
     partsDescription: 'PVC pipe and fittings',
     serviceType: 'Plumbing Repair',
     voiceTranscript: 'Customer reported a persistent leak under the kitchen sink. Water dripping from the P-trap connection. Damage to cabinet base observed.',
-    issueIdentified: 'Leaking P-trap connection under kitchen sink with water damage to cabinet base.',
-    estimatedRepairTime: '1 - 2 hours',
-    recommendedAction: 'Replace P-trap assembly, reseal drain joint, and apply water-resistant sealant to cabinet base.',
+    urgency: 'High - Immediate attention recommended',
+    possibleCause: 'Deteriorated seal or cracked pipe at the P-trap connection.',
+    safetyAdvice: 'Turn off the water supply under the sink before the repair. Place a bucket to catch residual water.',
     paymentMethod: 'online',
     pricingType: 'fixed',
+    notes: 'Please bring your own tools. Access through the back door.',
   },
   {
     id: '2',
@@ -349,11 +351,12 @@ export const workerBookings: WorkerBooking[] = [
     duration: '45m',
     serviceType: 'Drain Cleaning',
     voiceTranscript: 'Slow drainage in bathroom floor drain. Foul odor noticed for the past week. Customer attempted chemical drain cleaner with no improvement.',
-    issueIdentified: 'Clogged floor drain with organic buildup causing slow drainage and odor.',
-    estimatedRepairTime: '45 minutes - 1 hour',
-    recommendedAction: 'Snaking the drain line followed by hydro-jet cleaning to remove buildup.',
+    urgency: 'Medium - Functional impairment',
+    possibleCause: 'Accumulated organic buildup and debris clogging the drain line.',
+    safetyAdvice: 'Ventilate the bathroom before starting. Avoid mixing chemical drain cleaners with other products.',
     paymentMethod: 'cash',
     pricingType: 'hourly',
+    notes: 'Small bathroom, limited workspace. Please park on the street.',
   },
   {
     id: '3',
@@ -370,9 +373,9 @@ export const workerBookings: WorkerBooking[] = [
     hourlyRate: 65,
     serviceType: 'Water Heater Installation',
     voiceTranscript: 'Customer needs a new 50-gallon water heater installed. Old unit has been disconnected. Gas line and venting are already in place.',
-    issueIdentified: 'Water heater replacement — old unit decommissioned, ready for new installation.',
-    estimatedRepairTime: '3 - 4 hours',
-    recommendedAction: 'Install new 50-gallon water heater, connect gas line, test pressure relief valve, and verify venting.',
+    urgency: 'Low - Scheduled installation',
+    possibleCause: 'Old unit decommissioned. Gas line and venting already in place for new installation.',
+    safetyAdvice: 'Ensure the gas valve is fully off before connecting the new unit. Check for gas leaks with soapy water after installation.',
     paymentMethod: 'online',
     pricingType: 'fixed',
   },
@@ -392,9 +395,9 @@ export const workerBookings: WorkerBooking[] = [
     duration: '1h 15m',
     serviceType: 'Faucet Replacement',
     voiceTranscript: 'Kitchen faucet dripping from the spout. Handle is loose and difficult to turn. Customer wants a new single-lever faucet installed.',
-    issueIdentified: 'Worn-out faucet cartridge causing drip and stiff handle operation.',
-    estimatedRepairTime: '1 - 1.5 hours',
-    recommendedAction: 'Remove old faucet, install new single-lever kitchen faucet, connect supply lines, and test for leaks.',
+    urgency: 'Low - Aesthetic or minor functional issue',
+    possibleCause: 'Worn-out faucet cartridge causing drip and stiff handle operation.',
+    safetyAdvice: 'Turn off water supply valves under the sink before removal. Have towels ready for residual water in the lines.',
     paymentMethod: 'cash',
     pricingType: 'fixed',
   },
@@ -414,9 +417,9 @@ export const workerBookings: WorkerBooking[] = [
     duration: '2h 30m',
     serviceType: 'Emergency Plumbing',
     voiceTranscript: 'Burst pipe in the bathroom wall. Water leaking into the adjacent room. Customer shut off the main valve. Urgent repair needed.',
-    issueIdentified: 'Burst copper pipe in bathroom wall causing water damage to adjacent room.',
-    estimatedRepairTime: '2 - 3 hours',
-    recommendedAction: 'Cut access to burst section, replace damaged copper pipe segment, solder joints, and test under pressure.',
+    urgency: 'Critical - Emergency repair needed',
+    possibleCause: 'Burst copper pipe due to corrosion or freezing. Water damage to adjacent room.',
+    safetyAdvice: 'Main water valve is already shut off. Turn off electricity to the affected area if water is near outlets.',
     paymentMethod: 'online',
     pricingType: 'hourly',
   },
@@ -435,9 +438,9 @@ export const workerBookings: WorkerBooking[] = [
     hourlyRate: 40,
     serviceType: 'Plumbing Repair',
     voiceTranscript: 'Low water pressure in the bathroom shower. Customer noticed gradual decrease over the past month. Other fixtures seem fine.',
-    issueIdentified: 'Mineral buildup in shower head and partially clogged supply line reducing water pressure.',
-    estimatedRepairTime: '1 - 2 hours',
-    recommendedAction: 'Descale shower head, flush supply lines, and replace washers if needed.',
+    urgency: 'Low - Aesthetic or minor functional issue',
+    possibleCause: 'Mineral buildup in shower head and partially clogged supply line reducing water pressure.',
+    safetyAdvice: 'No immediate safety concerns. Ensure the area is dry before working to prevent slips.',
     paymentMethod: 'cash',
     pricingType: 'hourly',
   },
