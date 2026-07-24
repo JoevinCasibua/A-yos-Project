@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Image } from 'react-native';
 import {
   ArrowLeft,
   MapPin,
@@ -30,6 +30,7 @@ import { BookingMap } from '@/components/booking/BookingMap';
 import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
 import { RescheduleDialog } from '@/components/booking/RescheduleDialog';
+import { WorkerSOSModal } from '@/components/booking/WorkerSOSModal';
 import { getBackRoute } from '@/constants/backRoutes';
 import { workerJobs, workerBookings, statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
@@ -90,6 +91,7 @@ export default function BookingRequestScreen() {
 
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
+  const [showSOS, setShowSOS] = useState(false);
 
   const handleRescheduleConfirm = (date: string, time: string, message: string) => {
     setShowRescheduleDialog(false);
@@ -187,7 +189,13 @@ export default function BookingRequestScreen() {
         <AppText variant="h4" weight="bold" color={Colors.textPrimary}>
           Booking Request
         </AppText>
-        <View style={{ width: 40 }} />
+        {['hired', 'accepted', 'en_route', 'arrived', 'in_progress'].includes(booking.status) && !booking.isReported ? (
+          <Pressable style={styles.sosButton} onPress={() => setShowSOS(true)}>
+            <Text style={styles.sosText}>SOS</Text>
+          </Pressable>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
       </View>
 
       <ScrollView
@@ -604,6 +612,13 @@ export default function BookingRequestScreen() {
         currentDate={booking.date}
         currentTime={booking.time}
       />
+
+      <WorkerSOSModal
+        visible={showSOS}
+        onClose={() => setShowSOS(false)}
+        bookingId={booking.id}
+        customerName={job.customerName}
+      />
     </View>
   );
 }
@@ -620,6 +635,11 @@ const styles = StyleSheet.create({
     width: 40, height: 40, borderRadius: Radius.full,
     alignItems: 'center', justifyContent: 'center',
   },
+  sosButton: {
+    backgroundColor: '#fef2f2', paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: '#fecaca',
+  },
+  sosText: { color: Colors.error, fontWeight: 'bold', fontSize: 13 },
   scrollView: { flex: 1 },
   scrollContent: {
     padding: Layout.screenPadding, paddingBottom: Spacing['10'], gap: Spacing['4'],

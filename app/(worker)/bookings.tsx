@@ -16,7 +16,7 @@ const BOOKING_TABS = ['Upcoming', 'In Progress', 'Pending', 'Completed', 'Cancel
 
 const TAB_FILTERS: Record<string, WorkerBooking['status'][]> = {
   'Upcoming': ['hired', 'accepted'],
-  'In Progress': ['en_route', 'in_progress'],
+  'In Progress': ['en_route', 'arrived', 'in_progress'],
   'Pending': ['pending_review'],
   'Completed': ['completed'],
   'Cancelled': ['cancelled'],

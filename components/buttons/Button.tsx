@@ -22,6 +22,7 @@ export interface ButtonProps extends TouchableOpacityProps {
   disabled?: boolean;
   icon?: LucideIcon;
   iconPosition?: 'left' | 'right';
+  iconColor?: string;
   fullWidth?: boolean;
   style?: any;
   textStyle?: TextStyle;
@@ -35,6 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   icon: Icon,
   iconPosition = 'left',
+  iconColor,
   fullWidth = false,
   style,
   textStyle,
@@ -108,7 +110,7 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         <>
           {Icon && iconPosition === 'left' && (
-            <Icon color={getTextColor()} size={20} style={styles.iconLeft} />
+            <Icon color={iconColor || getTextColor()} size={20} style={styles.iconLeft} />
           )}
           <Text style={[
             styles.text, 
@@ -119,7 +121,7 @@ export const Button: React.FC<ButtonProps> = ({
             {title}
           </Text>
           {Icon && iconPosition === 'right' && (
-            <Icon color={getTextColor()} size={20} style={styles.iconRight} />
+            <Icon color={iconColor || getTextColor()} size={20} style={styles.iconRight} />
           )}
         </>
       )}
