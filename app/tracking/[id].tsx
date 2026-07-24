@@ -40,6 +40,7 @@ export default function TrackingScreen() {
   // Modals state
   const [showCancelPolicy, setShowCancelPolicy] = useState(false);
   const [showCancelReason, setShowCancelReason] = useState(false);
+  const [showSOS, setShowSOS] = useState(false);
   
   // Cancel form
   const [selectedReason, setSelectedReason] = useState('');
@@ -87,7 +88,9 @@ export default function TrackingScreen() {
           <ArrowLeft color={theme.colors.textPrimary} size={24} />
         </TouchableOpacity>
         <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Live Tracking</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={() => setShowSOS(true)} style={styles.sosButton}>
+          <Text style={styles.sosText}>SOS</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -319,6 +322,52 @@ export default function TrackingScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
+      {/* SOS Emergency Modal */}
+      <Modal visible={showSOS} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom || 24 }]}>
+            <View style={styles.modalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <AlertTriangle color={theme.colors.error} size={24} style={{ marginRight: 8 }} />
+                <Text style={[theme.typography.h3, { color: theme.colors.error }]}>Emergency SOS</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowSOS(false)}>
+                <X color={theme.colors.textSecondary} size={24} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalBody}>
+              <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg }]}>
+                If you are in immediate danger, please contact local authorities immediately.
+              </Text>
+              
+              <Button 
+                title="Call Local Emergency (911)" 
+                variant="outlined"
+                icon={Phone}
+                style={{ marginBottom: theme.spacing.md, borderColor: theme.colors.error }}
+                textStyle={{ color: theme.colors.error }}
+                onPress={() => { alert('Dialing 911...'); setShowSOS(false); }}
+              />
+              
+              <Button 
+                title="Alert Emergency Contact" 
+                variant="outlined"
+                icon={MapPin}
+                style={{ marginBottom: theme.spacing.md }}
+                onPress={() => { alert('Live location & booking details sent to your emergency contact.'); setShowSOS(false); }}
+              />
+
+              <Button 
+                title="Alert A-yos Support Team" 
+                icon={AlertTriangle}
+                style={{ backgroundColor: theme.colors.error }}
+                onPress={() => { alert('A-yos Support has been alerted and will review this booking immediately.'); setShowSOS(false); }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </Screen>
   );
 }
@@ -364,4 +413,7 @@ const styles = StyleSheet.create({
   reasonTextActive: { color: theme.colors.surface, fontWeight: '500' },
 
   otherInput: { backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.borderLight, borderRadius: theme.radius.md, padding: 12, height: 100, textAlignVertical: 'top', marginTop: 8 },
+
+  sosButton: { backgroundColor: '#fef2f2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#fecaca' },
+  sosText: { color: theme.colors.error, fontWeight: 'bold', fontSize: 13 },
 });
