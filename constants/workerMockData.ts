@@ -289,7 +289,7 @@ export interface WorkerBooking {
   address: string;
   lat: number;
   lng: number;
-  status: 'hired' | 'accepted' | 'en_route' | 'in_progress' | 'pending_review' | 'completed' | 'cancelled';
+  status: 'hired' | 'accepted' | 'en_route' | 'arrived' | 'in_progress' | 'pending_review' | 'completed' | 'cancelled';
   price: string;
   hourlyRate: number;
   hasParts?: boolean;
@@ -505,6 +505,7 @@ export const statusConfig: Record<string, { label: string; variant: 'info' | 'wa
   hired: { label: 'Hired', variant: 'info' },
   accepted: { label: 'Chatting', variant: 'info' },
   en_route: { label: 'En Route', variant: 'warning' },
+  arrived: { label: 'Arrived', variant: 'info' },
   in_progress: { label: 'In Progress', variant: 'warning' },
   pending_review: { label: 'Pending Review', variant: 'neutral' },
   completed: { label: 'Completed', variant: 'success' },

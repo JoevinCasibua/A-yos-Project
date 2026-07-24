@@ -6,8 +6,9 @@ import { AppText } from '@/components/AppText';
 
 const STEPS = [
   { key: 'hired', label: 'Hired' },
-  { key: 'accepted', label: 'Chat' },
+  { key: 'accepted', label: 'Accepted' },
   { key: 'en_route', label: 'En Route' },
+  { key: 'arrived', label: 'Arrived' },
   { key: 'in_progress', label: 'Work' },
   { key: 'pending_review', label: 'Review' },
   { key: 'completed', label: 'Done' },
@@ -17,9 +18,10 @@ const STATUS_ORDER: Record<string, number> = {
   hired: 0,
   accepted: 1,
   en_route: 2,
-  in_progress: 3,
-  pending_review: 4,
-  completed: 5,
+  arrived: 3,
+  in_progress: 4,
+  pending_review: 5,
+  completed: 6,
   cancelled: -1,
 };
 

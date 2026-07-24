@@ -108,9 +108,8 @@ export default function BookingRequestScreen() {
   };
 
   const handleArrived = () => {
-    Alert.alert('Arrived', 'You have arrived at the location. Start the job when ready.', [
-      { text: 'Start Job', onPress: () => updateStatus('in_progress') },
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Arrived at Location', 'You have arrived at the customer\'s location. Start the job when ready.', [
+      { text: 'OK', onPress: () => updateStatus('arrived') },
     ]);
   };
 
@@ -204,10 +203,16 @@ export default function BookingRequestScreen() {
             <Badge
               label={statusConfig[booking.status]?.label || booking.status}
               variant={(statusConfig[booking.status]?.variant as any) || 'info'}
-              size="md"
+              size="sm"
             />
+            {booking.status === 'accepted' && (
+              <Badge label="Worker Preparing" variant="info" size="sm" />
+            )}
             {booking.status === 'in_progress' && (
-              <Badge label="Currently Working" variant="warning" size="md" />
+              <>
+                <Badge label="Service Started" variant="success" size="sm" />
+                <Badge label="Currently Working" variant="warning" size="sm" />
+              </>
             )}
           </View>
 
@@ -268,7 +273,7 @@ export default function BookingRequestScreen() {
               {booking.urgency && (
                 <View style={styles.analysisRow}>
                   <AppText variant="label" weight="semiBold" color={Colors.textSecondary}>Urgency</AppText>
-                  <AppText variant="bodySm" color={booking.urgency.includes('Critical') ? Colors.error : Colors.warning}>{booking.urgency}</AppText>
+                  <AppText variant="bodySm" color={Colors.textSecondary}>{booking.urgency}</AppText>
                 </View>
               )}
               {booking.possibleCause && (
@@ -454,6 +459,38 @@ export default function BookingRequestScreen() {
               leftIcon={<MapPin size={18} color={Colors.white} />}
               fullWidth
               onPress={handleArrived}
+            />
+          </>
+        )}
+
+        {booking.status === 'arrived' && (
+          <>
+            <BookingMap
+              destinationLat={booking.lat}
+              destinationLng={booking.lng}
+              destinationAddress={booking.address}
+            />
+            <View style={styles.contactRow}>
+              <Pressable style={styles.contactBtn} onPress={() => Alert.alert('Call', 'Calling customer...')}>
+                <Phone size={18} color={Colors.cta} />
+                <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>Call</AppText>
+              </Pressable>
+              <Pressable style={styles.contactBtn} onPress={() => router.push(`/messages/chat?id=${booking.id}`)}>
+                <MessageSquare size={18} color={Colors.cta} />
+                <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>Message</AppText>
+              </Pressable>
+            </View>
+            <AppButton
+              label="Start Job"
+              variant="primary"
+              leftIcon={<CheckCircle2 size={18} color={Colors.white} />}
+              fullWidth
+              onPress={() => {
+                Alert.alert('Start Job', 'Begin working on this job?', [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Start', onPress: () => updateStatus('in_progress') },
+                ]);
+              }}
             />
           </>
         )}
