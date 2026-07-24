@@ -28,7 +28,6 @@ interface Message {
 interface BookingChatProps {
   customerName: string;
   customerAvatar: string;
-  onConfirmDetails: () => void;
 }
 
 const MOCK_IMAGES = [
@@ -61,7 +60,6 @@ function translateText(text: string, targetLang: string): string {
 export const BookingChat = React.memo(function BookingChat({
   customerName,
   customerAvatar,
-  onConfirmDetails,
 }: BookingChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -472,21 +470,6 @@ export const BookingChat = React.memo(function BookingChat({
         </View>
       )}
 
-      {/* Confirm Button */}
-      <Pressable
-        style={[styles.confirmBtn, !canConfirm && styles.confirmBtnDisabled]}
-        onPress={canConfirm ? onConfirmDetails : undefined}
-        disabled={!canConfirm}
-      >
-        <AppText
-          variant="bodySm"
-          weight="semiBold"
-          color={canConfirm ? Colors.white : Colors.textTertiary}
-        >
-          {canConfirm ? '✓ Confirm Details' : 'Send a message to confirm'}
-        </AppText>
-      </Pressable>
-
       {/* Image Picker Modal */}
       <Modal visible={showImagePicker} transparent animationType="fade">
         <View style={styles.overlay}>
@@ -729,19 +712,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.errorBg,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-
-  // Confirm
-  confirmBtn: {
-    marginHorizontal: Spacing['3'],
-    marginBottom: Spacing['3'],
-    paddingVertical: Spacing['2'],
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.cta,
-    alignItems: 'center',
-  },
-  confirmBtnDisabled: {
-    backgroundColor: Colors.surfaceLight,
   },
 
   // Overlays

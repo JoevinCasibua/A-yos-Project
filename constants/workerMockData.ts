@@ -304,6 +304,8 @@ export interface WorkerBooking {
   recommendedAction?: string;
   paymentMethod?: 'cash' | 'online';
   pricingType?: 'hourly' | 'fixed';
+  isReported?: boolean;
+  reportedReason?: string;
 }
 
 export const workerBookings: WorkerBooking[] = [
@@ -474,6 +476,25 @@ export const workerBookings: WorkerBooking[] = [
     cancelledBy: 'worker',
     paymentMethod: 'cash',
     pricingType: 'hourly',
+  },
+  {
+    id: 'reported-1',
+    customerName: 'Ana Santos',
+    customerAvatar: 'https://images.pexels.com/photos/1234577/pexels-photo-1234577.jpeg?auto=compress&cs=tinysrgb&w=100',
+    service: 'Plumbing Repair',
+    date: 'Jul 12, 2024',
+    time: '10:30 AM',
+    address: '88 Rizal Avenue, Makati',
+    lat: 14.5547,
+    lng: 121.0500,
+    status: 'completed',
+    price: '₱1,200',
+    hourlyRate: 50,
+    duration: '1h 30m',
+    paymentMethod: 'cash',
+    pricingType: 'fixed',
+    isReported: true,
+    reportedReason: 'Customer did not pay',
   },
 ];
 

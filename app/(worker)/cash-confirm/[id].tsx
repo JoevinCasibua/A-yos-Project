@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Banknote, CheckCircle2, Clock, MapPin } from 'lucide-react-native';
+import { Banknote, CheckCircle2, Clock, MapPin, Flag } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -17,9 +17,13 @@ export default function CashConfirmScreen() {
 
   const booking = workerBookings.find((b) => b.id === id);
 
+  const handleReportPayment = () => {
+    router.push(`/(worker)/report-payment/${id}`);
+  };
+
   if (!booking) {
     return (
-      <Screen safeArea header={<PageHeader title="Cash Payment" from={`booking-request/${id}`} />}>
+      <Screen safeArea header={<PageHeader title="Cash Payment" />}>
         <View style={styles.centered}>
           <AppText variant="body" color={Colors.textSecondary}>Booking not found.</AppText>
         </View>
@@ -50,7 +54,7 @@ export default function CashConfirmScreen() {
 
   if (confirmed) {
     return (
-      <Screen safeArea header={<PageHeader title="Cash Payment" from={`booking-request/${id}`} />}>
+      <Screen safeArea header={<PageHeader title="Cash Payment" />}>
         <View style={styles.centered}>
           <View style={styles.successIcon}>
             <CheckCircle2 size={64} color={Colors.success} />
@@ -65,7 +69,7 @@ export default function CashConfirmScreen() {
   }
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Cash Payment" from={`booking-request/${id}`} />}>
+    <Screen safeArea scrollable header={<PageHeader title="Cash Payment" />}>
       <View style={styles.container}>
         {/* Payment Amount Card */}
         <View style={styles.amountCard}>
@@ -130,6 +134,20 @@ export default function CashConfirmScreen() {
             3. Once confirmed, this transaction will be recorded as completed.
           </AppText>
         </View>
+
+        {/* Report Payment Issue Button */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.reportButton,
+            pressed && styles.reportButtonPressed,
+          ]}
+          onPress={handleReportPayment}
+        >
+          <Flag size={18} color={Colors.error} />
+          <AppText variant="button" weight="semiBold" color={Colors.error}>
+            Report Payment Issue
+          </AppText>
+        </Pressable>
 
         {/* Confirm Button */}
         <AppButton
@@ -211,5 +229,19 @@ const styles = StyleSheet.create({
   },
   instructionText: {
     lineHeight: 22,
+  },
+  reportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing['2'],
+    height: 44,
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.error,
+    backgroundColor: Colors.white,
+  },
+  reportButtonPressed: {
+    opacity: 0.6,
   },
 });

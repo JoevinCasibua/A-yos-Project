@@ -12,6 +12,7 @@ const BACK_ROUTES: Record<string, Href> = {
   'topup-methods': '/(worker)/profile',
   'topup-history': '/(worker)/topup-history',
   'cash-confirm': '/(worker)/bookings',
+  'bookings-reported': '/(worker)/bookings?filter=Reported',
 };
 
 export function getBackRoute(from?: string): Href | '' {

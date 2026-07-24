@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable } from 'react-native';
-import { CalendarDays, Clock, MapPin, Phone, CheckCircle2, XCircle, Receipt } from 'lucide-react-native';
+import { CalendarDays, Clock, MapPin, Phone, CheckCircle2, XCircle, Receipt, Flag } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { Screen } from '@/components/layout/Screen';
@@ -8,10 +8,11 @@ import { EmptyState } from '@/components/layout/EmptyState';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { workerBookings, statusConfig } from '@/constants/workerMockData';
+import { JobTimer } from '@/components/booking/JobTimer';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
-const BOOKING_TABS = ['Upcoming', 'In Progress', 'Pending', 'Completed', 'Cancelled'];
+const BOOKING_TABS = ['Upcoming', 'In Progress', 'Pending', 'Completed', 'Cancelled', 'Reported'];
 
 const TAB_FILTERS: Record<string, WorkerBooking['status'][]> = {
   'Upcoming': ['hired', 'accepted'],
@@ -24,7 +25,7 @@ const TAB_FILTERS: Record<string, WorkerBooking['status'][]> = {
 export default function WorkerBookingsScreen() {
   const { filter } = useLocalSearchParams<{ filter?: string }>();
   const [activeTab, setActiveTab] = useState(
-    filter === 'Cancelled' ? 'Cancelled' : 'Upcoming',
+    filter === 'Cancelled' ? 'Cancelled' : filter === 'Reported' ? 'Reported' : 'Upcoming',
   );
   const [bookings, setBookings] = useState<WorkerBooking[]>(workerBookings);
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
@@ -46,6 +47,9 @@ export default function WorkerBookingsScreen() {
   }
 
   const filteredBookings = useMemo(() => {
+    if (activeTab === 'Reported') {
+      return bookings.filter((b) => b.isReported === true);
+    }
     const statuses = TAB_FILTERS[activeTab] || [];
     return bookings.filter((b) => statuses.includes(b.status));
   }, [activeTab, bookings]);
@@ -84,7 +88,7 @@ export default function WorkerBookingsScreen() {
             <Pressable
               key={booking.id}
               style={({ pressed }) => [{ opacity: pressed ? 0.96 : 1 }]}
-              onPress={() => router.push(`/(worker)/booking-request/${booking.id}?from=bookings`)}
+              onPress={() => router.push(activeTab === 'Reported' ? `/(worker)/reported-booking/${booking.id}?from=bookings-reported` : `/(worker)/booking-request/${booking.id}?from=bookings`)}
             >
               {/* ─── UPCOMING CARD ─── */}
               {activeTab === 'Upcoming' && (
@@ -167,17 +171,15 @@ export default function WorkerBookingsScreen() {
                     </View>
                   </View>
 
-                  <View style={[styles.timerRow, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
-                    <Clock size={14} color={theme.colors.primary} />
-                    <Text style={[theme.typography.caption, { color: theme.colors.primary, fontWeight: '600' }]}>
-                      {formatTimer(elapsedSeconds)}
-                    </Text>
-                    <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>·</Text>
-                    <Text style={[theme.typography.caption, { color: theme.colors.success, fontWeight: '600' }]}>
-                      ${(booking.hourlyRate * (elapsedSeconds / 3600)).toFixed(2)}
-                    </Text>
-                    <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>earned</Text>
-                  </View>
+                  {booking.status === 'in_progress' && (
+                    <View style={[styles.timerRow, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
+                      {booking.pricingType === 'hourly' ? (
+                        <JobTimer hourlyRate={booking.hourlyRate} />
+                      ) : (
+                        <JobTimer />
+                      )}
+                    </View>
+                  )}
 
                   <View style={styles.cardFooter}>
                     <Text style={[theme.typography.h4, { color: theme.colors.primary }]}>{booking.price}</Text>
@@ -325,6 +327,54 @@ export default function WorkerBookingsScreen() {
                   </View>
                 </View>
               )}
+
+              {/* ─── REPORTED CARD ─── */}
+              {activeTab === 'Reported' && (
+                <View style={[styles.bookingCard, styles.reportedCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={styles.customerRow}>
+                      <Flag size={20} color={theme.colors.error} />
+                      <View>
+                        <Text style={theme.typography.h4}>{booking.customerName}</Text>
+                        <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{booking.service}</Text>
+                      </View>
+                    </View>
+                    <Badge
+                      label="Reported"
+                      variant="error"
+                      size="sm"
+                    />
+                  </View>
+
+                  <View style={styles.cardDetails}>
+                    <View style={styles.detailRow}>
+                      <CalendarDays color={theme.colors.textTertiary} size={16} />
+                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.date}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Clock color={theme.colors.textTertiary} size={16} />
+                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.time}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <MapPin color={theme.colors.textTertiary} size={16} />
+                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                    </View>
+                  </View>
+
+                  {booking.reportedReason && (
+                    <View style={[styles.reportedReason, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
+                      <Text style={[theme.typography.caption, { color: theme.colors.error, fontStyle: 'italic' }]}>
+                        {booking.reportedReason}
+                      </Text>
+                    </View>
+                  )}
+
+                  <View style={styles.cardFooter}>
+                    <Text style={[theme.typography.h4, { color: theme.colors.primary }]}>{booking.price}</Text>
+                    <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>Tap to view</Text>
+                  </View>
+                </View>
+              )}
             </Pressable>
           ))
         )}
@@ -375,7 +425,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs,
   },
   timerRow: {
-    flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs,
+    alignItems: 'center', gap: theme.spacing.xs,
     paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm,
   },
   completedCard: {
@@ -391,6 +441,12 @@ const styles = StyleSheet.create({
     opacity: 0.6, backgroundColor: '#F8F8F8',
   },
   cancelledReason: {
+    paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm,
+  },
+  reportedCard: {
+    borderLeftWidth: 3, borderLeftColor: theme.colors.error,
+  },
+  reportedReason: {
     paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm,
   },
 });

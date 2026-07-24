@@ -100,8 +100,9 @@ export default function BookingRequestScreen() {
   };
 
   const handleConfirmDetails = () => {
-    Alert.alert('Details Confirmed', 'You have confirmed the details with the customer. Head to the location!', [
-      { text: 'OK', onPress: () => updateStatus('en_route') },
+    Alert.alert('Confirm Details', 'Are you sure you want to confirm the details and head to the location?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Proceed', onPress: () => updateStatus('en_route') },
     ]);
   };
 
@@ -394,12 +395,19 @@ export default function BookingRequestScreen() {
             <BookingChat
               customerName={job.customerName}
               customerAvatar={job.customerAvatar}
-              onConfirmDetails={handleConfirmDetails}
             />
             <Pressable style={styles.contactNowBtn} onPress={() => router.push(`/messages/chat?id=${booking.id}`)}>
               <MessageSquare size={16} color={Colors.cta} />
               <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>
                 Open Full Chat
+              </AppText>
+            </Pressable>
+            <Pressable
+              style={styles.confirmDetailsBtn}
+              onPress={handleConfirmDetails}
+            >
+              <AppText variant="body" weight="semiBold" color={Colors.white}>
+                ✓ Confirm Details
               </AppText>
             </Pressable>
           </>
@@ -434,7 +442,7 @@ export default function BookingRequestScreen() {
 
         {booking.status === 'in_progress' && (
           <>
-            <JobTimer hourlyRate={booking.hourlyRate} />
+            <JobTimer hourlyRate={booking.pricingType === 'hourly' ? booking.hourlyRate : undefined} />
             <View style={styles.contactRow}>
               <Pressable style={styles.contactBtn} onPress={() => Alert.alert('Call', 'Calling customer...')}>
                 <Phone size={18} color={Colors.cta} />
@@ -609,6 +617,13 @@ const styles = StyleSheet.create({
   },
 
   // Accepted chat
+  confirmDetailsBtn: {
+    marginHorizontal: Spacing['3'],
+    paddingVertical: Spacing['4'],
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.cta,
+    alignItems: 'center',
+  },
   contactNowBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: Spacing['2'], paddingVertical: Spacing['2'],

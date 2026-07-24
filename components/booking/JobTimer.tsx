@@ -6,7 +6,7 @@ import { AppText } from '@/components/AppText';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
 interface JobTimerProps {
-  hourlyRate: number;
+  hourlyRate?: number;
 }
 
 function formatTime(seconds: number): string {
@@ -28,7 +28,7 @@ export const JobTimer = React.memo(function JobTimer({ hourlyRate }: JobTimerPro
   }, [timerStart, tick]);
 
   const hours = elapsedSeconds / 3600;
-  const earnings = hourlyRate * hours;
+  const earnings = hourlyRate ? hourlyRate * hours : 0;
 
   return (
     <View style={styles.container}>
@@ -45,16 +45,20 @@ export const JobTimer = React.memo(function JobTimer({ hourlyRate }: JobTimerPro
         </AppText>
       </View>
 
-      <View style={styles.earningsRow}>
-        <AppText variant="body" color={Colors.textSecondary}>Earnings</AppText>
-        <AppText variant="h3" weight="bold" color={Colors.success}>
-          ${earnings.toFixed(2)}
-        </AppText>
-      </View>
+      {hourlyRate != null && (
+        <>
+          <View style={styles.earningsRow}>
+            <AppText variant="body" color={Colors.textSecondary}>Earnings</AppText>
+            <AppText variant="h3" weight="bold" color={Colors.success}>
+              ₱{earnings.toFixed(2)}
+            </AppText>
+          </View>
 
-      <AppText variant="caption" color={Colors.textTertiary} style={styles.rateText}>
-        Rate: ${hourlyRate}/hr
-      </AppText>
+          <AppText variant="caption" color={Colors.textTertiary} style={styles.rateText}>
+            Rate: ₱{hourlyRate}/hr
+          </AppText>
+        </>
+      )}
     </View>
   );
 });
