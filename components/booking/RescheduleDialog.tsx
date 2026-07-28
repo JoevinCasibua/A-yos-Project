@@ -10,8 +10,6 @@ interface RescheduleDialogProps {
   onClose: () => void;
   onConfirm: (date: string, time: string, message: string) => void;
   customerName: string;
-  currentDate?: string;
-  currentTime?: string;
 }
 
 const QUICK_TIMES = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
@@ -34,11 +32,9 @@ export function RescheduleDialog({
   onClose,
   onConfirm,
   customerName,
-  currentDate,
-  currentTime,
 }: RescheduleDialogProps) {
-  const [date, setDate] = useState(currentDate || '');
-  const [time, setTime] = useState(currentTime || '');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [message, setMessage] = useState('');
 
   const handleConfirm = () => {

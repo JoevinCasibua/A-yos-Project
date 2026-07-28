@@ -1,35 +1,65 @@
 import React, { useState } from 'react';
-import { View, Modal, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
-import { X, Star, Camera, CheckCircle2 } from 'lucide-react-native';
+import { View, Modal, StyleSheet, Pressable, ScrollView, TextInput, Image } from 'react-native';
+import { X, Star, Camera, CheckCircle2, Plus, Video, Play } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
-import { ImageUploadCard } from '@/components/ImageUploadCard';
+
+const MAX_PHOTOS = 5;
+
+const MOCK_PHOTOS = [
+  'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400',
+  'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400',
+  'https://images.pexels.com/photos/1669799/pexels-photo-1669799.jpeg?auto=compress&cs=tinysrgb&w=400',
+  'https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=400',
+  'https://images.pexels.com/photos/2119714/pexels-photo-2119714.jpeg?auto=compress&cs=tinysrgb&w=400',
+];
+
+const MOCK_VIDEO_THUMBNAIL = 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400';
 
 interface JobCompletionModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (data: { completionImage: string; workerRating: number; workerReview: string }) => void;
+  onSubmit: (data: { completionImages: string[]; completionVideo: string | null; workerRating: number; workerReview: string }) => void;
   customerName: string;
 }
 
 export function JobCompletionModal({ visible, onClose, onSubmit, customerName }: JobCompletionModalProps) {
-  const [completionImage, setCompletionImage] = useState<string | null>(null);
+  const [completionImages, setCompletionImages] = useState<string[]>([]);
+  const [completionVideo, setCompletionVideo] = useState<string | null>(null);
   const [workerRating, setWorkerRating] = useState(0);
   const [workerReview, setWorkerReview] = useState('');
-  const [imageError, setImageError] = useState('');
+  const [mediaError, setMediaError] = useState('');
   const [ratingError, setRatingError] = useState('');
 
-  const canSubmit = completionImage !== null && workerRating > 0;
+  const canSubmit = completionImages.length > 0 && workerRating > 0;
+
+  const handleAddPhoto = () => {
+    const nextIndex = completionImages.length % MOCK_PHOTOS.length;
+    setCompletionImages((prev) => [...prev, MOCK_PHOTOS[nextIndex]]);
+    setMediaError('');
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setCompletionImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddVideo = () => {
+    setCompletionVideo(MOCK_VIDEO_THUMBNAIL);
+  };
+
+  const handleRemoveVideo = () => {
+    setCompletionVideo(null);
+  };
 
   const handleSubmit = () => {
     let valid = true;
 
-    if (!completionImage) {
-      setImageError('Please upload a photo of the completed job');
+    if (completionImages.length === 0) {
+      setMediaError('Please upload at least one photo of the completed job');
       valid = false;
     } else {
-      setImageError('');
+      setMediaError('');
     }
 
     if (workerRating === 0) {
@@ -39,9 +69,10 @@ export function JobCompletionModal({ visible, onClose, onSubmit, customerName }:
       setRatingError('');
     }
 
-    if (valid && completionImage) {
+    if (valid) {
       onSubmit({
-        completionImage,
+        completionImages,
+        completionVideo,
         workerRating,
         workerReview: workerReview.trim(),
       });
@@ -50,10 +81,11 @@ export function JobCompletionModal({ visible, onClose, onSubmit, customerName }:
   };
 
   const handleClose = () => {
-    setCompletionImage(null);
+    setCompletionImages([]);
+    setCompletionVideo(null);
     setWorkerRating(0);
     setWorkerReview('');
-    setImageError('');
+    setMediaError('');
     setRatingError('');
     onClose();
   };
@@ -79,24 +111,85 @@ export function JobCompletionModal({ visible, onClose, onSubmit, customerName }:
               </AppText>
             </View>
 
+            {/* ─── Job Photos ─── */}
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Camera size={18} color={Colors.cta} />
                 <AppText variant="body" weight="semiBold">
-                  Job Photo <AppText variant="body" color={Colors.error}>*</AppText>
+                  Job Photos <AppText variant="body" color={Colors.error}>*</AppText>
+                </AppText>
+                <AppText variant="caption" color={Colors.textSecondary}>
+                  ({completionImages.length}/{MAX_PHOTOS})
                 </AppText>
               </View>
               <AppText variant="caption" color={Colors.textSecondary} style={styles.sectionDescription}>
-                Upload a photo of the completed work as proof of completion.
+                Upload photos of the completed work as proof of completion.
               </AppText>
-              <ImageUploadCard
-                label=""
-                description="Photo of completed job (JPG, PNG)"
-                onImageSelected={setCompletionImage}
-                error={imageError}
-              />
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.photoRow}
+              >
+                {completionImages.map((uri, index) => (
+                  <View key={index} style={styles.photoThumb}>
+                    <Image source={{ uri }} style={styles.photoThumbImage} />
+                    <Pressable style={styles.photoRemoveBtn} onPress={() => handleRemovePhoto(index)}>
+                      <X size={14} color={Colors.white} />
+                    </Pressable>
+                    <View style={styles.photoIndex}>
+                      <AppText variant="caption" weight="bold" color={Colors.white}>{index + 1}</AppText>
+                    </View>
+                  </View>
+                ))}
+
+                {completionImages.length < MAX_PHOTOS && (
+                  <Pressable style={styles.addPhotoBtn} onPress={handleAddPhoto}>
+                    <Plus size={24} color={Colors.cta} />
+                    <AppText variant="caption" weight="semiBold" color={Colors.cta}>Add Photo</AppText>
+                  </Pressable>
+                )}
+              </ScrollView>
+
+              {mediaError !== '' && (
+                <AppText variant="caption" color={Colors.error} style={styles.errorText}>
+                  {mediaError}
+                </AppText>
+              )}
             </View>
 
+            {/* ─── Job Video ─── */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Video size={18} color={Colors.cta} />
+                <AppText variant="body" weight="semiBold">
+                  Job Video <AppText variant="caption" color={Colors.textSecondary}>(Optional)</AppText>
+                </AppText>
+              </View>
+              <AppText variant="caption" color={Colors.textSecondary} style={styles.sectionDescription}>
+                Record a short video of the completed work.
+              </AppText>
+
+              {completionVideo ? (
+                <View style={styles.videoThumb}>
+                  <Image source={{ uri: completionVideo }} style={styles.videoThumbImage} />
+                  <View style={styles.videoPlayIcon}>
+                    <Play size={24} color={Colors.white} fill={Colors.white} />
+                  </View>
+                  <Pressable style={styles.videoRemoveBtn} onPress={handleRemoveVideo}>
+                    <X size={14} color={Colors.white} />
+                  </Pressable>
+                </View>
+              ) : (
+                <Pressable style={styles.addVideoBtn} onPress={handleAddVideo}>
+                  <Video size={24} color={Colors.cta} />
+                  <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>Add Video</AppText>
+                  <AppText variant="caption" color={Colors.textTertiary}>MP4, MOV up to 50MB</AppText>
+                </Pressable>
+              )}
+            </View>
+
+            {/* ─── Rating ─── */}
             <View style={styles.section}>
               <AppText variant="body" weight="semiBold" style={styles.sectionTitle}>
                 Rate the Customer <AppText variant="body" color={Colors.error}>*</AppText>
@@ -136,6 +229,7 @@ export function JobCompletionModal({ visible, onClose, onSubmit, customerName }:
               )}
             </View>
 
+            {/* ─── Review ─── */}
             <View style={styles.section}>
               <AppText variant="body" weight="semiBold" style={styles.sectionTitle}>
                 Review (Optional)
@@ -193,6 +287,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     maxHeight: '90%',
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -232,6 +327,101 @@ const styles = StyleSheet.create({
   sectionDescription: {
     marginBottom: Spacing['1'],
   },
+
+  // Photo grid
+  photoRow: {
+    flexDirection: 'row',
+    gap: Spacing['2'],
+    paddingVertical: Spacing['1'],
+  },
+  photoThumb: {
+    width: 100,
+    height: 100,
+    borderRadius: Radius.lg,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  photoThumbImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  photoRemoveBtn: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 4,
+    borderRadius: Radius.full,
+  },
+  photoIndex: {
+    position: 'absolute',
+    bottom: 4,
+    left: 4,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: Radius.sm,
+  },
+  addPhotoBtn: {
+    width: 100,
+    height: 100,
+    borderRadius: Radius.lg,
+    borderWidth: 2,
+    borderColor: Colors.cta,
+    borderStyle: 'dashed',
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing['1'],
+  },
+
+  // Video
+  videoThumb: {
+    width: '100%',
+    height: 160,
+    borderRadius: Radius.lg,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  videoThumbImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  videoPlayIcon: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -20,
+    marginLeft: -20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  videoRemoveBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 6,
+    borderRadius: Radius.full,
+  },
+  addVideoBtn: {
+    borderWidth: 2,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
+    borderRadius: Radius.lg,
+    padding: Spacing['4'],
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    gap: Spacing['1'],
+  },
+
+  // Rating
   starsRow: {
     flexDirection: 'row',
     gap: Spacing['2'],
@@ -244,6 +434,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing['1'],
     fontStyle: 'italic',
   },
+
+  // Review
   reviewInput: {
     borderWidth: 1.5,
     borderColor: Colors.border,
@@ -261,6 +453,8 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: Spacing['1'],
   },
+
+  // Footer
   footer: {
     flexDirection: 'row',
     padding: Spacing['4'],

@@ -98,7 +98,8 @@ export default function BookingRequestScreen() {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'cash' | 'online' | null>(null);
   const [completionData, setCompletionData] = useState<{
-    completionImage: string;
+    completionImages: string[];
+    completionVideo: string | null;
     workerRating: number;
     workerReview: string;
   } | null>(null);
@@ -130,7 +131,7 @@ export default function BookingRequestScreen() {
     setShowCompletionModal(true);
   };
 
-  const handleCompletionSubmit = (data: { completionImage: string; workerRating: number; workerReview: string }) => {
+  const handleCompletionSubmit = (data: { completionImages: string[]; completionVideo: string | null; workerRating: number; workerReview: string }) => {
     setCompletionData(data);
     setShowCompletionModal(false);
 
@@ -590,7 +591,8 @@ export default function BookingRequestScreen() {
             bookingId={booking.id}
             duration="1h 15m"
             earnings={booking.price}
-            completionImage={completionData?.completionImage}
+            completionImages={completionData?.completionImages}
+            completionVideo={completionData?.completionVideo ?? undefined}
             workerRating={completionData?.workerRating}
             workerReview={completionData?.workerReview}
             onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
@@ -630,8 +632,6 @@ export default function BookingRequestScreen() {
         onClose={() => setShowRescheduleDialog(false)}
         onConfirm={handleRescheduleConfirm}
         customerName={job.customerName}
-        currentDate={booking.date}
-        currentTime={booking.time}
       />
 
       <WorkerSOSModal

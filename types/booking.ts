@@ -36,7 +36,8 @@ export interface WorkerBooking {
   isReported?: boolean;
   reportedReason?: string;
   notes?: string;
-  completionImage?: string;
+  completionImages?: string[];
+  completionVideo?: string;
   workerRating?: number;
   workerReview?: string;
 }
