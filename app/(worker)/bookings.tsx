@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable } from 'react-native';
-import { CalendarDays, Clock, MapPin, Phone, CheckCircle2, XCircle, Receipt, Flag } from 'lucide-react-native';
+import { CalendarDays, Clock, MapPin, Phone, CheckCircle2, XCircle, Receipt, Flag, Star } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { Screen } from '@/components/layout/Screen';
@@ -263,6 +263,32 @@ export default function WorkerBookingsScreen() {
                     )}
                   </View>
 
+                  {booking.workerRating !== undefined && (
+                    <View style={[styles.reviewSummary, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
+                      <View style={styles.starsRow}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={12}
+                            color={star <= booking.workerRating! ? theme.colors.warning : theme.colors.border}
+                            fill={star <= booking.workerRating! ? theme.colors.warning : 'transparent'}
+                          />
+                        ))}
+                        <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, marginLeft: 4 }]}>
+                          {booking.workerRating}/5
+                        </Text>
+                      </View>
+                      {booking.workerReview && (
+                        <Text
+                          style={[theme.typography.caption, { color: theme.colors.textSecondary, fontStyle: 'italic', lineHeight: 18 }]}
+                          numberOfLines={2}
+                        >
+                          "{booking.workerReview}"
+                        </Text>
+                      )}
+                    </View>
+                  )}
+
                   <View style={styles.cardFooter}>
                     <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>
                       {booking.status === 'pending_review' ? 'Awaiting confirmation' : 'Paid'}
@@ -438,6 +464,12 @@ const styles = StyleSheet.create({
   },
   completedRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+  },
+  reviewSummary: {
+    paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm, gap: theme.spacing.xs,
+  },
+  starsRow: {
+    flexDirection: 'row', alignItems: 'center',
   },
   cancelledCard: {
     opacity: 0.6, backgroundColor: '#F8F8F8',

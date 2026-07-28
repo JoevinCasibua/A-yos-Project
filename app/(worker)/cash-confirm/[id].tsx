@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Banknote, CheckCircle2, Clock, MapPin, Flag } from 'lucide-react-native';
@@ -25,6 +25,16 @@ export default function CashConfirmScreen() {
     router.push(`/(worker)/report-payment/${id}`);
   };
 
+  useEffect(() => {
+    if (!confirmed || !booking) return;
+    const timer = setTimeout(() => {
+      router.replace(
+        `/(worker)/earnings-receipt?bookingId=${booking.id}&duration=${encodeURIComponent(booking.duration || '1h 15m')}&earnings=${encodeURIComponent(booking.price)}&from=cash-confirm/${booking.id}&type=earning`
+      );
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [confirmed]);
+
   if (!booking) {
     return (
       <Screen safeArea header={<PageHeader title="Cash Payment" />}>
@@ -47,11 +57,6 @@ export default function CashConfirmScreen() {
             setConfirmed(true);
             setStoreStatus(booking.id, 'pending_review');
             setCompletionTimer();
-            setTimeout(() => {
-              router.replace(
-                `/(worker)/earnings-receipt?bookingId=${booking.id}&duration=${encodeURIComponent(booking.duration || '1h 15m')}&earnings=${encodeURIComponent(booking.price)}&from=cash-confirm/${booking.id}&type=earning`
-              );
-            }, 1500);
           },
         },
       ]

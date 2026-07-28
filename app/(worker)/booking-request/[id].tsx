@@ -61,24 +61,30 @@ export default function BookingRequestScreen() {
   const setCompletionTimer = useWorkerBookingStore((s) => s.setCompletionTimer);
   const clearCurrentBooking = useWorkerBookingStore((s) => s.clearCurrentBooking);
   const completionTimestamp = useWorkerBookingStore((s) => s.completionTimestamp);
+  const completionData = useWorkerBookingStore((s) => s.completionData);
+  const setStoreCompletionData = useWorkerBookingStore((s) => s.setCompletionData);
 
   useEffect(() => {
     setStoreStatus(booking.id, booking.status);
+  }, [booking.id, booking.status]);
+
+  useEffect(() => {
     return () => {
-      if (booking.status === 'in_progress') {
+      const status = useWorkerBookingStore.getState().currentStatus;
+      if (status === 'in_progress') {
         clearCurrentBooking();
       }
     };
-  }, [booking.id, booking.status]);
+  }, []);
 
 
 
   const updateStatus = (newStatus: WorkerBooking['status']) => {
-    setStatusOverrides((prev) => ({ ...prev, [booking.id]: newStatus }));
-    setStoreStatus(booking.id, newStatus);
     if (newStatus === 'pending_review') {
       setCompletionTimer();
     }
+    setStatusOverrides((prev) => ({ ...prev, [booking.id]: newStatus }));
+    setStoreStatus(booking.id, newStatus);
   };
 
   useEffect(() => {
@@ -97,12 +103,6 @@ export default function BookingRequestScreen() {
   const [showSOS, setShowSOS] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'cash' | 'online' | null>(null);
-  const [completionData, setCompletionData] = useState<{
-    completionImages: string[];
-    completionVideo: string | null;
-    workerRating: number;
-    workerReview: string;
-  } | null>(null);
 
   const handleRescheduleConfirm = (date: string, time: string, message: string) => {
     setShowRescheduleDialog(false);
@@ -132,7 +132,7 @@ export default function BookingRequestScreen() {
   };
 
   const handleCompletionSubmit = (data: { completionImages: string[]; completionVideo: string | null; workerRating: number; workerReview: string }) => {
-    setCompletionData(data);
+    setStoreCompletionData(data);
     setShowCompletionModal(false);
 
     if (pendingAction === 'cash') {
@@ -591,10 +591,11 @@ export default function BookingRequestScreen() {
             bookingId={booking.id}
             duration="1h 15m"
             earnings={booking.price}
-            completionImages={completionData?.completionImages}
-            completionVideo={completionData?.completionVideo ?? undefined}
-            workerRating={completionData?.workerRating}
-            workerReview={completionData?.workerReview}
+            description={job.description}
+            completionImages={completionData?.completionImages ?? booking.completionImages}
+            completionVideo={completionData?.completionVideo ?? booking.completionVideo}
+            workerRating={completionData?.workerRating ?? booking.workerRating}
+            workerReview={completionData?.workerReview ?? booking.workerReview}
             onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
           />
         )}

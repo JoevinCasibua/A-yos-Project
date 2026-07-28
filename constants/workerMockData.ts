@@ -348,6 +348,12 @@ export const workerBookings: WorkerBooking[] = [
     safetyAdvice: 'Turn off water supply valves under the sink before removal. Have towels ready for residual water in the lines.',
     paymentMethod: 'cash',
     pricingType: 'fixed',
+    completionImages: [
+      'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=400',
+    ],
+    workerRating: 5,
+    workerReview: 'Excellent work! Emily was very professional and the faucet installation was done perfectly. Highly recommended.',
   },
   {
     id: '5',
@@ -444,6 +450,11 @@ export const workerBookings: WorkerBooking[] = [
     duration: '1h 30m',
     paymentMethod: 'cash',
     pricingType: 'fixed',
+    completionImages: [
+      'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400',
+    ],
+    workerRating: 2,
+    workerReview: 'Customer was difficult to work with and refused to pay after the job was completed satisfactorily.',
     isReported: true,
     reportedReason: 'Customer did not pay',
   },

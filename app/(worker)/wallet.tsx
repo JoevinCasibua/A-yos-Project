@@ -83,7 +83,7 @@ export default function WalletScreen() {
     if (txFilter === 'credit') filtered = filtered.filter((t) => t.credit);
     if (txFilter === 'debit') filtered = filtered.filter((t) => !t.credit);
     return filtered.slice(0, 3);
-  }, [txFilter]);
+  }, [txFilter, walletTransactions]);
 
   const maxBarWidth = screenWidth - Layout.screenPadding * 2 - 60;
 
