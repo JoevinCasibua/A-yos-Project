@@ -22,7 +22,7 @@ export default function BudgetConfigScreen() {
   const [minBudget, setMinBudget] = useState('500');
   const [maxBudget, setMaxBudget] = useState('1500');
 
-  const handlePresetSelect = (preset: any) => {
+  const handlePresetSelect = (preset: { id: string; label: string; min: string; max: string }) => {
     setActivePreset(preset.id);
     setMinBudget(preset.min);
     setMaxBudget(preset.max);

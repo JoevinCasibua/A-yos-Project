@@ -26,7 +26,7 @@ export default function RegisterScreen() {
 
   const password = watch('password');
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: { name: string; mobile: string; email: string; password: string; confirmPassword: string }) => {
     if (!emailVerified) {
       alert("Please verify your email address.");
       return;

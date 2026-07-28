@@ -18,7 +18,7 @@ export default function LoginScreen() {
     defaultValues: { email: '', password: '' }
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: { email: string; password: string }) => {
     setLoading(true);
     setTimeout(() => {
       login({ id: '1', name: 'Juan Dela Cruz', email: data.email, phone: '09171234567' });

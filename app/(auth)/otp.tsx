@@ -41,7 +41,7 @@ export default function OTPScreen() {
     }
   };
 
-  const handleKeyPress = (e: any, index: number) => {
+  const handleKeyPress = (e: import('react-native').NativeSyntheticEvent<import('react-native').TextInputKeyPressEventData>, index: number) => {
     if (e.nativeEvent.key === 'Backspace' && index > 0 && otp[index] === '') {
       inputs.current[index - 1]?.focus();
     }

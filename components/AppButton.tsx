@@ -95,7 +95,7 @@ export const AppButton = React.memo(function AppButton({
     }
   };
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: import('react-native').GestureResponderEvent) => {
     if (!isDisabled) {
       if (variant === 'primary' || variant === 'danger') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

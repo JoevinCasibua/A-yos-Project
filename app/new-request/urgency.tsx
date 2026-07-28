@@ -7,7 +7,7 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { useRequest, UrgencyLevel } from '@/context/RequestContext';
 
-const URGENCY_OPTIONS: { id: UrgencyLevel; title: string; subtitle: string; icon: any; color: string; bg: string }[] = [
+const URGENCY_OPTIONS: { id: UrgencyLevel; title: string; subtitle: string; icon: React.ComponentType<{ size?: number; color?: string }>; color: string; bg: string }[] = [
   {
     id: 'ASAP',
     title: 'ASAP / Emergency',
