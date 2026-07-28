@@ -14,7 +14,7 @@ import { statusConfig, walletPerformance } from '@/constants/workerMockData';
 import { useWorkerBookings, useWorkerJobs, useWorkerProfile } from '@/hooks';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
-export default function WorkerDashboardScreen() {
+export default function WorkerDashboardScreen() { 
   const insets = useSafeAreaInsets();
   const { data: workerProfile } = useWorkerProfile();
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);

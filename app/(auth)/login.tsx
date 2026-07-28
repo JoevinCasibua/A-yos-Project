@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Briefcase } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 export default function LoginScreen() {
@@ -119,6 +119,14 @@ export default function LoginScreen() {
               <Image source="https://cdn3.iconfinder.com/data/icons/picons-social/57/16-apple-512.png" style={[styles.socialIcon, { width: 22, height: 26 }]} contentFit="contain" />
             </TouchableOpacity>
           </View>
+
+          <TouchableOpacity
+            style={styles.workerSwitchBtn}
+            onPress={() => router.push('/register-worker')}
+          >
+            <Briefcase color={theme.colors.textSecondary} size={18} />
+            <Text style={styles.workerSwitchText}>Register as Worker</Text>
+          </TouchableOpacity>
 
           <View style={{ flex: 1 }} />
 
@@ -261,5 +269,20 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  workerSwitchBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    marginTop: 20,
+  },
+  workerSwitchText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+    marginLeft: 8,
   },
 });
