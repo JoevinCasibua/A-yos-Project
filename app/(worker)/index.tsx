@@ -14,20 +14,20 @@ import { workerProfile } from '@/constants/workerData';
 import { workerBookings, workerJobs, statusConfig, walletPerformance } from '@/constants/workerMockData';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
-const todayStats = [
-  { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress' || b.status === 'en_route').length.toString() },
-  { label: 'Pending', value: workerBookings.filter((b) => b.status === 'hired' || b.status === 'accepted').length.toString() },
-  { label: 'Completed', value: workerBookings.filter((b) => b.status === 'completed').length.toString() },
-  { label: 'Earnings', value: '₱1,800' },
-];
-
-const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review').slice(0, 3);
-const incomingJob = workerJobs[0];
-
 export default function WorkerDashboardScreen() {
   const insets = useSafeAreaInsets();
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
   const currentBookingId = useWorkerBookingStore((s) => s.currentBookingId);
+
+  const todayStats = [
+    { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress' || b.status === 'en_route').length.toString() },
+    { label: 'Pending', value: workerBookings.filter((b) => b.status === 'hired' || b.status === 'accepted').length.toString() },
+    { label: 'Completed', value: workerBookings.filter((b) => b.status === 'completed').length.toString() },
+    { label: 'Earnings', value: '₱1,800' },
+  ];
+
+  const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review').slice(0, 3);
+  const incomingJob = workerJobs[0];
 
   return (
     <View style={styles.container}>
