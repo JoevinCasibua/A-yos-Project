@@ -1,67 +1,24 @@
-import { providers, reviews, bookings, serviceCategories } from '@/constants/mockData';
-import { workerProfile } from '@/constants/workerData';
-import {
-  workerReviews,
-  workerJobs,
-  workerBookings,
-} from '@/constants/workerMockData';
-import type { WorkerReview, JobOpportunity, WorkerBooking, WorkerProfile, ProviderData, Review } from '@/types';
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'https://api-placeholder.example.com';
 
 export interface ApiResponse<T> {
   data: T;
   error?: string;
 }
 
-// ─── User API ────────────────────────────────────────────────────────────────
-
-export async function fetchProviders(): Promise<ApiResponse<ProviderData[]>> {
-  return { data: providers };
+export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  // TODO: Replace with real fetch when backend is available
+  // const response = await fetch(`${API_BASE}${path}`, {
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     ...options?.headers,
+  //   },
+  //   ...options,
+  // });
+  // if (!response.ok) throw new Error(`API error: ${response.status}`);
+  // return response.json();
+  throw new Error(`API not connected: ${path}`);
 }
 
-export async function fetchProviderById(id: string): Promise<ApiResponse<ProviderData | undefined>> {
-  return { data: providers.find((p) => p.id === id) };
-}
-
-export async function fetchReviews(): Promise<ApiResponse<Review[]>> {
-  return { data: reviews as Review[] };
-}
-
-export async function fetchBookings(): Promise<ApiResponse<typeof bookings>> {
-  return { data: bookings };
-}
-
-export async function fetchServiceCategories() {
-  return { data: serviceCategories };
-}
-
-// ─── Worker API ──────────────────────────────────────────────────────────────
-
-export async function fetchWorkerProfile(): Promise<ApiResponse<WorkerProfile>> {
-  return { data: workerProfile };
-}
-
-export async function fetchWorkerReviews(): Promise<ApiResponse<WorkerReview[]>> {
-  return { data: workerReviews };
-}
-
-export async function fetchWorkerJobs(): Promise<ApiResponse<JobOpportunity[]>> {
-  return { data: workerJobs };
-}
-
-export async function fetchWorkerBookings(): Promise<ApiResponse<WorkerBooking[]>> {
-  return { data: workerBookings };
-}
-
-export async function acceptJob(_jobId: string): Promise<ApiResponse<{ success: boolean }>> {
-  return { data: { success: true } };
-}
-
-export async function startJob(_bookingId: string): Promise<ApiResponse<{ success: boolean }>> {
-  return { data: { success: true } };
-}
-
-export async function completeJob(_bookingId: string): Promise<ApiResponse<{ success: boolean }>> {
-  return { data: { success: true } };
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
