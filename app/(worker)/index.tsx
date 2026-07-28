@@ -21,7 +21,7 @@ const todayStats = [
   { label: 'Earnings', value: '₱1,800' },
 ];
 
-const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review');
+const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review').slice(0, 3);
 const incomingJob = workerJobs[0];
 
 export default function WorkerDashboardScreen() {
@@ -33,13 +33,6 @@ export default function WorkerDashboardScreen() {
     <View style={styles.container}>
       <View style={[styles.topNav, { paddingTop: insets.top + theme.spacing.sm }]}>
         <View style={styles.headerTopRow}>
-          <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
-            <Image
-              source={workerProfile.avatarUri}
-              style={styles.headerAvatar}
-              contentFit="cover"
-            />
-          </Pressable>
           <Pressable style={styles.searchBar} onPress={() => router.push('/(worker)/universal-search?from=dashboard')}>
             <Search color={theme.colors.textSecondary} size={20} style={{ marginRight: 8 }} />
             <TextInput
@@ -53,6 +46,13 @@ export default function WorkerDashboardScreen() {
           <Pressable style={styles.iconButton} onPress={() => router.push('/notifications')}>
             <Bell color={theme.colors.surface} size={24} />
             <View style={styles.badge} />
+          </Pressable>
+          <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
+            <Image
+              source={workerProfile.avatarUri}
+              style={styles.headerAvatar}
+              contentFit="cover"
+            />
           </Pressable>
         </View>
       </View>
@@ -102,32 +102,36 @@ export default function WorkerDashboardScreen() {
 
         {/* Active Bookings */}
         <View style={styles.section}>
-          <Text style={[theme.typography.h4, { marginBottom: theme.spacing.md }]}>Active Bookings</Text>
-          {activeBookings.map((booking) => (
-            <Pressable
-              key={booking.id}
-              style={({ pressed }) => [styles.bookingCard, { opacity: pressed ? 0.95 : 1 }]}
-              onPress={() => router.push(`/(worker)/booking-request/${booking.id}?from=dashboard`)}
-            >
-              <View style={styles.bookingHeader}>
-                <Avatar uri={booking.customerAvatar} size={40} />
-                <View style={styles.bookingInfo}>
-                  <Text style={theme.typography.body1}>{booking.customerName}</Text>
-                  <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>{booking.service}</Text>
+          <View style={styles.bookingsContainer}>
+            <View style={styles.bookingsSectionHeader}>
+              <Text style={theme.typography.h4}>Active Bookings</Text>
+              <Pressable onPress={() => router.push('/(worker)/bookings')} style={styles.seeAllBtn}>
+                <Text style={[theme.typography.caption, { color: theme.colors.primary }]}>See All</Text>
+                <ChevronRight size={14} color={theme.colors.primary} />
+              </Pressable>
+            </View>
+            {activeBookings.map((booking) => (
+              <Pressable
+                key={booking.id}
+                style={({ pressed }) => [styles.bookingCard, { opacity: pressed ? 0.95 : 1 }]}
+                onPress={() => router.push(`/(worker)/booking-request/${booking.id}?from=dashboard`)}
+              >
+                <View style={styles.bookingHeader}>
+                  <Avatar uri={booking.customerAvatar} size={40} />
+                  <View style={styles.bookingInfo}>
+                    <Text style={theme.typography.body1}>{booking.customerName}</Text>
+                    <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>{booking.service}</Text>
+                  </View>
+                  <Badge label={statusConfig[booking.status].label} variant={statusConfig[booking.status].variant} />
                 </View>
-                <Badge label={statusConfig[booking.status].label} variant={statusConfig[booking.status].variant} />
-              </View>
-              <View style={styles.bookingMeta}>
-                <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.time}</Text>
-                <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>·</Text>
-                <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.address}</Text>
-              </View>
-            </Pressable>
-          ))}
-          <Pressable style={styles.seeAllBtn} onPress={() => router.push('/(worker)/bookings')}>
-            <Text style={[theme.typography.button, { color: theme.colors.primary }]}>See All Bookings</Text>
-            <ChevronRight size={18} color={theme.colors.primary} />
-          </Pressable>
+                <View style={styles.bookingMeta}>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.time}</Text>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>·</Text>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.address}</Text>
+                </View>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         {/* Worker Profile Card */}
@@ -182,11 +186,13 @@ const styles = StyleSheet.create({
   statItem: { alignItems: 'center', flex: 1 },
   statDivider: { width: 1, height: 28, backgroundColor: theme.colors.borderLight },
   section: { marginBottom: theme.spacing.xl, paddingHorizontal: theme.layout.screenPadding },
-  bookingCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, marginBottom: theme.spacing.md, ...theme.shadows.sm },
+  bookingsContainer: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.md, ...theme.shadows.sm },
+  bookingsSectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md },
+  seeAllBtn: { flexDirection: 'row', alignItems: 'center' },
+  bookingCard: { backgroundColor: theme.colors.background, borderRadius: theme.radius.lg, padding: theme.spacing.md, marginBottom: theme.spacing.sm },
   bookingHeader: { flexDirection: 'row', alignItems: 'center' },
   bookingInfo: { flex: 1, marginLeft: theme.spacing.sm },
   bookingMeta: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs, marginTop: theme.spacing.md, paddingTop: theme.spacing.md, borderTopWidth: 1, borderTopColor: theme.colors.borderLight },
-  seeAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: theme.spacing.sm, paddingVertical: theme.spacing.sm, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.lg, backgroundColor: theme.colors.surface },
   perfCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.lg, ...theme.shadows.sm },
   perfHeader: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginBottom: theme.spacing.lg },
   perfAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.colors.info, alignItems: 'center', justifyContent: 'center' },
