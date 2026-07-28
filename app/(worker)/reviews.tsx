@@ -6,11 +6,12 @@ import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ReviewsTab } from '@/components/ReviewsTab';
 import { SearchBar } from '@/components/SearchBar';
-import { workerReviews } from '@/constants/workerMockData';
+import { useWorkerReviews } from '@/hooks';
 
 export default function WorkerReviewsScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
+  const { data: workerReviews = [] } = useWorkerReviews();
 
   const filteredReviews = useMemo(() => {
     if (!searchQuery.trim()) return workerReviews;
