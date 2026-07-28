@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Platform, Pressable, StyleSheet, Text } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { LayoutDashboard, CalendarDays, User, Wallet, MessageSquare, Briefcase } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 85 : 60;
 
 export default function WorkerTabLayout() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
   const currentBookingId = useWorkerBookingStore((s) => s.currentBookingId);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/(auth)/login');
+    }
+  }, [isAuthenticated]);
 
   return (
     <View style={styles.container}>

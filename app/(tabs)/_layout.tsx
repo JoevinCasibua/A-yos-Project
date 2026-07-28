@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { Home, FileText, MessageSquare, User, Plus } from 'lucide-react-native';
 import { useDraftStore } from '@/store/useDraftStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const CreateButton = () => {
   const clearCurrentDraft = useDraftStore(state => state.clearCurrentDraft);
@@ -42,6 +43,15 @@ const CreateButton = () => {
 };
 
 export default function TabLayout() {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/(auth)/login');
+    }
+  }, [isAuthenticated]);
+
   return (
     <Tabs
       screenOptions={{
