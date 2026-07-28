@@ -1,3 +1,4 @@
+// TODO: Orphaned — not imported by any screen. Consider deleting or integrating.
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import {

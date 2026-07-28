@@ -1,3 +1,4 @@
+// TODO: Orphaned — not imported by any screen. Consider deleting or integrating.
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';

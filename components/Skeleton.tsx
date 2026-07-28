@@ -1,3 +1,4 @@
+// TODO: Orphaned — not imported by any screen. Consider deleting or integrating.
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import Animated, {

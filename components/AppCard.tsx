@@ -1,3 +1,4 @@
+// TODO: Orphaned — not imported by any screen. Consider deleting or integrating.
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';

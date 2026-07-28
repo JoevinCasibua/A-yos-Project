@@ -1,3 +1,4 @@
+// TODO: Orphaned — not imported by any screen. Consider deleting or integrating.
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import * as Location from 'expo-location';
