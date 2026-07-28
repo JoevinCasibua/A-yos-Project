@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { theme } from '@/constants/theme';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { RequestProvider } from '@/context/RequestContext';
 
 // Prevent auto hide while checking auth state
 SplashScreen.preventAutoHideAsync();
@@ -21,17 +22,19 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ 
-          headerShown: false,
-          contentStyle: { backgroundColor: theme.colors.background }
-        }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </SafeAreaProvider>
+      <RequestProvider>
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ 
+            headerShown: false,
+            contentStyle: { backgroundColor: theme.colors.background }
+          }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </SafeAreaProvider>
+      </RequestProvider>
     </QueryClientProvider>
   );
 }
