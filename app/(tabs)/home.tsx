@@ -5,31 +5,21 @@ import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Image } from 'expo-image';
-import { Search, Bell, MapPin, Star, Wrench, Zap, Droplets, Paintbrush, ChevronRight, Fan, Bug, Shovel, Monitor, Sparkles, Wallet, Clock } from 'lucide-react-native';
+import { Search, Bell, MapPin, Star, ChevronRight, Droplets, Zap, Wrench, Sparkles, Monitor, Fan, Paintbrush, Shovel, Wallet } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDraftStore } from '@/store/useDraftStore';
+import { homeCategories, homePromotions, homeRecommendedWorkers } from '@/constants/mockData';
 
-const CATEGORIES = [
-  { id: '1', name: 'Plumbing', icon: Droplets, color: '#0ea5e9', bg: '#e0f2fe' },
-  { id: '2', name: 'Electrical', icon: Zap, color: '#f59e0b', bg: '#fef3c7' },
-  { id: '3', name: 'Carpentry', icon: Wrench, color: '#10b981', bg: '#d1fae5' },
-  { id: '4', name: 'Cleaning', icon: Sparkles, color: '#06b6d4', bg: '#cffafe' },
-  { id: '5', name: 'Appliance', icon: Monitor, color: '#6366f1', bg: '#e0e7ff' },
-  { id: '6', name: 'AC Repair', icon: Fan, color: '#3b82f6', bg: '#dbeafe' },
-  { id: '7', name: 'Painting', icon: Paintbrush, color: '#8b5cf6', bg: '#ede9fe' },
-  { id: '8', name: 'Gardening', icon: Shovel, color: '#22c55e', bg: '#dcfce7' },
-];
-
-const PROMOTIONS = [
-  { id: '1', title: 'Up to 20% OFF', subtitle: 'On plumbing repairs', bg: '#fef08a', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop' },
-  { id: '2', title: 'Free Inspection', subtitle: 'For electrical works', bg: '#bae6fd', image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=600&auto=format&fit=crop' },
-];
-
-const RECOMMENDED_WORKERS = [
-  { id: '1', name: 'Mario Rossi - Makati', skill: 'Plumber', rating: 4.8, distance: '1.2km', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop', cover: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400&auto=format&fit=crop', promo: '₱50.00 off' },
-  { id: '2', name: 'Luigi Verdi - BGC', skill: 'Electrician', rating: 4.9, distance: '2.5km', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop', cover: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=400&auto=format&fit=crop', promo: '15% off total bill' },
-  { id: '3', name: 'Pedro Penduko - Pasay', skill: 'Master Plumber', rating: 4.7, distance: '3.1km', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop', cover: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=400&auto=format&fit=crop', promo: '₱100.00 off' },
-];
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ color: string; size: number }>> = {
+  Plumbing: Droplets,
+  Electrical: Zap,
+  Carpentry: Wrench,
+  Cleaning: Sparkles,
+  Appliance: Monitor,
+  'AC Repair': Fan,
+  Painting: Paintbrush,
+  Gardening: Shovel,
+};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -75,8 +65,8 @@ export default function HomeScreen() {
         <View style={[styles.mainCard, { marginTop: theme.spacing.md }]}>
           {/* Categories Grid */}
           <View style={styles.categoriesGrid}>
-            {CATEGORIES.map(cat => {
-              const Icon = cat.icon;
+            {homeCategories.map(cat => {
+              const Icon = CATEGORY_ICONS[cat.name] || Wrench;
               return (
                 <TouchableOpacity key={cat.id} style={styles.categoryItem} onPress={() => router.push(`/category/${cat.name.toLowerCase()}` as any)}>
                   <View style={[styles.categoryIconContainer, { backgroundColor: cat.bg }]}>
@@ -134,7 +124,7 @@ export default function HomeScreen() {
             <ChevronRight color={theme.colors.textSecondary} size={20} />
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.promoScroll}>
-            {PROMOTIONS.map(promo => (
+            {homePromotions.map(promo => (
               <TouchableOpacity key={promo.id} style={styles.promoCard}>
                 <Image source={promo.image} style={StyleSheet.absoluteFillObject} contentFit="cover" />
                 <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.3)' }]} />
@@ -165,7 +155,7 @@ export default function HomeScreen() {
 
         {/* Recommended Workers Grid */}
         <View style={styles.recommendedGrid}>
-          {RECOMMENDED_WORKERS.map(worker => (
+          {homeRecommendedWorkers.map(worker => (
             <TouchableOpacity key={worker.id} style={styles.recommendedCard}>
               <View style={styles.recommendedImageContainer}>
                 <Image source={worker.cover} style={StyleSheet.absoluteFillObject} contentFit="cover" />
