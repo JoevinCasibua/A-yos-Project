@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { CheckCircle2 } from 'lucide-react-native';
 
@@ -36,14 +36,14 @@ export default function TopUpSuccessScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button 
-            title="Back to Wallet" 
+          <AppButton 
+            label="Back to Wallet" 
             onPress={() => router.replace('/wallet')}
             fullWidth 
             style={styles.actionBtn}
           />
-          <Button 
-            title="Go to Home" 
+          <AppButton 
+            label="Go to Home" 
             variant="ghost"
             onPress={() => router.replace('/(tabs)/home')}
             fullWidth 

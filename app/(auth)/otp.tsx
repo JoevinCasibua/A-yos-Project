@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput as RNTextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft } from 'lucide-react-native';
 
@@ -111,8 +111,8 @@ export default function OTPScreen() {
           <Text style={[theme.typography.caption, styles.errorText]}>{error}</Text>
         ) : null}
 
-        <Button 
-          title="Verify" 
+        <AppButton 
+          label="Verify" 
           onPress={handleVerify} 
           loading={loading}
           fullWidth 

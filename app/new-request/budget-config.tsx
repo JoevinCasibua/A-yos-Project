@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Wallet } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -76,8 +76,8 @@ export default function BudgetConfigScreen() {
       </KeyboardAvoidingView>
 
       <View style={styles.footer}>
-        <Button 
-          title="Save Budget" 
+        <AppButton 
+          label="Save Budget" 
           onPress={handleSave} 
           disabled={!minBudget || !maxBudget}
           fullWidth 

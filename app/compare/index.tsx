@@ -6,7 +6,7 @@ import { theme } from '@/constants/theme';
 import { ArrowLeft, Trash2, Star, ShieldCheck } from 'lucide-react-native';
 import { useWorkerStore } from '@/store/useWorkerStore';
 import { Image } from 'expo-image';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 
 const { width } = Dimensions.get('window');
 
@@ -31,7 +31,7 @@ export default function CompareScreen() {
           <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, textAlign: 'center', marginTop: 8 }]}>
             Go back to search and add some workers to compare.
           </Text>
-          <Button title="Back to Search" onPress={() => router.push('/search' as any)} style={{ marginTop: theme.spacing.xl }} />
+          <AppButton label="Back to Search" onPress={() => router.push('/search' as any)} style={{ marginTop: theme.spacing.xl }} />
         </View>
       </Screen>
     );
@@ -106,17 +106,17 @@ export default function CompareScreen() {
             <View style={styles.labelCol} />
             {comparingWorkers.map((worker) => (
               <View key={worker.id} style={styles.workerCol}>
-                <Button 
-                  title="View Profile" 
-                  variant="outlined" 
+                <AppButton 
+                  label="View Profile" 
+                  variant="outline" 
                   style={{ width: '100%', marginBottom: 8, paddingVertical: 8 }}
-                  textStyle={{ fontSize: 12 }}
+                  labelStyle={{ fontSize: 12 }}
                   onPress={() => router.push(`/worker/${worker.id}` as any)}
                 />
-                <Button 
-                  title="Hire Now" 
+                <AppButton 
+                  label="Hire Now" 
                   style={{ width: '100%', paddingVertical: 8 }}
-                  textStyle={{ fontSize: 12 }}
+                  labelStyle={{ fontSize: 12 }}
                   onPress={() => router.push(`/tracking/${worker.id}` as any)}
                 />
               </View>

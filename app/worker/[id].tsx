@@ -7,7 +7,7 @@ import { ArrowLeft, Star, MapPin, CheckCircle2, MessageSquare, Clock, ShieldChec
 import { useWorkerStore } from '@/store/useWorkerStore';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 
 const { width } = Dimensions.get('window');
 
@@ -191,15 +191,15 @@ export default function WorkerProfileScreen() {
             {isComparing ? 'Added' : 'Compare'}
           </Text>
         </TouchableOpacity>
-        <Button 
-          title="Message" 
-          variant="outlined" 
-          icon={MessageSquare} 
+        <AppButton 
+          label="Message" 
+          variant="outline" 
+          leftIcon={<MessageSquare size={20} />}
           style={{ flex: 1, marginHorizontal: theme.spacing.sm }} 
           onPress={() => router.push(`/user-messages/chat?id=${worker.id}`)}
         />
-        <Button 
-          title="Book Now" 
+        <AppButton 
+          label="Book Now" 
           style={{ flex: 1 }} 
           onPress={() => router.push(`/tracking/${worker.id}`)}
         />

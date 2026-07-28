@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { TextInput } from '@/components/inputs/TextInput';
 import { theme } from '@/constants/theme';
 import { User, Mail, Phone, Lock, ArrowLeft, CheckSquare, Square } from 'lucide-react-native';
@@ -191,8 +191,8 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
 
-        <Button 
-          title="Next" 
+        <AppButton 
+          label="Next" 
           onPress={handleSubmit(onSubmit)} 
           loading={loading}
           fullWidth 

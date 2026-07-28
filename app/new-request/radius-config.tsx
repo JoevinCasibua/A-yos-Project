@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, MapPin, Minus, Plus } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -93,8 +93,8 @@ export default function RadiusConfigScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Button 
-          title="Apply Changes" 
+        <AppButton 
+          label="Apply Changes" 
           onPress={handleSave} 
           fullWidth 
         />

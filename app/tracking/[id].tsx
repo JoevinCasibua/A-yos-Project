@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Phone, MessageSquare, MapPin, CheckCircle2, Circle, X, AlertTriangle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -144,7 +144,7 @@ export default function TrackingScreen() {
               <Text style={[theme.typography.body2, { textAlign: 'center', marginTop: 8, color: theme.colors.textSecondary }]}>
                 You have cancelled this booking. Reason: {selectedReason === 'Other' ? otherReason : selectedReason}.
               </Text>
-              <Button title="Return to Home" onPress={() => router.push('/(tabs)/home' as any)} style={{ marginTop: 24, width: '100%' }} />
+              <AppButton label="Return to Home" onPress={() => router.push('/(tabs)/home' as any)} style={{ marginTop: 24, width: '100%' }} />
             </View>
           ) : (
             <View style={styles.timeline}>
@@ -200,8 +200,8 @@ export default function TrackingScreen() {
       {!isCancelled && (
         <View style={[styles.bottomBar, { paddingBottom: insets.bottom || theme.spacing.md }]}>
           {currentStepIndex >= TIMELINE_STEPS.length - 1 ? (
-            <Button 
-              title="Pay Now" 
+            <AppButton 
+              label="Pay Now" 
               onPress={handleCompletePayment}
               fullWidth 
             />
@@ -238,14 +238,14 @@ export default function TrackingScreen() {
                 • Cancellations made after the worker is dispatched may incur a <Text style={{ fontWeight: 'bold' }}>₱150 cancellation fee</Text>.
               </Text>
               
-              <Button 
-                title="Keep Booking" 
+              <AppButton 
+                label="Keep Booking" 
                 onPress={() => setShowCancelPolicy(false)} 
                 style={{ marginBottom: 12 }} 
               />
-              <Button 
-                title="Proceed to Cancel" 
-                variant="outlined" 
+              <AppButton 
+                label="Proceed to Cancel" 
+                variant="outline" 
                 onPress={() => {
                   setShowCancelPolicy(false);
                   setShowCancelReason(true);
@@ -311,8 +311,8 @@ export default function TrackingScreen() {
                 />
               )}
               
-              <Button 
-                title="Confirm Cancellation" 
+              <AppButton 
+                label="Confirm Cancellation" 
                 onPress={submitCancellation}
                 disabled={!selectedReason || (selectedReason === 'Other' && !otherReason)}
                 style={{ marginTop: 24, backgroundColor: theme.colors.error }}
@@ -340,26 +340,26 @@ export default function TrackingScreen() {
                 If you are in immediate danger, please contact local authorities immediately.
               </Text>
               
-              <Button 
-                title="Call Local Emergency (911)" 
-                variant="outlined"
-                icon={Phone}
+              <AppButton 
+                label="Call Local Emergency (911)" 
+                variant="outline"
+                leftIcon={<Phone size={20} color={theme.colors.error} />}
                 style={{ marginBottom: theme.spacing.md, borderColor: theme.colors.error }}
-                textStyle={{ color: theme.colors.error }}
+                labelStyle={{ color: theme.colors.error }}
                 onPress={() => { alert('Dialing 911...'); setShowSOS(false); }}
               />
               
-              <Button 
-                title="Alert Emergency Contact" 
-                variant="outlined"
-                icon={MapPin}
+              <AppButton 
+                label="Alert Emergency Contact" 
+                variant="outline"
+                leftIcon={<MapPin size={20} />}
                 style={{ marginBottom: theme.spacing.md }}
                 onPress={() => { alert('Live location & booking details sent to your emergency contact.'); setShowSOS(false); }}
               />
 
-              <Button 
-                title="Alert A-yos Support Team" 
-                icon={AlertTriangle}
+              <AppButton 
+                label="Alert A-yos Support Team" 
+                leftIcon={<AlertTriangle size={20} />}
                 style={{ backgroundColor: theme.colors.error }}
                 onPress={() => { alert('A-yos Support has been alerted and will review this booking immediately.'); setShowSOS(false); }}
               />

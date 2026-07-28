@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Switch, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, UploadCloud, AlertTriangle, CheckCircle2, ShieldOff, Image as ImageIcon } from 'lucide-react-native';
 
@@ -115,8 +115,8 @@ export default function ReportUserScreen() {
           />
         </View>
 
-        <Button 
-          title="Submit Report" 
+        <AppButton 
+          label="Submit Report" 
           onPress={handleSubmit} 
           loading={loading}
           style={styles.submitBtn}
@@ -132,7 +132,7 @@ export default function ReportUserScreen() {
             <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, textAlign: 'center', marginBottom: 24 }]}>
               Thank you for keeping the A-yos community safe. Our support team will review this incident shortly.
             </Text>
-            <Button title="Done" onPress={handleFinish} fullWidth />
+            <AppButton label="Done" onPress={handleFinish} fullWidth />
           </View>
         </View>
       </Modal>

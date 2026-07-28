@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Sparkles, CheckCircle2, MapPin, Calendar, Clock, DollarSign, PenTool, AlertTriangle, ShieldAlert } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -114,16 +114,16 @@ export default function IssueSummaryScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Button 
-          title="Continue to AI Matching" 
+        <AppButton 
+          label="Continue to AI Matching" 
           onPress={() => router.push('/new-request/matching')} 
           disabled={analyzing}
           fullWidth 
           style={{ marginBottom: theme.spacing.sm }}
         />
-        <Button 
-          title="Save Draft and Continue Later" 
-          variant="outlined"
+        <AppButton 
+          label="Save Draft and Continue Later" 
+          variant="outline"
           onPress={handleSaveDraft} 
           disabled={analyzing}
           fullWidth 

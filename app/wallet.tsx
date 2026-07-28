@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Wallet, Plus, History, ChevronRight, X, CreditCard, Smartphone, Building } from 'lucide-react-native';
 
@@ -78,8 +78,8 @@ export default function WalletScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          <Button 
-            title={selectedAmount ? `Top Up ₱${selectedAmount.toLocaleString()}` : "Select an amount to Top Up"} 
+          <AppButton 
+            label={selectedAmount ? `Top Up ₱${selectedAmount.toLocaleString()}` : "Select an amount to Top Up"} 
             onPress={handleTopUpClick} 
             disabled={!selectedAmount}
             fullWidth 
@@ -160,8 +160,8 @@ export default function WalletScreen() {
               })}
             </ScrollView>
 
-            <Button 
-              title="Confirm Payment" 
+            <AppButton 
+              label="Confirm Payment" 
               onPress={handleProceedPayment} 
               disabled={!selectedPayment}
               fullWidth 

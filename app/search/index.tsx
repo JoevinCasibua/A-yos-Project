@@ -7,7 +7,7 @@ import { ArrowLeft, Search, Filter, Star, MapPin, SlidersHorizontal, ChevronRigh
 import { useWorkerStore, type WorkerSearchProfile } from '@/store/useWorkerStore';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '@/components/buttons/Button';
+
 
 const CATEGORIES = ['All', 'Plumbing', 'Electrical', 'Cleaning', 'Carpentry', 'AC Repair'];
 

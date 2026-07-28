@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { CheckCircle2 } from 'lucide-react-native';
 
@@ -35,14 +35,14 @@ export default function PaymentSuccessScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button 
-            title="Rate the Service" 
+          <AppButton 
+            label="Rate the Service" 
             onPress={() => router.replace(`/review/${id}`)}
             fullWidth 
             style={styles.actionBtn}
           />
-          <Button 
-            title="Back to Home" 
+          <AppButton 
+            label="Back to Home" 
             variant="ghost"
             onPress={() => router.replace('/(tabs)/home')}
             fullWidth 

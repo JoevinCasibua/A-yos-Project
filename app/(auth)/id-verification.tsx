@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, UploadCloud, Camera, CheckCircle2 } from 'lucide-react-native';
 
@@ -87,8 +87,8 @@ export default function IDVerificationScreen() {
 
         <View style={{ flex: 1 }} />
 
-        <Button 
-          title="Submit for Verification" 
+        <AppButton 
+          label="Submit for Verification" 
           onPress={handleSubmit} 
           loading={loading}
           fullWidth 

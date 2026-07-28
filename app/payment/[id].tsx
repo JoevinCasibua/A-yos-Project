@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, CreditCard, Banknote, Smartphone, ChevronRight, Wallet } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -100,8 +100,8 @@ export default function PaymentScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Button 
-          title={`Pay ₱ 1,250.00`} 
+        <AppButton 
+          label={`Pay ₱ 1,250.00`} 
           onPress={handlePayment} 
           disabled={!selectedMethod}
           loading={loading}

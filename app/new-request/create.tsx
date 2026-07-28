@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { TextInput } from '@/components/inputs/TextInput';
 import { theme } from '@/constants/theme';
 import { useDraftStore } from '@/store/useDraftStore';
@@ -362,8 +362,8 @@ export default function CreateRequestScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Button 
-          title="Continue" 
+        <AppButton 
+          label="Continue" 
           onPress={handleNext} 
           disabled={!selectedCategory || description.length < 5 || address.length < 5}
           fullWidth 

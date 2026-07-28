@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { TextInput } from '@/components/inputs/TextInput';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Star, UploadCloud, X } from 'lucide-react-native';
@@ -124,8 +124,8 @@ export default function ReviewScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Button 
-          title="Submit Review" 
+        <AppButton 
+          label="Submit Review" 
           onPress={handleSubmit} 
           disabled={rating === 0}
           loading={loading}

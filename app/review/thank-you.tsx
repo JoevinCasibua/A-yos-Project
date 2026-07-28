@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { CheckCircle2, Star, Award, Calendar, ShieldCheck, ArrowRight } from 'lucide-react-native';
 import { Image } from 'expo-image';
@@ -114,15 +114,15 @@ export default function ReviewThankYouScreen() {
 
         {/* Alternative Actions */}
         <View style={styles.actions}>
-          <Button
-            title="Explore Other Services"
-            variant="outlined"
+          <AppButton
+            label="Explore Other Services"
+            variant="outline"
             onPress={() => router.push('/search' as any)}
             style={styles.actionBtn}
             fullWidth
           />
-          <Button
-            title="Back to Home"
+          <AppButton
+            label="Back to Home"
             variant="ghost"
             onPress={() => router.replace('/(tabs)/home' as any)}
             fullWidth

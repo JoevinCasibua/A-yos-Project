@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, MapPin, Star, MessageSquare, AlertCircle, ShieldCheck } from 'lucide-react-native';
 import { Image } from 'expo-image';
@@ -101,15 +101,15 @@ export default function MatchingScreen() {
       <Text style={[theme.typography.body1, { textAlign: 'center', color: theme.colors.textSecondary, marginBottom: theme.spacing.xxxl }]}>
         All nearby professionals are currently busy. Would you like to expand the search radius or try scheduling for later?
       </Text>
-      <Button 
-        title="Retry Search" 
+      <AppButton 
+        label="Retry Search" 
         onPress={() => { setRetryCount(1); setMatchState('searching'); }} 
         style={{ marginBottom: theme.spacing.md }} 
         fullWidth
       />
-      <Button 
-        title="Schedule for Later" 
-        variant="outlined"
+      <AppButton 
+        label="Schedule for Later" 
+        variant="outline"
         onPress={() => router.back()} 
         fullWidth
       />
@@ -123,8 +123,8 @@ export default function MatchingScreen() {
       <Text style={[theme.typography.body1, { textAlign: 'center', color: theme.colors.textSecondary, marginBottom: theme.spacing.xxxl }]}>
         {declinedName} is unable to take the job right now. We are finding you another top-rated professional.
       </Text>
-      <Button 
-        title="Find Another Match" 
+      <AppButton 
+        label="Find Another Match" 
         onPress={() => {
           // Add to declined list so they are filtered out
           const declinedWorker = workers.find(w => w.name === declinedName);
@@ -252,24 +252,24 @@ export default function MatchingScreen() {
                   </View>
 
                   <View style={styles.workerActions}>
-                    <Button 
-                      title="Profile" 
-                      variant="outlined" 
+                    <AppButton 
+                      label="Profile" 
+                      variant="outline" 
                       style={{ flex: 1, marginRight: theme.spacing.xs, paddingVertical: 8 }} 
-                      textStyle={{ fontSize: 12 }}
+                      labelStyle={{ fontSize: 12 }}
                       onPress={() => router.push(`/worker/${worker.id}` as any)}
                     />
-                    <Button 
-                      title="Message" 
-                      variant="outlined" 
+                    <AppButton 
+                      label="Message" 
+                      variant="outline" 
                       style={{ flex: 1, marginRight: theme.spacing.xs, paddingVertical: 8 }} 
-                      textStyle={{ fontSize: 12 }}
+                      labelStyle={{ fontSize: 12 }}
                       onPress={() => router.push(`/user-messages/chat?id=${worker.id}` as any)}
                     />
-                    <Button 
-                      title="Hire Now" 
+                    <AppButton 
+                      label="Hire Now" 
                       style={{ flex: 1, paddingVertical: 8 }} 
-                      textStyle={{ fontSize: 12 }}
+                      labelStyle={{ fontSize: 12 }}
                       onPress={() => handleHire(worker.id)} 
                     />
                   </View>

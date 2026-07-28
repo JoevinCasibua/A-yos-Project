@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Clock, Droplets, Zap, Wrench, Trash2, Calendar, Paintbrush } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -63,9 +63,8 @@ export default function DraftsScreen() {
                   <Text style={[theme.typography.caption, styles.metaText]}>{draft.time}</Text>
                 </View>
                 
-                <Button 
-                  title="Continue" 
-                  size="sm"
+                <AppButton 
+                  label="Continue" 
                   onPress={() => {
                     loadDraft(draft.id);
                     router.push('/new-request/create');

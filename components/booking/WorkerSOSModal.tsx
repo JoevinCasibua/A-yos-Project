@@ -3,7 +3,7 @@ import { View, Modal, StyleSheet, Pressable, Alert } from 'react-native';
 import { AlertTriangle, X, Phone, MapPin, ShieldAlert, Flag } from 'lucide-react-native';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
-import { Button } from '@/components/buttons/Button';
+import { AppButton } from '@/components/AppButton';
 import { router } from 'expo-router';
 
 interface WorkerSOSModalProps {
@@ -41,24 +41,23 @@ export function WorkerSOSModal({ visible, onClose, bookingId, customerName }: Wo
               If you feel unsafe or need immediate assistance, use one of the options below.
             </AppText>
 
-            <Button
-              title="Call Emergency Services (911)"
-              variant="outlined"
-              icon={Phone}
-              iconColor={Colors.error}
+            <AppButton
+              label="Call Emergency Services (911)"
+              variant="outline"
+              leftIcon={<Phone size={20} color={Colors.error} />}
               fullWidth
               style={{ marginBottom: Spacing['3'], borderColor: Colors.error }}
-              textStyle={{ color: Colors.error }}
+              labelStyle={{ color: Colors.error }}
               onPress={() => {
                 Alert.alert('Dialing 911...', 'Connecting you to local emergency services.');
                 onClose();
               }}
             />
 
-            <Button
-              title="Alert A-yos Safety Team"
+            <AppButton
+              label="Alert A-yos Safety Team"
               variant="danger"
-              icon={ShieldAlert}
+              leftIcon={<ShieldAlert size={20} />}
               fullWidth
               style={{ marginBottom: Spacing['3'] }}
               onPress={() => {
@@ -67,10 +66,10 @@ export function WorkerSOSModal({ visible, onClose, bookingId, customerName }: Wo
               }}
             />
 
-            <Button
-              title="Share Location with Support"
-              variant="outlined"
-              icon={MapPin}
+            <AppButton
+              label="Share Location with Support"
+              variant="outline"
+              leftIcon={<MapPin size={20} />}
               fullWidth
               onPress={() => {
                 Alert.alert('Location Shared', 'Your live location has been sent to A-yos support.');
@@ -80,10 +79,10 @@ export function WorkerSOSModal({ visible, onClose, bookingId, customerName }: Wo
 
             <View style={styles.divider} />
 
-            <Button
-              title="End Job & Report Issue"
-              variant="outlined"
-              icon={Flag}
+            <AppButton
+              label="End Job & Report Issue"
+              variant="outline"
+              leftIcon={<Flag size={20} />}
               fullWidth
               onPress={() => {
                 Alert.alert(
