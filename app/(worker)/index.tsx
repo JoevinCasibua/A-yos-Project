@@ -10,13 +10,13 @@ import { QuickActionsGrid } from '@/components/QuickActionsGrid';
 import { AppText } from '@/components/AppText';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
-import { workerProfile } from '@/constants/workerData';
 import { statusConfig, walletPerformance } from '@/constants/workerMockData';
-import { useWorkerBookings, useWorkerJobs } from '@/hooks';
+import { useWorkerBookings, useWorkerJobs, useWorkerProfile } from '@/hooks';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
 export default function WorkerDashboardScreen() {
   const insets = useSafeAreaInsets();
+  const { data: workerProfile } = useWorkerProfile();
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
   const currentBookingId = useWorkerBookingStore((s) => s.currentBookingId);
   const { data: workerBookings = [] } = useWorkerBookings();
@@ -52,7 +52,7 @@ export default function WorkerDashboardScreen() {
           </Pressable>
           <Pressable style={styles.avatarButton} onPress={() => router.push('/(worker)/profile')}>
             <Image
-              source={workerProfile.avatarUri}
+              source={workerProfile?.avatarUri}
               style={styles.headerAvatar}
               contentFit="cover"
             />

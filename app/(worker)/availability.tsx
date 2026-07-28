@@ -8,16 +8,18 @@ import { theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
-import { workerProfile, DAYS, DAY_LABELS, DayAvailability } from '@/constants/workerData';
+import { DAYS, DAY_LABELS, DayAvailability } from '@/constants/workerData';
+import { useWorkerProfile } from '@/hooks';
 
 const defaultAvailability: DayAvailability = { available: false, startTime: '09:00', endTime: '17:00' };
 
 export default function AvailabilityScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
+  const { data: workerProfile } = useWorkerProfile();
   const [availability, setAvailability] = useState<Record<string, DayAvailability>>(() => {
     const initial: Record<string, DayAvailability> = {};
     for (const day of DAYS) {
-      initial[day] = workerProfile.availability[day] || { ...defaultAvailability };
+      initial[day] = workerProfile?.availability?.[day] || { ...defaultAvailability };
     }
     return initial;
   });

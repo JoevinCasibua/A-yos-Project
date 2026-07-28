@@ -8,9 +8,7 @@ import { AppButton } from '@/components/AppButton';
 import { SearchBar } from '@/components/SearchBar';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { workerProfile } from '@/constants/workerData';
-
-const INITIAL_AREAS = [...workerProfile.serviceAreas];
+import { useWorkerProfile } from '@/hooks';
 
 const SUGGESTED_AREAS = [
   'Makati City', 'Taguig City', 'Pasig City', 'Mandaluyong City',
@@ -21,7 +19,8 @@ const SUGGESTED_AREAS = [
 
 export default function ServiceAreasScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
-  const [areas, setAreas] = useState<string[]>(INITIAL_AREAS);
+  const { data: workerProfile } = useWorkerProfile();
+  const [areas, setAreas] = useState<string[]>(workerProfile?.serviceAreas ?? []);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 

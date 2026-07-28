@@ -4,7 +4,7 @@ import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { theme } from '@/constants/theme';
-import { workerProfile } from '@/constants/workerData';
+import { useWorkerProfile } from '@/hooks';
 import { Image } from 'expo-image';
 import { X, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
@@ -16,8 +16,9 @@ const TILE_SIZE = (SCREEN_WIDTH - theme.layout.screenPadding * 2 - GAP) / COLUMN
 
 export default function PortfolioScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
+  const { data: workerProfile } = useWorkerProfile();
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const images = workerProfile.portfolioImages;
+  const images = workerProfile?.portfolioImages ?? [];
 
   if (images.length === 0) {
     return (

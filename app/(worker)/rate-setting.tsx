@@ -7,7 +7,7 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { workerProfile } from '@/constants/workerData';
+import { useWorkerProfile } from '@/hooks';
 
 const MIN_RATE = 150;
 const MAX_RATE = 2500;
@@ -19,7 +19,8 @@ function parseCurrentRate(rateStr: string): number {
 
 export default function RateSettingScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
-  const currentRate = parseCurrentRate(workerProfile.hourlyRate);
+  const { data: workerProfile } = useWorkerProfile();
+  const currentRate = parseCurrentRate(workerProfile?.hourlyRate ?? '₱45/hr');
   const [rateEnabled, setRateEnabled] = useState(true);
   const [rateInput, setRateInput] = useState(currentRate.toString());
   const [saved, setSaved] = useState(false);

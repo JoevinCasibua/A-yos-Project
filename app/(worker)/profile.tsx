@@ -12,7 +12,8 @@ import {
   BadgeCheck, ArrowUpFromLine, PlusCircle, FileText,
   DollarSign, CalendarDays,
 } from 'lucide-react-native';
-import { workerProfile, DAY_LABELS, DAYS } from '@/constants/workerData';
+import { DAY_LABELS, DAYS } from '@/constants/workerData';
+import { useWorkerProfile } from '@/hooks';
 import { Chip } from '@/components/Chip';
 
 const MENU_SECTIONS = [
@@ -64,6 +65,9 @@ const MENU_SECTIONS = [
 export default function WorkerProfileScreen() {
   const router = useRouter();
   const { logout } = useAuthStore();
+  const { data: workerProfile } = useWorkerProfile();
+
+  if (!workerProfile) return null;
 
   const handleItemPress = (id: string) => {
     if (id === 'verification') {
