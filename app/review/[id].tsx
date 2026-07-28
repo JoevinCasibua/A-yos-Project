@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert } f
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
-import { TextInput } from '@/components/inputs/TextInput';
+import { AppInput } from '@/components/AppInput';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Star, UploadCloud, X } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -80,7 +80,7 @@ export default function ReviewScreen() {
         </View>
 
         <Text style={[theme.typography.h4, styles.sectionTitle]}>Write a Review</Text>
-        <TextInput
+        <AppInput
           placeholder="Share your experience (optional)"
           multiline
           numberOfLines={4}

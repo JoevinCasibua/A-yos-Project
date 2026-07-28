@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
-import { TextInput } from '@/components/inputs/TextInput';
+import { AppInput } from '@/components/AppInput';
 import { theme } from '@/constants/theme';
 import { useDraftStore } from '@/store/useDraftStore';
 import { ArrowLeft, X, Wrench, Droplets, Zap, Paintbrush, MapPin, Navigation, Camera, Mic, Settings, Info, Sparkles, Monitor, Fan, Shovel, Calendar, Clock, ChevronDown, Circle, CheckCircle2 } from 'lucide-react-native';
@@ -204,7 +204,7 @@ export default function CreateRequestScreen() {
 
         {/* Description */}
         <Text style={[theme.typography.label, styles.sectionTitle, { marginTop: theme.spacing.lg }]}>Describe the problem</Text>
-        <TextInput
+        <AppInput
           placeholder="e.g. The sink is leaking under the cabinet..."
           multiline
           numberOfLines={4}
@@ -299,7 +299,7 @@ export default function CreateRequestScreen() {
 
         {/* Budget */}
         <Text style={[theme.typography.label, styles.sectionTitle]}>Budget (Optional)</Text>
-        <TextInput
+        <AppInput
           placeholder="e.g. 1500"
           value={budget}
           onChangeText={setBudget}
@@ -309,7 +309,7 @@ export default function CreateRequestScreen() {
 
         {/* Notes */}
         <Text style={[theme.typography.label, styles.sectionTitle]}>Additional Notes (Optional)</Text>
-        <TextInput
+        <AppInput
           placeholder="e.g. Please bring your own ladder..."
           multiline
           numberOfLines={2}
@@ -337,7 +337,7 @@ export default function CreateRequestScreen() {
           <MapPin color={theme.colors.error} size={32} style={styles.mapPin} />
           <View style={styles.mapOverlay} />
         </View>
-        <TextInput
+        <AppInput
           placeholder="Enter complete address"
           value={address}
           onChangeText={setAddress}

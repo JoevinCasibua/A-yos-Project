@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
-import { TextInput } from '@/components/inputs/TextInput';
+import { AppInput } from '@/components/AppInput';
 import { theme } from '@/constants/theme';
 import { User, Mail, Phone, Lock, ArrowLeft, CheckSquare, Square } from 'lucide-react-native';
 
@@ -63,10 +63,10 @@ export default function RegisterScreen() {
             control={control}
             rules={{ required: 'Full name is required' }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <AppInput
                 label="Full Name"
                 placeholder="Juan Dela Cruz"
-                leftIcon={User}
+                leftIcon={<User size={20} />}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -83,10 +83,10 @@ export default function RegisterScreen() {
               pattern: { value: /^[0-9]{11}$/, message: 'Must be 11 digits (e.g. 09171234567)' }
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <AppInput
                 label="Mobile Number"
                 placeholder="09171234567"
-                leftIcon={Phone}
+                leftIcon={<Phone size={20} />}
                 keyboardType="phone-pad"
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -105,10 +105,10 @@ export default function RegisterScreen() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <View style={{ position: 'relative' }}>
-                <TextInput
+                <AppInput
                   label="Email"
                   placeholder="juan@example.com"
-                  leftIcon={Mail}
+                  leftIcon={<Mail size={20} />}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   onBlur={onBlur}
@@ -140,11 +140,11 @@ export default function RegisterScreen() {
               minLength: { value: 8, message: 'Minimum 8 characters' }
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <AppInput
                 label="Password"
                 placeholder="Create password"
-                leftIcon={Lock}
-                isPassword
+                leftIcon={<Lock size={20} />}
+                secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -161,11 +161,11 @@ export default function RegisterScreen() {
               validate: val => val === password || 'Passwords do not match'
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <AppInput
                 label="Confirm Password"
                 placeholder="Confirm password"
-                leftIcon={Lock}
-                isPassword
+                leftIcon={<Lock size={20} />}
+                secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
