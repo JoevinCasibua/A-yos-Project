@@ -6,7 +6,7 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
-import { providers } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 import { useRequest } from '@/context/RequestContext';
 import { ArrowLeft, MapPin, CheckCircle, MessageSquare, ShieldAlert } from 'lucide-react-native';
 
@@ -57,6 +57,7 @@ export default function ASAPMatchScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { request } = useRequest();
+  const { data: providers = [] } = useProviders();
   
   const [matchedWorkers, setMatchedWorkers] = useState<any[]>([]);
 

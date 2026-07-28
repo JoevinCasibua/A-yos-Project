@@ -29,12 +29,14 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
 import { SectionHeader } from '@/components/SectionHeader';
-import { providers, reviews } from '@/constants/mockData';
+import { reviews } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 
 const { width } = Dimensions.get('window');
 
 export default function ProviderProfileScreen() {
   const { id, isApplicant } = useLocalSearchParams<{ id: string, isApplicant?: string }>();
+  const { data: providers = [] } = useProviders();
   const provider = providers.find((p) => p.id === id) || providers[0];
   const [isFav, setIsFav] = React.useState(false);
 

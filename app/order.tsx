@@ -7,11 +7,12 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { useRequest } from '@/context/RequestContext';
-import { providers } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 
 export default function OrderDetailsScreen() {
   const router = useRouter();
   const { request } = useRequest();
+  const { data: providers = [] } = useProviders();
 
   // If there's no active booking context, gracefully fallback to the first provider
   const workerId = request.selectedWorkerId || 'p1';

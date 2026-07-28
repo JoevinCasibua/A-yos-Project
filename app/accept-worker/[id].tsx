@@ -6,12 +6,13 @@ import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { providers } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 import { useRequest } from '@/context/RequestContext';
 
 export default function AcceptWorkerModal() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { data: providers = [] } = useProviders();
   const provider = providers.find((p) => p.id === id) || providers[0];
   const { updateRequest } = useRequest();
 

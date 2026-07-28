@@ -10,11 +10,13 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { RatingStars } from '@/components/RatingStars';
 import { useRequest } from '@/context/RequestContext';
-import { providers, weekDays, timeSlots } from '@/constants/mockData';
+import { weekDays, timeSlots } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 
 export default function BookingScreen() {
   const { request } = useRequest();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { data: providers = [] } = useProviders();
   const provider = providers.find((p) => p.id === id) || providers[0];
 
   const [selectedDay, setSelectedDay] = useState('2');

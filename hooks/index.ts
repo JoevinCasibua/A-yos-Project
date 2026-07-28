@@ -1,3 +1,4 @@
+export { useProviders } from './useProviders';
 export { useWorkerSearch } from './useWorkerSearch';
 export { useWorkerProfile } from './useWorkerProfile';
 export { useWorkerBookings } from './useWorkerBookings';

@@ -9,13 +9,14 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { JobSummary } from '@/components/JobSummary';
 import { ProviderCard } from '@/components/ProviderCard';
-import { providers } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 import { useRequest } from '@/context/RequestContext';
 
 export default function RequestDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { request } = useRequest();
+  const { data: providers = [] } = useProviders();
   
   // Mock applicants data based on providers
   const [applicants, setApplicants] = useState<any[]>([]);

@@ -6,11 +6,13 @@ import { Colors, Radius, Spacing, Elevation, Typography, Layout } from '@/consta
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { paymentMethods, providers } from '@/constants/mockData';
+import { paymentMethods } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 import { useRequest } from '@/context/RequestContext';
 
 export default function PaymentScreen() {
   const { request } = useRequest();
+  const { data: providers = [] } = useProviders();
   const [selectedMethod, setSelectedMethod] = useState('visa');
   const selectedWorker = providers.find((p) => p.id === request.selectedWorkerId) || providers[0];
 

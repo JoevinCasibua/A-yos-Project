@@ -6,7 +6,7 @@ import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
-import { providers } from '@/constants/mockData';
+import { useProviders } from '@/hooks';
 
 const QUICK_REPLIES = [
   "Can you come today?",
@@ -18,6 +18,7 @@ const QUICK_REPLIES = [
 export default function ChatScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { data: providers = [] } = useProviders();
   const provider = providers.find((p) => p.id === id) || providers[0];
   
   const [message, setMessage] = useState('');
