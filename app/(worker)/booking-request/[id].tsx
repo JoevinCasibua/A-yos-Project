@@ -31,6 +31,7 @@ import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
 import { RescheduleDialog } from '@/components/booking/RescheduleDialog';
 import { WorkerSOSModal } from '@/components/booking/WorkerSOSModal';
+import { JobCompletionModal } from '@/components/booking/JobCompletionModal';
 import { getBackRoute } from '@/constants/backRoutes';
 import { statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookings, useWorkerJobs } from '@/hooks';
@@ -92,9 +93,15 @@ export default function BookingRequestScreen() {
     }
   }, [booking.status]);
 
-  const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
   const [showSOS, setShowSOS] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'cash' | 'online' | null>(null);
+  const [completionData, setCompletionData] = useState<{
+    completionImage: string;
+    workerRating: number;
+    workerReview: string;
+  } | null>(null);
 
   const handleRescheduleConfirm = (date: string, time: string, message: string) => {
     setShowRescheduleDialog(false);
@@ -119,19 +126,25 @@ export default function BookingRequestScreen() {
   };
 
   const handleComplete = () => {
-    Alert.alert('Complete Job', 'Mark this job as completed and notify the customer?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Complete',
-        onPress: () => updateStatus('pending_review'),
-      },
-    ]);
+    setPendingAction('online');
+    setShowCompletionModal(true);
   };
 
-  const handleLeaveFeedback = () => {
-    Alert.alert('Feedback', 'Thanks for your feedback!', [
-      { text: 'OK', onPress: () => setFeedbackGiven(true) },
-    ]);
+  const handleCompletionSubmit = (data: { completionImage: string; workerRating: number; workerReview: string }) => {
+    setCompletionData(data);
+    setShowCompletionModal(false);
+
+    if (pendingAction === 'cash') {
+      router.push(`/(worker)/cash-confirm/${booking.id}`);
+    } else if (pendingAction === 'online') {
+      updateStatus('pending_review');
+    }
+    setPendingAction(null);
+  };
+
+  const handleCompletionModalClose = () => {
+    setShowCompletionModal(false);
+    setPendingAction(null);
   };
 
   useEffect(() => {
@@ -525,7 +538,10 @@ export default function BookingRequestScreen() {
                 variant="primary"
                 leftIcon={<Banknote size={18} color={Colors.white} />}
                 fullWidth
-                onPress={() => router.push(`/(worker)/cash-confirm/${booking.id}`)}
+                onPress={() => {
+                  setPendingAction('cash');
+                  setShowCompletionModal(true);
+                }}
               />
             ) : (
               <AppButton
@@ -574,7 +590,9 @@ export default function BookingRequestScreen() {
             bookingId={booking.id}
             duration="1h 15m"
             earnings={booking.price}
-            onLeaveFeedback={handleLeaveFeedback}
+            completionImage={completionData?.completionImage}
+            workerRating={completionData?.workerRating}
+            workerReview={completionData?.workerReview}
             onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
           />
         )}
@@ -620,6 +638,13 @@ export default function BookingRequestScreen() {
         visible={showSOS}
         onClose={() => setShowSOS(false)}
         bookingId={booking.id}
+        customerName={job.customerName}
+      />
+
+      <JobCompletionModal
+        visible={showCompletionModal}
+        onClose={handleCompletionModalClose}
+        onSubmit={handleCompletionSubmit}
         customerName={job.customerName}
       />
     </View>

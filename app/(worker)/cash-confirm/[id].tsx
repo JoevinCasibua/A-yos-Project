@@ -9,12 +9,15 @@ import { Badge } from '@/components/Badge';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useWorkerBookings } from '@/hooks';
+import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
 export default function CashConfirmScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [confirmed, setConfirmed] = useState(false);
   const { data: workerBookings = [] } = useWorkerBookings();
+  const setStoreStatus = useWorkerBookingStore((s) => s.setStatus);
+  const setCompletionTimer = useWorkerBookingStore((s) => s.setCompletionTimer);
 
   const booking = workerBookings.find((b) => b.id === id);
 
@@ -42,6 +45,8 @@ export default function CashConfirmScreen() {
           text: 'Confirm',
           onPress: () => {
             setConfirmed(true);
+            setStoreStatus(booking.id, 'pending_review');
+            setCompletionTimer();
             setTimeout(() => {
               router.replace(
                 `/(worker)/earnings-receipt?bookingId=${booking.id}&duration=${encodeURIComponent(booking.duration || '1h 15m')}&earnings=${encodeURIComponent(booking.price)}&from=cash-confirm/${booking.id}&type=earning`

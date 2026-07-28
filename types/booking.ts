@@ -36,6 +36,9 @@ export interface WorkerBooking {
   isReported?: boolean;
   reportedReason?: string;
   notes?: string;
+  completionImage?: string;
+  workerRating?: number;
+  workerReview?: string;
 }
 
 export interface CancellationReason {
