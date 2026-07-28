@@ -1,27 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
+import { UrgencyLevel, RequestState } from '@/types/request';
 
-export type UrgencyLevel = 'ASAP' | 'This Week' | 'Open Bidding';
-
-export type RequestState = {
-  photos: string[];
-  description: string;
-  category: string;
-  aiSummary: string;
-  aiRecommendations: string[];
-  confidenceScore: number;
-  hasParts?: boolean | null;
-  partsDescription?: string;
-  urgency: UrgencyLevel | null;
-  location: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  } | null;
-  selectedWorkerId: string | null;
-  status: 'Draft' | 'Searching' | 'Accepted' | 'En_Route' | 'Arrived' | 'In_Progress' | 'Completed' | 'Pending_Confirmation' | 'Scheduled' | 'Posted';
-  estimatedPriceRange?: string;
-  scheduledDate?: Date;
-};
+export type { UrgencyLevel, RequestState, RequestStatus } from '@/types/request';
 
 const initialState: RequestState = {
   photos: [],

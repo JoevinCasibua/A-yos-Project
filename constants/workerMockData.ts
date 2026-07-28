@@ -12,18 +12,23 @@ import {
   Award,
   Shield,
 } from 'lucide-react-native';
+import {
+  WorkerReview,
+  WorkerBooking,
+  CancellationReason,
+  ReportReason,
+  WalletTransaction,
+  PayoutMethod,
+  WorkerPerformance,
+  BarDatum,
+  TransactionStatus,
+  JobOpportunity,
+  JobComment,
+} from '@/types';
 
-export interface ReviewData {
-  id: string;
-  author: string;
-  avatarUri: string;
-  rating: number;
-  date: string;
-  comment: string;
-  serviceType: string;
-}
+export type { WorkerReview, WorkerBooking, CancellationReason, ReportReason, WalletTransaction, PayoutMethod, WorkerPerformance, BarDatum, TransactionStatus, JobOpportunity, JobComment } from '@/types';
 
-export const workerReviews: ReviewData[] = [
+export const workerReviews: WorkerReview[] = [
   {
     id: '1',
     author: 'Alex Johnson',
@@ -61,22 +66,6 @@ export const workerReviews: ReviewData[] = [
     serviceType: 'Water Heater Repair',
   },
 ];
-
-export interface JobOpportunity {
-  id: string;
-  customerName: string;
-  customerAvatar: string;
-  service: string;
-  category: string;
-  description: string;
-  location: string;
-  distance: string;
-  offeredPrice: string;
-  urgency: 'normal' | 'urgent';
-  postedTime: string;
-  imageUrl?: string;
-  commentCount: number;
-}
 
 export const workerJobs: JobOpportunity[] = [
   {
@@ -185,17 +174,6 @@ export const workerJobs: JobOpportunity[] = [
   },
 ];
 
-export interface JobComment {
-  id: string;
-  jobId: string;
-  author: string;
-  avatarUri: string;
-  text: string;
-  offerMin?: string;
-  offerMax?: string;
-  postedTime: string;
-}
-
 export const jobComments: JobComment[] = [
   {
     id: 'c1',
@@ -278,36 +256,6 @@ export const jobComments: JobComment[] = [
     postedTime: '8 min ago',
   },
 ];
-
-export interface WorkerBooking {
-  id: string;
-  customerName: string;
-  customerAvatar: string;
-  service: string;
-  date: string;
-  time: string;
-  address: string;
-  lat: number;
-  lng: number;
-  status: 'hired' | 'accepted' | 'en_route' | 'arrived' | 'in_progress' | 'pending_review' | 'completed' | 'cancelled';
-  price: string;
-  hourlyRate: number;
-  hasParts?: boolean;
-  partsDescription?: string;
-  duration?: string;
-  cancelledReason?: string;
-  cancelledBy?: 'customer' | 'worker';
-  serviceType?: string;
-  voiceTranscript?: string;
-  urgency?: string;
-  possibleCause?: string;
-  safetyAdvice?: string;
-  paymentMethod?: 'cash' | 'online';
-  pricingType?: 'hourly' | 'fixed';
-  isReported?: boolean;
-  reportedReason?: string;
-  notes?: string;
-}
 
 export const workerBookings: WorkerBooking[] = [
   {
@@ -553,14 +501,6 @@ export const INDUSTRIES = [
   { label: 'Construction', value: 'construction' },
 ];
 
-export interface CancellationReason {
-  id: string;
-  label: string;
-  category: 'customer' | 'worker' | 'job' | 'policy' | 'other';
-  jobStages: ('before_traveling' | 'after_arriving' | 'after_inspecting')[];
-  requiresInput?: boolean;
-}
-
 export const cancellationReasons: CancellationReason[] = [
   // Customer-related
   { id: 'cr1', label: 'Customer requested cancellation', category: 'customer', jobStages: ['before_traveling', 'after_arriving', 'after_inspecting'] },
@@ -606,12 +546,6 @@ export const jobStages = [
   { label: 'After Arriving', value: 'after_arriving' as const },
   { label: 'After Inspecting', value: 'after_inspecting' as const },
 ];
-
-export interface ReportReason {
-  id: string;
-  label: string;
-  category: 'safety' | 'service' | 'fraud';
-}
 
 export const reportReasons: ReportReason[] = [
   { id: 'sr1', label: 'Unsafe environment', category: 'safety' },
@@ -698,38 +632,6 @@ export const SKILLS_BY_INDUSTRY: Record<string, { label: string; value: string }
     { label: 'Demolition', value: 'demolition' },
   ],
 };
-
-export type TransactionStatus = 'completed' | 'pending' | 'failed';
-
-export interface WalletTransaction {
-  id: string;
-  date: string;
-  label: string;
-  sub: string;
-  credit: boolean;
-  amount: string;
-  status: TransactionStatus;
-  type: 'earning' | 'commission' | 'payout' | 'topup';
-  reference?: string;
-}
-
-export interface BarDatum {
-  day: string;
-  val: number;
-}
-
-export interface PayoutMethod {
-  id: string;
-  label: string;
-  color: string;
-  account: string;
-}
-
-export interface WorkerPerformance {
-  completionRate: number;
-  onTimeArrival: number;
-  repeatClients: number;
-}
 
 export const walletTransactions: WalletTransaction[] = [
   { id: 'tx1', date: 'Oct 14', label: 'Plumbing Repair', sub: 'Mario Rossi', credit: true, amount: '₱1,250', status: 'completed', type: 'earning', reference: 'TXN-2026-0001' },

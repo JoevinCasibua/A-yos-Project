@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Search, Filter, Star, MapPin, SlidersHorizontal, ChevronRight, X } from 'lucide-react-native';
-import { useWorkerStore, WorkerProfile } from '@/store/useWorkerStore';
+import { useWorkerStore, type WorkerSearchProfile } from '@/store/useWorkerStore';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/buttons/Button';
@@ -41,7 +41,7 @@ export default function SearchScreen() {
     return result.sort((a, b) => b.rating - a.rating);
   }, [workers, searchQuery, selectedCategory]);
 
-  const renderWorkerCard = ({ item }: { item: WorkerProfile }) => {
+  const renderWorkerCard = ({ item }: { item: WorkerSearchProfile }) => {
     const isComparing = compareList.includes(item.id);
 
     return (

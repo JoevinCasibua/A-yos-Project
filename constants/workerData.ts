@@ -1,45 +1,7 @@
-export interface WorkExperience {
-  id: string;
-  company: string;
-  role: string;
-  startDate: string;
-  endDate?: string;
-  isCurrent: boolean;
-  description: string;
-}
+import { WorkerProfile, WorkExperience, DayAvailability } from '@/types/worker';
 
-export interface DayAvailability {
-  available: boolean;
-  startTime: string;
-  endTime: string;
-}
-
-export const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
-export const DAY_LABELS: Record<string, string> = {
-  mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday',
-  fri: 'Friday', sat: 'Saturday', sun: 'Sunday',
-};
-
-export interface WorkerProfile {
-  id: string;
-  name: string;
-  email: string;
-  avatarUri: string;
-  category: string;
-  verificationStatus: 'verified' | 'pending' | 'rejected';
-  yearsExperience: number;
-  rating: number;
-  reviewCount: number;
-  completedJobs: number;
-  earnings: string;
-  hourlyRate: string;
-  skills: string[];
-  serviceAreas: string[];
-  portfolioImages: string[];
-  bio: string;
-  workExperience: WorkExperience[];
-  availability: Record<string, DayAvailability>;
-}
+export type { WorkExperience, DayAvailability, WorkerProfile } from '@/types/worker';
+export { DAYS, DAY_LABELS } from '@/types/worker';
 
 export const workerProfile: WorkerProfile = {
   id: 'w1',

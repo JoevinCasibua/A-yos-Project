@@ -7,20 +7,9 @@ import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { RatingStars } from './RatingStars';
 import * as Haptics from 'expo-haptics';
+import { ProviderData } from '@/types/provider';
 
-export interface ProviderData {
-  id: string;
-  name: string;
-  category: string;
-  avatarUri: string;
-  rating: number;
-  reviewCount: number;
-  distance: string;
-  eta: string;
-  verified: boolean;
-  price?: string;
-  estimatedPrice?: string;
-}
+export type { ProviderData } from '@/types/provider';
 
 interface ProviderCardProps {
   provider: ProviderData;

@@ -9,7 +9,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDraftStore } from '@/store/useDraftStore';
-import { useWorkerStore, WorkerProfile } from '@/store/useWorkerStore';
+import { useWorkerStore, type WorkerSearchProfile } from '@/store/useWorkerStore';
 
 // We'll define a mapping similar to the one in issue-summary if needed to convert categoryId to category name
 const CATEGORY_MAP: Record<string, string> = {
@@ -36,7 +36,7 @@ export default function MatchingScreen() {
   const { workers } = useWorkerStore();
   const currentDraft = useDraftStore(state => state.currentDraft);
   
-  const [matchedWorkers, setMatchedWorkers] = useState<WorkerProfile[]>([]);
+  const [matchedWorkers, setMatchedWorkers] = useState<WorkerSearchProfile[]>([]);
   const [declinedWorkers, setDeclinedWorkers] = useState<string[]>([]);
   const [declinedName, setDeclinedName] = useState('');
 

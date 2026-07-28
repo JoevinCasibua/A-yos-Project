@@ -1,34 +1,9 @@
 import { create } from 'zustand';
+import { WorkerSearchProfile, WorkerSearchReview } from '@/types/worker';
 
-export interface Review {
-  id: string;
-  author: string;
-  rating: number;
-  date: string;
-  comment: string;
-}
+export type { WorkerSearchProfile, WorkerSearchReview } from '@/types/worker';
 
-export interface WorkerProfile {
-  id: string;
-  name: string;
-  category: string;
-  skill: string;
-  rating: number;
-  reviewsCount: number;
-  distance: string;
-  price: string;
-  experienceYears: number;
-  avatar: string;
-  coverImage: string;
-  availability: string;
-  isFeatured: boolean;
-  isRecommended: boolean;
-  skills: string[];
-  portfolioImages: string[];
-  reviews: Review[];
-}
-
-const MOCK_WORKERS: WorkerProfile[] = [
+const MOCK_WORKERS: WorkerSearchProfile[] = [
   {
     "id": "w1",
     "name": "Mario Rossi 0",
@@ -1272,12 +1247,12 @@ const MOCK_WORKERS: WorkerProfile[] = [
 ];
 
 interface WorkerStore {
-  workers: WorkerProfile[];
-  compareList: string[]; // array of worker IDs
+  workers: WorkerSearchProfile[];
+  compareList: string[];
   addToCompare: (id: string) => void;
   removeFromCompare: (id: string) => void;
   clearCompare: () => void;
-  getWorkerById: (id: string) => WorkerProfile | undefined;
+  getWorkerById: (id: string) => WorkerSearchProfile | undefined;
 }
 
 export const useWorkerStore = create<WorkerStore>((set, get) => ({

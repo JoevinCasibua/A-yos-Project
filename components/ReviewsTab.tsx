@@ -6,12 +6,12 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { RatingStars } from '@/components/RatingStars';
 import { Chip } from '@/components/Chip';
-import type { ReviewData } from '@/constants/workerMockData';
+import type { WorkerReview } from '@/types';
 
 const filterOptions = ['All', '5 Stars', '4 Stars', '3 Stars', 'Recent'];
 
 interface ReviewsTabProps {
-  reviews: ReviewData[];
+  reviews: WorkerReview[];
   headerComponent?: React.ReactNode;
 }
 
@@ -50,7 +50,7 @@ export function ReviewsTab({ reviews, headerComponent }: ReviewsTabProps) {
     });
   }, []);
 
-  const renderItem: ListRenderItem<ReviewData> = useCallback(
+  const renderItem: ListRenderItem<WorkerReview> = useCallback(
     ({ item }) => (
       <View style={styles.reviewCard}>
         <View style={styles.reviewHeader}>
@@ -86,7 +86,7 @@ export function ReviewsTab({ reviews, headerComponent }: ReviewsTabProps) {
     [likedReviews, toggleLike],
   );
 
-  const keyExtractor = useCallback((item: ReviewData) => item.id, []);
+  const keyExtractor = useCallback((item: WorkerReview) => item.id, []);
 
   return (
     <FlatList

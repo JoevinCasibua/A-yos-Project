@@ -5,9 +5,7 @@ import {
   workerJobs,
   workerBookings,
 } from '@/constants/workerMockData';
-import type { ReviewData, JobOpportunity, WorkerBooking } from '@/constants/workerMockData';
-import type { WorkerProfile } from '@/constants/workerData';
-import type { ProviderData } from '@/components/ProviderCard';
+import type { WorkerReview, JobOpportunity, WorkerBooking, WorkerProfile, ProviderData, Review } from '@/types';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -26,8 +24,8 @@ export async function fetchProviderById(id: string): Promise<ApiResponse<Provide
   return { data: providers.find((p) => p.id === id) };
 }
 
-export async function fetchReviews(): Promise<ApiResponse<ReviewData[]>> {
-  return { data: reviews as unknown as ReviewData[] };
+export async function fetchReviews(): Promise<ApiResponse<Review[]>> {
+  return { data: reviews as Review[] };
 }
 
 export async function fetchBookings(): Promise<ApiResponse<typeof bookings>> {
@@ -44,7 +42,7 @@ export async function fetchWorkerProfile(): Promise<ApiResponse<WorkerProfile>> 
   return { data: workerProfile };
 }
 
-export async function fetchWorkerReviews(): Promise<ApiResponse<ReviewData[]>> {
+export async function fetchWorkerReviews(): Promise<ApiResponse<WorkerReview[]>> {
   return { data: workerReviews };
 }
 
