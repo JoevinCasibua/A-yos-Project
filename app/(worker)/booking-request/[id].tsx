@@ -52,10 +52,16 @@ export default function BookingRequestScreen() {
     return {};
   });
 
+  const storeBookingId = useWorkerBookingStore((s) => s.currentBookingId);
+  const storeStatus = useWorkerBookingStore((s) => s.currentStatus);
+
   const booking = useMemo(() => {
     const base = workerBookings.find((b) => b.id === id) || workerBookings[0];
-    return statusOverrides[base.id] ? { ...base, status: statusOverrides[base.id] } : base;
-  }, [id, statusOverrides]);
+    const storeOverride = (storeBookingId === base.id && storeStatus) ? storeStatus : null;
+    const localOverride = statusOverrides[base.id] || null;
+    const effectiveStatus = storeOverride || localOverride || base.status;
+    return { ...base, status: effectiveStatus };
+  }, [id, statusOverrides, storeStatus, storeBookingId]);
 
   const setStoreStatus = useWorkerBookingStore((s) => s.setStatus);
   const setCompletionTimer = useWorkerBookingStore((s) => s.setCompletionTimer);
@@ -63,10 +69,6 @@ export default function BookingRequestScreen() {
   const completionTimestamp = useWorkerBookingStore((s) => s.completionTimestamp);
   const completionData = useWorkerBookingStore((s) => s.completionData);
   const setStoreCompletionData = useWorkerBookingStore((s) => s.setCompletionData);
-
-  useEffect(() => {
-    setStoreStatus(booking.id, booking.status);
-  }, [booking.id, booking.status]);
 
   useEffect(() => {
     return () => {

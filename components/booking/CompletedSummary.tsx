@@ -486,9 +486,9 @@ const styles = StyleSheet.create({
   modalBody: {
   },
   modalBodyContent: {
-    paddingHorizontal: Spacing['3'],
-    paddingVertical: Spacing['2'],
-    gap: Spacing['2'],
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['4'],
+    gap: Spacing['3'],
   },
   modalMediaRow: {
     flexDirection: 'row',

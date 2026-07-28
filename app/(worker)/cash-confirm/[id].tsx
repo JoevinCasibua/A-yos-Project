@@ -28,12 +28,10 @@ export default function CashConfirmScreen() {
   useEffect(() => {
     if (!confirmed || !booking) return;
     const timer = setTimeout(() => {
-      router.replace(
-        `/(worker)/earnings-receipt?bookingId=${booking.id}&duration=${encodeURIComponent(booking.duration || '1h 15m')}&earnings=${encodeURIComponent(booking.price)}&from=cash-confirm/${booking.id}&type=earning`
-      );
+      router.replace(`/(worker)/booking-request/${booking.id}?from=cash-confirm/${booking.id}`);
     }, 1500);
     return () => clearTimeout(timer);
-  }, [confirmed]);
+  }, [confirmed, booking]);
 
   if (!booking) {
     return (
