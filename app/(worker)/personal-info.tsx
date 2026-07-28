@@ -6,12 +6,13 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { workerProfile } from '@/constants/workerData';
+import { useWorkerProfile } from '@/hooks';
 
 export default function PersonalInfoScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
-  const [name, setName] = useState(workerProfile.name);
-  const [email, setEmail] = useState(workerProfile.email);
+  const { data: workerProfile } = useWorkerProfile();
+  const [name, setName] = useState(workerProfile?.name ?? '');
+  const [email, setEmail] = useState(workerProfile?.email ?? '');
   const [phone, setPhone] = useState('+63 917 123 4567');
   const [address, setAddress] = useState('123 Sampaguita St., Quezon City');
   const [bio, setBio] = useState('Licensed Master Plumber with 12 years of experience in residential and commercial plumbing services.');

@@ -7,7 +7,7 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { ReportConfirmation } from '@/components/ReportConfirmation';
-import { workerBookings } from '@/constants/workerMockData';
+import { useWorkerBookings } from '@/hooks';
 
 interface PaymentIssue {
   id: string;
@@ -23,6 +23,7 @@ const PAYMENT_ISSUES: PaymentIssue[] = [
 
 export default function ReportPaymentScreen() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { data: workerBookings = [] } = useWorkerBookings();
   const [selectedIssue, setSelectedIssue] = useState<PaymentIssue | null>(null);
   const [amountReceived, setAmountReceived] = useState('');
   const [description, setDescription] = useState('');

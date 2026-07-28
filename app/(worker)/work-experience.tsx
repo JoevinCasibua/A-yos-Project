@@ -8,7 +8,8 @@ import { theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
-import { workerProfile, WorkExperience } from '@/constants/workerData';
+import { useWorkerProfile } from '@/hooks';
+import type { WorkExperience } from '@/constants/workerData';
 
 function formatDate(dateStr: string) {
   const [year, month] = dateStr.split('-');
@@ -27,7 +28,8 @@ const emptyForm: Omit<WorkExperience, 'id'> = {
 
 export default function WorkExperienceScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
-  const [experiences, setExperiences] = useState<WorkExperience[]>(workerProfile.workExperience);
+  const { data: workerProfile } = useWorkerProfile();
+  const [experiences, setExperiences] = useState<WorkExperience[]>(workerProfile?.workExperience ?? []);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<WorkExperience, 'id'>>({ ...emptyForm });
 

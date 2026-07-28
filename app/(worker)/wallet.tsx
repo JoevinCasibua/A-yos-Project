@@ -30,8 +30,8 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Badge } from '@/components/Badge';
 import { Chip } from '@/components/Chip';
+import { useWallet } from '@/hooks';
 import {
-  walletTransactions,
   walletBarData,
   walletPayoutMethods,
   walletPerformance,
@@ -64,6 +64,7 @@ const statusColor = (s: TransactionStatus) => {
 
 export default function WalletScreen() {
   const insets = useSafeAreaInsets();
+  const { data: walletTransactions = [] } = useWallet();
   const [period, setPeriod] = useState<Period>('week');
   const [txFilter, setTxFilter] = useState<TxFilter>('all');
   const [showPayout, setShowPayout] = useState(false);

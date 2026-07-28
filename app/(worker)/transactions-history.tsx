@@ -17,7 +17,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useLocalSearchParams, router } from 'expo-router';
-import { walletTransactions } from '@/constants/workerMockData';
+import { useWallet } from '@/hooks';
 import type { WalletTransaction, TransactionStatus } from '@/constants/workerMockData';
 
 type TxFilter = 'all' | 'credit' | 'debit';
@@ -76,6 +76,7 @@ const statusColor = (s: TransactionStatus) => {
 
 export default function TransactionsHistoryScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
+  const { data: walletTransactions = [] } = useWallet();
   const [searchQuery, setSearchQuery] = useState('');
   const [txFilter, setTxFilter] = useState<TxFilter>('all');
   const [fromDate, setFromDate] = useState('');

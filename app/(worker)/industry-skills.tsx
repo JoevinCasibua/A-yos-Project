@@ -9,14 +9,15 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { AppAutocomplete } from '@/components/AppAutocomplete';
 import { Chip } from '@/components/Chip';
+import { useWorkerProfile } from '@/hooks';
 import { INDUSTRIES, SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
-import { workerProfile } from '@/constants/workerData';
 
 export default function IndustrySkillsScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
-  const [industry, setIndustry] = useState(workerProfile.category);
+  const { data: workerProfile } = useWorkerProfile();
+  const [industry, setIndustry] = useState(workerProfile?.category ?? '');
   const [isEditingIndustry, setIsEditingIndustry] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(workerProfile.skills);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(workerProfile?.skills ?? []);
   const [skillInput, setSkillInput] = useState('');
 
   const currentIndustryOption = INDUSTRIES.find(
@@ -48,9 +49,11 @@ export default function IndustrySkillsScreen() {
   };
 
   const hasChanges =
-    industry !== workerProfile.category ||
-    selectedSkills.some((s) => !workerProfile.skills.includes(s)) ||
-    workerProfile.skills.some((s) => !selectedSkills.includes(s));
+    workerProfile != null && (
+      industry !== workerProfile.category ||
+      selectedSkills.some((s) => !workerProfile!.skills.includes(s)) ||
+      workerProfile.skills.some((s) => !selectedSkills.includes(s))
+    );
 
   return (
     <Screen safeArea scrollable>
@@ -98,7 +101,7 @@ export default function IndustrySkillsScreen() {
                 size="sm"
                 onPress={() => {
                   setIsEditingIndustry(false);
-                  setIndustry(workerProfile.category);
+                  setIndustry(workerProfile?.category ?? '');
                 }}
               />
             </View>

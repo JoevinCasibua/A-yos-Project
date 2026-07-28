@@ -7,10 +7,11 @@ import { AppText } from '@/components/AppText';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
 import { getBackRoute } from '@/constants/backRoutes';
-import { workerBookings } from '@/constants/workerMockData';
+import { useWorkerBookings } from '@/hooks';
 
 export default function ReportedBookingScreen() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { data: workerBookings = [] } = useWorkerBookings();
 
   const booking = workerBookings.find((b) => b.id === id);
 

@@ -11,13 +11,16 @@ import { AppText } from '@/components/AppText';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
 import { workerProfile } from '@/constants/workerData';
-import { workerBookings, workerJobs, statusConfig, walletPerformance } from '@/constants/workerMockData';
+import { statusConfig, walletPerformance } from '@/constants/workerMockData';
+import { useWorkerBookings, useWorkerJobs } from '@/hooks';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 
 export default function WorkerDashboardScreen() {
   const insets = useSafeAreaInsets();
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
   const currentBookingId = useWorkerBookingStore((s) => s.currentBookingId);
+  const { data: workerBookings = [] } = useWorkerBookings();
+  const { data: workerJobs = [] } = useWorkerJobs();
 
   const todayStats = [
     { label: 'Active', value: workerBookings.filter((b) => b.status === 'in_progress' || b.status === 'en_route').length.toString() },

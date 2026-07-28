@@ -8,12 +8,13 @@ import { AppButton } from '@/components/AppButton';
 import { Badge } from '@/components/Badge';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { workerBookings } from '@/constants/workerMockData';
+import { useWorkerBookings } from '@/hooks';
 
 export default function CashConfirmScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [confirmed, setConfirmed] = useState(false);
+  const { data: workerBookings = [] } = useWorkerBookings();
 
   const booking = workerBookings.find((b) => b.id === id);
 

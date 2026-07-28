@@ -32,12 +32,15 @@ import { CompletedSummary } from '@/components/booking/CompletedSummary';
 import { RescheduleDialog } from '@/components/booking/RescheduleDialog';
 import { WorkerSOSModal } from '@/components/booking/WorkerSOSModal';
 import { getBackRoute } from '@/constants/backRoutes';
-import { workerJobs, workerBookings, statusConfig } from '@/constants/workerMockData';
+import { statusConfig } from '@/constants/workerMockData';
+import { useWorkerBookings, useWorkerJobs } from '@/hooks';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
 export default function BookingRequestScreen() {
   const { id, autoAccept, from } = useLocalSearchParams<{ id: string; autoAccept?: string; from?: string }>();
+  const { data: workerBookings = [] } = useWorkerBookings();
+  const { data: workerJobs = [] } = useWorkerJobs();
   const job = useMemo(() => workerJobs.find((j) => j.id === id) || workerJobs[0], [id]);
 
   const [statusOverrides, setStatusOverrides] = useState<Record<string, WorkerBooking['status']>>(() => {

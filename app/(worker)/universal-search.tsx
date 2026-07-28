@@ -13,8 +13,8 @@ import { SearchBar } from '@/components/SearchBar';
 import { Badge } from '@/components/Badge';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { workerBookings, workerJobs, workerReviews, walletTransactions, SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
-import { workerProfile } from '@/constants/workerData';
+import { useWallet, useWorkerProfile, useWorkerBookings, useWorkerJobs, useWorkerReviews } from '@/hooks';
+import { SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
 
 interface SearchResult {
   id: string;
@@ -51,6 +51,11 @@ function matchQuery(text: string, query: string): boolean {
 
 export default function UniversalSearchScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
+  const { data: workerBookings = [] } = useWorkerBookings();
+  const { data: workerJobs = [] } = useWorkerJobs();
+  const { data: workerReviews = [] } = useWorkerReviews();
+  const { data: walletTransactions = [] } = useWallet();
+  const { data: workerProfile } = useWorkerProfile();
   const [query, setQuery] = useState('');
 
   const results = useMemo<SearchResult[]>(() => {
@@ -127,7 +132,7 @@ export default function UniversalSearchScreen() {
       }
     });
 
-    if (matchQuery(workerProfile.name, q) || matchQuery(workerProfile.category, q)) {
+    if (workerProfile && (matchQuery(workerProfile.name, q) || matchQuery(workerProfile.category, q))) {
       items.push({
         id: 'profile-name',
         title: workerProfile.name,
@@ -138,7 +143,7 @@ export default function UniversalSearchScreen() {
       });
     }
 
-    workerProfile.serviceAreas.forEach((area) => {
+    workerProfile?.serviceAreas.forEach((area) => {
       if (matchQuery(area, q)) {
         items.push({
           id: `area-${area}`,

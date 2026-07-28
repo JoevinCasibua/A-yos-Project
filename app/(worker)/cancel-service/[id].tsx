@@ -7,12 +7,14 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { AccordionSection } from '@/components/AccordionSection';
 import { CancellationConfirmation } from '@/components/CancellationConfirmation';
-import { cancellationReasons, jobStages, workerBookings, CancellationReason } from '@/constants/workerMockData';
+import { cancellationReasons, jobStages, CancellationReason } from '@/constants/workerMockData';
+import { useWorkerBookings } from '@/hooks';
 
 type JobStage = 'before_traveling' | 'after_arriving' | 'after_inspecting';
 
 export default function CancelServiceScreen() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { data: workerBookings = [] } = useWorkerBookings();
   const [selectedStage, setSelectedStage] = useState<JobStage>('before_traveling');
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<CancellationReason | null>(null);

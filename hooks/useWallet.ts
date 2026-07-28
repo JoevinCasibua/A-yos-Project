@@ -1,7 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTransactions, requestPayout } from '@/services/wallet.service';
 
-export function useWallet(workerId: string) {
+// TODO: Remove default mock ID once auth is wired
+const MOCK_WORKER_ID = 'w1';
+
+export function useWallet(workerId: string = MOCK_WORKER_ID) {
   const queryClient = useQueryClient();
 
   const query = useQuery({

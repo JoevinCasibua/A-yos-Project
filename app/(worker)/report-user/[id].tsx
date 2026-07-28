@@ -8,10 +8,12 @@ import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { AccordionSection } from '@/components/AccordionSection';
 import { ReportConfirmation } from '@/components/ReportConfirmation';
-import { reportReasons, workerBookings, ReportReason } from '@/constants/workerMockData';
+import { reportReasons, ReportReason } from '@/constants/workerMockData';
+import { useWorkerBookings } from '@/hooks';
 
 export default function ReportUserScreen() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { data: workerBookings = [] } = useWorkerBookings();
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<ReportReason | null>(null);
   const [additionalDetails, setAdditionalDetails] = useState('');

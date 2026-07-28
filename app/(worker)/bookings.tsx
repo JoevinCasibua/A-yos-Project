@@ -7,7 +7,8 @@ import { Screen } from '@/components/layout/Screen';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
-import { workerBookings, statusConfig } from '@/constants/workerMockData';
+import { statusConfig } from '@/constants/workerMockData';
+import { useWorkerBookings } from '@/hooks';
 import { JobTimer } from '@/components/booking/JobTimer';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
@@ -23,6 +24,7 @@ const TAB_FILTERS: Record<string, WorkerBooking['status'][]> = {
 };
 
 export default function WorkerBookingsScreen() {
+  const { data: workerBookings = [] } = useWorkerBookings();
   const { filter } = useLocalSearchParams<{ filter?: string }>();
   const [activeTab, setActiveTab] = useState(
     filter === 'Cancelled' ? 'Cancelled' : filter === 'Reported' ? 'Reported' : 'Upcoming',
