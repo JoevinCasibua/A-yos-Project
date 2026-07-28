@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { Button } from '../../components/buttons/Button';
@@ -7,11 +7,20 @@ import { TextInput } from '../../components/inputs/TextInput';
 import { theme } from '../../theme';
 import { ArrowLeft, Star, UploadCloud, X } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
+import { useWorkerStore } from '../../store/useWorkerStore';
 
 export default function ReviewScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
+  const worker = useWorkerStore(state => state.getWorkerById(id as string)) || {
+    id: (id as string) || 'w1',
+    name: 'Mario Rossi',
+    category: 'Plumbing Service',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'
+  };
+
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [recommend, setRecommend] = useState(true);
@@ -20,15 +29,14 @@ export default function ReviewScreen() {
 
   const handleSubmit = () => {
     if (rating === 0) {
-      alert('Please provide a rating');
+      Alert.alert('Rating Required', 'Please tap a star to rate the service before submitting.');
       return;
     }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      // Navigate to Home or Bookings
-      router.replace('/(tabs)');
-    }, 1500);
+      router.replace(`/review/thank-you?id=${worker.id}&rating=${rating}` as any);
+    }, 1200);
   };
 
   const handleMockUpload = () => {
@@ -49,9 +57,13 @@ export default function ReviewScreen() {
 
       <View style={styles.content}>
         <View style={styles.workerInfo}>
-          <View style={styles.avatarPlaceholder} />
-          <Text style={[theme.typography.h3, { marginBottom: theme.spacing.xs }]}>Mario Rossi</Text>
-          <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>Plumbing Service • Oct 24</Text>
+          {worker.avatar ? (
+            <Image source={worker.avatar} style={styles.avatar} contentFit="cover" />
+          ) : (
+            <View style={styles.avatarPlaceholder} />
+          )}
+          <Text style={[theme.typography.h3, { marginBottom: theme.spacing.xs }]}>{worker.name}</Text>
+          <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{worker.category || 'Professional Service'} • Recently Completed</Text>
         </View>
 
         <Text style={[theme.typography.h4, styles.sectionTitle]}>How was the service?</Text>
@@ -129,6 +141,7 @@ const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
   content: { flex: 1, paddingVertical: theme.spacing.lg },
   workerInfo: { alignItems: 'center', marginBottom: theme.spacing.xxxl },
+  avatar: { width: 80, height: 80, borderRadius: 40, marginBottom: theme.spacing.md },
   avatarPlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: theme.colors.border, marginBottom: theme.spacing.md },
   sectionTitle: { marginBottom: theme.spacing.sm },
   starsContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: theme.spacing.xxxl },

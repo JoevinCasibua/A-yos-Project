@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, FlatList, ScrollView, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { theme } from '../../theme';
-import { ArrowLeft, Send, MapPin, Mic, Image as ImageIcon, Languages, Play, Square, Activity, Paperclip, Camera, Globe } from 'lucide-react-native';
+import { ArrowLeft, Send, MapPin, Mic, Image as ImageIcon, Languages, Play, Square, Activity, Paperclip, Camera } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useWorkerStore } from '../../store/useWorkerStore';
@@ -273,12 +273,6 @@ export default function ChatScreen() {
             <Text style={styles.popupItemText}>Voice Message</Text>
           </Pressable>
 
-          <Pressable style={styles.popupItem} onPress={() => setShowAttachments(false)}>
-            <View style={[styles.popupIconBg, { backgroundColor: '#f3f4f6' }]}>
-              <Globe size={20} color="#4b5563" />
-            </View>
-            <Text style={styles.popupItemText}>Translate</Text>
-          </Pressable>
         </View>
       )}
 

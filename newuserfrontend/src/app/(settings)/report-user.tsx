@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Switch, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Switch, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '../../components/layout/Screen';
 import { Button } from '../../components/buttons/Button';
@@ -19,7 +19,7 @@ export default function ReportUserScreen() {
 
   const handleSubmit = () => {
     if (!userName.trim() || !description.trim()) {
-      alert("Please provide the user's name and describe the incident.");
+      Alert.alert('Missing Details', "Please provide the user's name and describe the incident.");
       return;
     }
     
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   warningBox: { flexDirection: 'row', backgroundColor: '#fffbeb', padding: 16, borderRadius: theme.radius.md, borderWidth: 1, borderColor: '#fde68a', marginBottom: 24, alignItems: 'center' },
   
   formGroup: { marginBottom: 20 },
-  label: { ...theme.typography.h5, marginBottom: 8 },
+  label: { ...theme.typography.label, fontWeight: '600', color: theme.colors.textPrimary, marginBottom: 8 },
   input: { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, padding: 16, ...theme.typography.body1 },
   textArea: { height: 120 },
   
