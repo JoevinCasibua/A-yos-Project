@@ -3,15 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 're
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
-import { ArrowLeft, Bell, Settings, Moon, Globe } from 'lucide-react-native';
+import { ArrowLeft, Bell } from 'lucide-react-native';
 
-export default function PreferencesScreen() {
+export default function NotificationsScreen() {
   const router = useRouter();
   
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [smsEnabled, setSmsEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
 
   return (
     <Screen safeArea backgroundColor={theme.colors.background}>
@@ -19,13 +18,12 @@ export default function PreferencesScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft color={theme.colors.textPrimary} size={24} />
         </TouchableOpacity>
-        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Preferences</Text>
+        <Text style={[theme.typography.h4, { color: theme.colors.textPrimary }]}>Notifications</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
         <View style={styles.section}>
-          <Text style={[theme.typography.h4, styles.sectionTitle]}>Notifications</Text>
           <View style={styles.card}>
             <View style={[styles.settingRow, styles.borderBottom]}>
               <View style={[styles.iconContainer, { backgroundColor: '#fef3c7' }]}>
@@ -67,40 +65,6 @@ export default function PreferencesScreen() {
             </View>
           </View>
         </View>
-
-        <View style={styles.section}>
-          <Text style={[theme.typography.h4, styles.sectionTitle]}>App Appearance</Text>
-          <View style={styles.card}>
-            <View style={styles.settingRow}>
-              <View style={[styles.iconContainer, { backgroundColor: '#e0e7ff' }]}>
-                <Moon color="#6366f1" size={20} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={theme.typography.body1}>Dark Mode</Text>
-              </View>
-              <Switch 
-                value={darkMode} 
-                onValueChange={setDarkMode} 
-                trackColor={{ false: theme.colors.borderLight, true: theme.colors.primary }} 
-              />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[theme.typography.h4, styles.sectionTitle]}>Language & Region</Text>
-          <View style={styles.card}>
-            <TouchableOpacity style={styles.settingRow}>
-              <View style={[styles.iconContainer, { backgroundColor: '#d1fae5' }]}>
-                <Globe color="#10b981" size={20} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={theme.typography.body1}>Language</Text>
-                <Text style={theme.typography.caption}>English (US)</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
       </ScrollView>
     </Screen>
   );
@@ -112,7 +76,6 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.md },
   
   section: { marginBottom: theme.spacing.xl },
-  sectionTitle: { marginBottom: theme.spacing.md, marginLeft: theme.spacing.xs },
   
   card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, ...theme.shadows.sm, overflow: 'hidden' },
   settingRow: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },

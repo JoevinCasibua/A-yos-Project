@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { Screen } from '@/components/layout/Screen';
-import { Button } from '@/components/buttons/Button';
 import { theme } from '@/constants/theme';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Mail, Lock, Eye, EyeOff, Briefcase } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 export default function LoginScreen() {
@@ -29,10 +28,8 @@ export default function LoginScreen() {
   };
 
   return (
-    <Screen safeArea backgroundColor="#fff">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          
+    <Screen safeArea scrollable backgroundColor="#fff" keyboardAvoiding={false} contentContainerStyle={styles.scrollContent}>
+      
           <View style={styles.header}>
             <Text style={styles.title}>Sign in</Text>
             <View style={styles.subtitleRow}>
@@ -123,14 +120,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={styles.workerSwitchBtn}
-            onPress={() => router.push('/register-worker')}
-          >
-            <Briefcase color={theme.colors.textSecondary} size={18} />
-            <Text style={styles.workerSwitchText}>Register as Worker</Text>
-          </TouchableOpacity>
-
           <View style={{ flex: 1 }} />
 
           <Text style={styles.termsText}>
@@ -138,8 +127,6 @@ export default function LoginScreen() {
             <Text style={styles.termsLink}>Terms of Service</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
           </Text>
 
-        </ScrollView>
-      </KeyboardAvoidingView>
     </Screen>
   );
 }
@@ -274,20 +261,5 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '600',
     textDecorationLine: 'underline',
-  },
-  workerSwitchBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    marginTop: 20,
-  },
-  workerSwitchText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-    marginLeft: 8,
   },
 });

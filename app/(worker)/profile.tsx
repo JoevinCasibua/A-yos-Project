@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Image } from 'expo-image';
 import {
   ChevronRight, User, Wrench, MapPin, Briefcase,
@@ -62,6 +63,7 @@ const MENU_SECTIONS = [
 
 export default function WorkerProfileScreen() {
   const router = useRouter();
+  const { logout } = useAuthStore();
 
   const handleItemPress = (id: string) => {
     if (id === 'verification') {
@@ -132,7 +134,8 @@ export default function WorkerProfileScreen() {
   };
 
   const handleLogout = () => {
-    router.replace('/');
+    logout();
+    router.replace('/(auth)/landing');
   };
 
   const handleSwitchToUser = () => {
