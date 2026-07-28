@@ -77,6 +77,7 @@ export default function WorkerDashboardScreen() {
         </View>
 
         {/* Incoming Job Alert */}
+        {incomingJob && (
         <View style={styles.section}>
           <IncomingJobAlert
             service={incomingJob.service}
@@ -96,6 +97,7 @@ export default function WorkerDashboardScreen() {
             onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}?from=dashboard`)}
           />
         </View>
+        )}
 
         {/* Quick Actions */}
         <View style={styles.section}>
