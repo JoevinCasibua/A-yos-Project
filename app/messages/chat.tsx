@@ -286,7 +286,7 @@ export default function ChatScreen() {
             )}
             <AnimatedWaveform
               barCount={getVoiceBarCount(msg.voiceDuration)}
-              color={isWorker ? 'rgba(255,255,255,0.6)' : `${Colors.cta}60`}
+              color={isWorker ? 'rgba(255,255,255,0.6)' : Colors.textSecondary}
               active={playingVoiceId === msg.id}
               maxHeight={16}
               seed={msg.voiceDuration || 0}
@@ -663,8 +663,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing['6'],
     paddingVertical: Spacing['3'],
     backgroundColor: Colors.cta,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
   },
   contactBannerContent: {
     flexDirection: 'row',
@@ -757,7 +755,7 @@ const styles = StyleSheet.create({
   // Image
   imageBubble: {
     paddingHorizontal: Spacing['2'],
-    paddingVertical: Spacing['1'],
+    paddingVertical: Spacing['2'],
     gap: Spacing['2'],
   },
   imageTimestamp: {
