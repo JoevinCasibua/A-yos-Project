@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Animated } from 'react-native';
 import { Image } from 'expo-image';
 import {
   ArrowLeft,
@@ -197,6 +197,18 @@ export default function BookingRequestScreen() {
   const isCancelled = booking.status === 'cancelled';
 
   const [remainingTime, setRemainingTime] = useState('');
+  const spinAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (booking.status !== 'pending_review') return;
+    const remaining = completionTimestamp ? completionTimestamp - Date.now() : 0;
+    const duration = remaining > 0 && remaining < 10000 ? 500 : 2000;
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [booking.status, completionTimestamp, remainingTime]);
 
   useEffect(() => {
     if (booking.status !== 'pending_review' || !completionTimestamp) {
@@ -599,7 +611,13 @@ export default function BookingRequestScreen() {
 
         {booking.status === 'pending_review' && (
           <View style={styles.reviewCard}>
-            <Loader2 size={36} color={Colors.warning} style={styles.spinner} />
+            <Animated.View style={{
+              transform: [{
+                rotate: spinAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] })
+              }]
+            }}>
+              <Loader2 size={36} color={Colors.warning} style={styles.spinner} />
+            </Animated.View>
             <AppText variant="h4" weight="bold" style={styles.reviewTitle}>
               Waiting for Customer
             </AppText>

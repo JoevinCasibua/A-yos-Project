@@ -223,6 +223,13 @@ export default function ChatScreen() {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  const getVoiceBarCount = (duration?: number) => {
+    if (!duration || duration <= 3) return 6;
+    if (duration <= 10) return 10;
+    if (duration <= 20) return 14;
+    return 18;
+  };
+
   const renderMessage = (msg: ChatMessage) => {
     const isWorker = msg.sender === 'worker';
 
@@ -278,7 +285,7 @@ export default function ChatScreen() {
               <Play size={16} color={isWorker ? Colors.white : Colors.cta} />
             )}
             <AnimatedWaveform
-              barCount={12}
+              barCount={getVoiceBarCount(msg.voiceDuration)}
               color={isWorker ? 'rgba(255,255,255,0.6)' : `${Colors.cta}60`}
               active={playingVoiceId === msg.id}
               maxHeight={16}
@@ -297,11 +304,11 @@ export default function ChatScreen() {
 
     if (msg.type === 'image') {
       return (
-        <View key={msg.id} style={[styles.bubble, isWorker ? styles.bubbleWorker : styles.bubbleCustomer, { padding: Spacing['1'] }]}>
+        <View key={msg.id} style={[styles.bubble, isWorker ? styles.bubbleWorker : styles.bubbleCustomer, styles.imageBubble]}>
           <Pressable onPress={() => setShowImagePreview(msg.imageUrl || null)}>
             <Image source={msg.imageUrl} style={styles.chatImage} contentFit="cover" />
           </Pressable>
-          <AppText variant="caption" style={[styles.timestamp, isWorker && { color: 'rgba(255,255,255,0.7)' }]}>
+          <AppText variant="caption" style={[styles.timestamp, styles.imageTimestamp, isWorker && { color: 'rgba(255,255,255,0.7)' }]}>
             {msg.timestamp}
           </AppText>
         </View>
@@ -745,7 +752,14 @@ const styles = StyleSheet.create({
   voiceRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing['2'] },
 
   // Image
-  chatImage: { width: 200, height: 150, borderRadius: Radius.lg },
+  imageBubble: {
+    padding: Spacing['1'],
+    gap: Spacing['2'],
+  },
+  imageTimestamp: {
+    paddingBottom: Spacing['1'],
+  },
+  chatImage: { width: '100%', minWidth: 180, height: 150, borderRadius: Radius.md },
 
   // Location
   locationPreview: { gap: Spacing['2'] },
