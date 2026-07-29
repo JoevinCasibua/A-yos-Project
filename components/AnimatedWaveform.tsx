@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
 
 function seededRandom(seed: number): () => number {
@@ -12,7 +12,6 @@ function seededRandom(seed: number): () => number {
 interface AnimatedWaveformProps {
   barCount?: number;
   barWidth?: number;
-  barGap?: number;
   color?: string;
   active?: boolean;
   maxHeight?: number;
@@ -28,69 +27,90 @@ function generateRandomHeights(count: number, max: number, seed?: number): numbe
 export const AnimatedWaveform = React.memo(function AnimatedWaveform({
   barCount = 12,
   barWidth = 3,
-  barGap = 2,
   color = '#071022',
   active = false,
   maxHeight = 20,
   seed,
   style,
 }: AnimatedWaveformProps) {
-  const anims = useRef<Animated.Value[]>(
-    Array.from({ length: barCount }, () => new Animated.Value(0.5))
-  ).current;
-
-  const targetHeights = useRef(generateRandomHeights(barCount, maxHeight, seed)).current;
+  const barHeights = useRef(generateRandomHeights(barCount, maxHeight, seed)).current;
+  const animsRef = useRef<Animated.Value[] | null>(null);
+  const [animatedReady, setAnimatedReady] = useState(false);
 
   useEffect(() => {
-    if (!active) {
-      anims.forEach((a) => a.setValue(0.5));
-      return;
+    if (active) {
+      const values = Array.from({ length: barCount }, () => new Animated.Value(0));
+      animsRef.current = values;
+      setAnimatedReady(true);
+
+      const animations = values.map((anim, i) => {
+        const peak = (barHeights[i] - 4) / (maxHeight - 4);
+        const trough = peak * (0.2 + Math.random() * 0.2);
+        return Animated.loop(
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: peak,
+              duration: 300 + Math.random() * 200,
+              useNativeDriver: false,
+            }),
+            Animated.timing(anim, {
+              toValue: trough,
+              duration: 300 + Math.random() * 200,
+              useNativeDriver: false,
+            }),
+          ])
+        );
+      });
+
+      const composite = Animated.parallel(animations);
+      composite.start();
+
+      return () => {
+        composite.stop();
+        animsRef.current = null;
+        setAnimatedReady(false);
+      };
+    } else {
+      animsRef.current = null;
+      setAnimatedReady(false);
     }
-
-    const animations = anims.map((anim, i) => {
-      const loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(anim, {
-            toValue: targetHeights[i] / maxHeight,
-            duration: 300 + Math.random() * 200,
-            useNativeDriver: false,
-          }),
-          Animated.timing(anim, {
-            toValue: 0.2 + Math.random() * 0.2,
-            duration: 300 + Math.random() * 200,
-            useNativeDriver: false,
-          }),
-        ])
-      );
-      return loop;
-    });
-
-    const composite = Animated.parallel(animations);
-    composite.start();
-
-    return () => {
-      composite.stop();
-    };
-  }, [active, barCount, maxHeight]);
+  }, [active, barCount, maxHeight, barHeights]);
 
   return (
     <View style={[styles.container, style]}>
-      {anims.map((anim, i) => (
-        <Animated.View
-          key={i}
-          style={[
-            styles.bar,
-            {
-              width: barWidth,
-              backgroundColor: color,
-              height: anim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [4, maxHeight],
-              }),
-            },
-          ]}
-        />
-      ))}
+      {Array.from({ length: barCount }, (_, i) => {
+        if (animatedReady && animsRef.current) {
+          return (
+            <Animated.View
+              key={i}
+              style={[
+                styles.bar,
+                {
+                  width: barWidth,
+                  backgroundColor: color,
+                  height: animsRef.current[i].interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [4, maxHeight],
+                  }),
+                },
+              ]}
+            />
+          );
+        }
+        return (
+          <View
+            key={i}
+            style={[
+              styles.bar,
+              {
+                width: barWidth,
+                backgroundColor: color,
+                height: barHeights[i],
+              },
+            ]}
+          />
+        );
+      })}
     </View>
   );
 });
