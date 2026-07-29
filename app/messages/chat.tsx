@@ -289,7 +289,7 @@ export default function ChatScreen() {
             ) : (
               <Play size={16} color={isWorker ? Colors.white : Colors.cta} />
             )}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24, flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24, backgroundColor: 'rgba(255,0,0,0.2)' }}>
               {Array.from({ length: getVoiceBarCount(msg.voiceDuration) }, (_, i) => {
                 const h = ((msg.voiceDuration || 0) * 13 + i * 7 + 5) % 12 + 4;
                 return (
