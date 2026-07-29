@@ -1,6 +1,6 @@
 // TODO: Orphaned — not imported by any screen. Consider deleting or integrating.
 import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import { View, StyleSheet, ViewStyle, StyleProp, DimensionValue } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,8 +12,8 @@ import { Colors } from '@/constants/theme';
 
 interface SkeletonProps {
   style?: StyleProp<ViewStyle>;
-  width?: number | string;
-  height?: number | string;
+  width?: DimensionValue;
+  height?: DimensionValue;
   borderRadius?: number;
 }
 
@@ -29,7 +29,7 @@ export function Skeleton({ style, width, height, borderRadius = 4 }: SkeletonPro
       -1,
       true
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

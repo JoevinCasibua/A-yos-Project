@@ -78,7 +78,7 @@ export const DeclineReasonDialog = React.memo(function DeclineReasonDialog({
           </View>
 
           <AppText variant="bodySm" color={Colors.textSecondary} style={styles.subtitle}>
-            Select a reason for declining {customerName}'s booking:
+            Select a reason for declining {customerName}&apos;s booking:
           </AppText>
 
           <ScrollView style={styles.reasonsScroll} showsVerticalScrollIndicator={false}>

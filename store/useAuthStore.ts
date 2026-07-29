@@ -10,6 +10,7 @@ interface AuthState {
   login: (userData: User) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -19,4 +20,5 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (userData) => set({ user: userData, isAuthenticated: true, isLoading: false }),
   logout: () => set({ user: null, isAuthenticated: false, isLoading: false }),
   setLoading: (loading) => set({ isLoading: loading }),
+  updateUser: (userData) => set((state) => ({ user: state.user ? { ...state.user, ...userData } : null })),
 }));

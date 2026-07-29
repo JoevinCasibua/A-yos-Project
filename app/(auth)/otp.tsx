@@ -17,7 +17,7 @@ export default function OTPScreen() {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(30);
   
-  const inputs = useRef<Array<RNTextInput | null>>([]);
+  const inputs = useRef<(RNTextInput | null)[]>([]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;

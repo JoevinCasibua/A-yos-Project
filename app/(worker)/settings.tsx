@@ -13,7 +13,7 @@ export default function WorkerSettingsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSwitchToUser = () => {
-    router.replace('/(tabs)');
+    router.replace('/(tabs)/home');
   };
 
   return (

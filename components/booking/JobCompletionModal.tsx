@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Modal, StyleSheet, Pressable, ScrollView, TextInput, Image } from 'react-native';
+import { View, Modal, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
+import { Image } from 'expo-image';
 import { X, Star, Camera, CheckCircle2, Plus, Video, Play } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -107,7 +108,7 @@ export function JobCompletionModal({ visible, onClose, onSubmit, customerName }:
           <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
             <View style={styles.contextBanner}>
               <AppText variant="body" weight="medium" color={Colors.textPrimary}>
-                Submit job completion details for {customerName}'s booking.
+                Submit job completion details for {customerName}&apos;s booking.
               </AppText>
             </View>
 

@@ -9,6 +9,7 @@ import { Search, Bell, MapPin, Star, ChevronRight, Droplets, Zap, Wrench, Sparkl
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDraftStore } from '@/store/useDraftStore';
 import { homeCategories, homePromotions, homeRecommendedWorkers } from '@/constants/mockData';
+import * as Haptics from 'expo-haptics';
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ color: string; size: number }>> = {
   Plumbing: Droplets,
@@ -68,7 +69,14 @@ export default function HomeScreen() {
             {homeCategories.map(cat => {
               const Icon = CATEGORY_ICONS[cat.name] || Wrench;
               return (
-                <TouchableOpacity key={cat.id} style={styles.categoryItem} onPress={() => router.push(`/category/${cat.name.toLowerCase()}` as any)}>
+                <TouchableOpacity 
+                  key={cat.id} 
+                  style={styles.categoryItem} 
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push(`/category/${cat.name.toLowerCase()}` as any);
+                  }}
+                >
                   <View style={[styles.categoryIconContainer, { backgroundColor: cat.bg }]}>
                     <Icon color={cat.color} size={28} />
                   </View>

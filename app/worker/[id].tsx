@@ -152,7 +152,7 @@ export default function WorkerProfileScreen() {
           <View style={styles.safetyList}>
             <View style={styles.safetyItem}>
               <View style={styles.bullet} />
-              <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Verify the worker's identity before allowing entry.</Text>
+              <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Verify the worker&apos;s identity before allowing entry.</Text>
             </View>
             <View style={styles.safetyItem}>
               <View style={styles.bullet} />

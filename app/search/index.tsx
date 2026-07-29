@@ -182,7 +182,7 @@ export default function SearchScreen() {
             <Search color={theme.colors.textTertiary} size={48} style={{ marginBottom: 16 }} />
             <Text style={theme.typography.h4}>No workers found</Text>
             <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, textAlign: 'center', marginTop: 8 }]}>
-              Try adjusting your search or filters to find what you're looking for.
+              Try adjusting your search or filters to find what you&apos;re looking for.
             </Text>
           </View>
         )}

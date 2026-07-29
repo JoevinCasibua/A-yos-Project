@@ -73,7 +73,7 @@ export function RescheduleDialog({
           </View>
 
           <AppText variant="bodySm" color={Colors.textSecondary} style={styles.subtitle}>
-            Propose a new date and time to {customerName}. They'll be notified of the change.
+            Propose a new date and time to {customerName}. They&apos;ll be notified of the change.
           </AppText>
 
           {/* Date Input */}

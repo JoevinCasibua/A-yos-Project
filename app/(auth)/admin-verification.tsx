@@ -1,46 +1,62 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { useAuthStore } from '@/store/useAuthStore';
-import { ShieldCheck } from 'lucide-react-native';
+import { ShieldCheck, CheckCircle2 } from 'lucide-react-native';
 
 export default function AdminVerificationScreen() {
   const router = useRouter();
   const login = useAuthStore(state => state.login);
+  const [status, setStatus] = useState<'verifying' | 'success'>('verifying');
 
   useEffect(() => {
-    // Wait for 5 seconds to simulate admin verification
-    const timer = setTimeout(() => {
-      login({
-        id: '1',
-        name: 'Juan Dela Cruz',
-        email: 'juan@example.com',
-        phone: '09171234567'
-      });
-      router.replace('/(tabs)');
-    }, 5000);
+    // Wait for 3 seconds to simulate admin verification
+    const verifyTimer = setTimeout(() => {
+      setStatus('success');
+      
+      // Wait 2 seconds on success screen before redirecting
+      const redirectTimer = setTimeout(() => {
+        login({
+          id: '1',
+          name: 'Juan Dela Cruz',
+          email: 'juan@example.com',
+          phone: '09171234567'
+        });
+        router.replace('/(tabs)/home');
+      }, 2000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(redirectTimer);
+    }, 3000);
+
+    return () => clearTimeout(verifyTimer);
   }, [login, router]);
 
   return (
     <Screen safeArea>
       <View style={styles.container}>
-        <ShieldCheck color={theme.colors.primary} size={80} style={{ marginBottom: theme.spacing.xl }} />
-        
-        <Text style={[theme.typography.h2, styles.title]}>Verifying Account</Text>
-        
-        <Text style={[theme.typography.body1, styles.subtitle]}>
-          Please wait while an admin reviews your Government ID and Selfie.
-        </Text>
-
-        <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: theme.spacing.xl }} />
-        
-        <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.md }]}>
-          This usually takes just a few seconds...
-        </Text>
+        {status === 'verifying' ? (
+          <>
+            <ShieldCheck color={theme.colors.primary} size={80} style={{ marginBottom: theme.spacing.xl }} />
+            <Text style={[theme.typography.h2, styles.title]}>Verifying Account</Text>
+            <Text style={[theme.typography.body1, styles.subtitle]}>
+              Please wait while an admin reviews your Government ID and Selfie.
+            </Text>
+            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: theme.spacing.xl }} />
+            <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginTop: theme.spacing.md }]}>
+              This usually takes just a few seconds...
+            </Text>
+          </>
+        ) : (
+          <>
+            <CheckCircle2 color={theme.colors.success} size={80} style={{ marginBottom: theme.spacing.xl }} />
+            <Text style={[theme.typography.h2, styles.title, { color: theme.colors.success }]}>Verification Successful</Text>
+            <Text style={[theme.typography.body1, styles.subtitle]}>
+              Your account has been successfully verified by the admin!
+            </Text>
+          </>
+        )}
       </View>
     </Screen>
   );

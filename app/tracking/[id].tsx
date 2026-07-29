@@ -232,7 +232,7 @@ export default function TrackingScreen() {
                 Are you sure you want to cancel?
               </Text>
               <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginBottom: 8 }]}>
-                • Cancellations made before the worker is "En Route" are <Text style={{ fontWeight: 'bold' }}>fully refunded</Text>.
+                • Cancellations made before the worker is &quot;En Route&quot; are <Text style={{ fontWeight: 'bold' }}>fully refunded</Text>.
               </Text>
               <Text style={[theme.typography.body2, { color: theme.colors.textSecondary, marginBottom: 24 }]}>
                 • Cancellations made after the worker is dispatched may incur a <Text style={{ fontWeight: 'bold' }}>₱150 cancellation fee</Text>.

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Calendar, MapPin, Navigation, Tag, Wrench } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';

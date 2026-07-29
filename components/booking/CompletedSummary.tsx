@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, Pressable, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Modal, TextInput } from 'react-native';
+import { Image } from 'expo-image';
 import { CheckCircle2, Receipt, Star, Play, X, AlertTriangle, MoreVertical, Pencil } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -172,7 +173,7 @@ export const CompletedSummary = React.memo(function CompletedSummary({
 
           {workerReview !== undefined && workerReview.length > 0 && (
             <AppText variant="body" color={Colors.textSecondary} numberOfLines={2} style={styles.reviewText}>
-              "{workerReview}"
+              &quot;{workerReview}&quot;
             </AppText>
           )}
 
@@ -282,7 +283,7 @@ export const CompletedSummary = React.memo(function CompletedSummary({
                   <AppText variant="body" weight="semiBold">Review</AppText>
                   {!isEditing ? (
                     <AppText variant="body" color={Colors.textSecondary} style={styles.reviewReadOnlyText}>
-                      "{workerReview}"
+                      &quot;{workerReview}&quot;
                     </AppText>
                   ) : (
                     <TextInput

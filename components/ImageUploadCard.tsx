@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Image, Alert, ViewStyle, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Alert, ViewStyle, Platform } from 'react-native';
+import { Image } from 'expo-image';
 // Removed expo-image-picker to fix Expo Go crash
 import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react-native';
 import { Colors, Radius, Spacing } from '@/constants/theme';

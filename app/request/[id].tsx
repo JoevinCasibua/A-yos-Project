@@ -145,7 +145,7 @@ export default function RequestDetailsScreen() {
 
                   <View style={styles.messageBubble}>
                     <AppText variant="bodySm" color={Colors.textSecondary} numberOfLines={2}>
-                      "{applicant.message}"
+                      &quot;{applicant.message}&quot;
                     </AppText>
                   </View>
 

@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Keyboard, Platform, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
-import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
 import { AppInput } from '@/components/AppInput';
-import { theme } from '@/constants/theme';
-import { User, Mail, Phone, Lock, ArrowLeft, CheckSquare, Square } from 'lucide-react-native';
+import { AppText } from '@/components/AppText';
+import { Colors, Spacing, Radius } from '@/constants/theme';
+import { User, ArrowLeft, Square, Check, ChevronRight, CircleCheck } from 'lucide-react-native';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [keyboardUp, setKeyboardUp] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardUp(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardUp(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const { control, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -44,21 +54,77 @@ export default function RegisterScreen() {
     }, 1500);
   };
 
+  const step = 1;
+
+  const renderProgressBar = () => (
+    <View style={styles.progressContainer}>
+      {[1, 2].map((item, index) => (
+        <View key={item} style={styles.progressStep}>
+          <View style={[styles.progressDot, step >= item ? styles.progressDotActive : null]}>
+            {step > item ? (
+              <CircleCheck size={16} color={Colors.white} />
+            ) : (
+              <AppText variant="caption" weight="bold" color={step === item ? Colors.white : Colors.textTertiary}>
+                {item}
+              </AppText>
+            )}
+          </View>
+          {index < 1 && <View style={[styles.progressLine, step > item ? styles.progressLineActive : null]} />}
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderStepLabels = () => {
+    const stepLabels = ['Account', 'Verification'];
+    return (
+      <View style={styles.stepLabelsContainer}>
+        {stepLabels.map((label, index) => {
+          const stepNum = index + 1;
+          const isActive = step >= stepNum;
+          return (
+            <AppText key={label} variant="caption" weight={isActive ? 'bold' : 'regular'} color={isActive ? Colors.primary : Colors.textTertiary} style={{ textAlign: 'center', width: 80 }}>
+              {label}
+            </AppText>
+          );
+        })}
+      </View>
+    );
+  };
+
   return (
-    <Screen safeArea scrollable>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft color={theme.colors.textPrimary} size={24} />
-        </TouchableOpacity>
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
+          <ArrowLeft size={24} color={Colors.textPrimary} />
+        </Pressable>
+        <AppText variant="h4" weight="bold">Register as User</AppText>
+        <View style={{ width: 24 }} />
       </View>
 
-      <View style={styles.content}>
-        <Text style={[theme.typography.h1, styles.title]}>Create Account</Text>
-        <Text style={[theme.typography.body1, styles.subtitle]}>
-          Sign up to hire top-rated service professionals.
-        </Text>
+      {renderProgressBar()}
+      {renderStepLabels()}
 
-        <View style={styles.form}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        onScrollBeginDrag={() => Keyboard.dismiss()}
+      >
+        <View style={styles.formSection}>
+          <View style={styles.sectionHeader}>
+            <User size={28} color={Colors.primary} />
+            <AppText variant="h3" weight="bold" style={styles.sectionTitleNoMargin}>
+              Account for Ayos
+            </AppText>
+          </View>
+          <AppText variant="body" color={Colors.textSecondary} style={{ marginBottom: Spacing['4'] }}>
+            Create your user account credentials. This will be used to sign in.
+          </AppText>
+
           <Controller
             control={control}
             rules={{ required: 'Full name is required' }}
@@ -66,11 +132,11 @@ export default function RegisterScreen() {
               <AppInput
                 label="Full Name"
                 placeholder="Juan Dela Cruz"
-                leftIcon={<User size={20} />}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 error={errors.name?.message}
+                containerStyle={{ marginBottom: Spacing['4'] }}
               />
             )}
             name="name"
@@ -86,12 +152,12 @@ export default function RegisterScreen() {
               <AppInput
                 label="Mobile Number"
                 placeholder="09171234567"
-                leftIcon={<Phone size={20} />}
                 keyboardType="phone-pad"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 error={errors.mobile?.message}
+                containerStyle={{ marginBottom: Spacing['4'] }}
               />
             )}
             name="mobile"
@@ -104,11 +170,10 @@ export default function RegisterScreen() {
               pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' }
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <View style={{ position: 'relative' }}>
+              <View style={{ position: 'relative', marginBottom: Spacing['4'] }}>
                 <AppInput
-                  label="Email"
+                  label="Email Address"
                   placeholder="juan@example.com"
-                  leftIcon={<Mail size={20} />}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   onBlur={onBlur}
@@ -121,10 +186,10 @@ export default function RegisterScreen() {
                 />
                 <View style={{ position: 'absolute', right: 0, top: 28, height: 48, justifyContent: 'center', paddingRight: 12 }}>
                   {emailVerified ? (
-                    <Text style={{ color: theme.colors.success, fontWeight: 'bold' }}>Verified</Text>
+                    <Text style={{ color: Colors.success, fontWeight: 'bold' }}>Verified</Text>
                   ) : (
                     <TouchableOpacity onPress={() => value && !errors.email ? setEmailVerified(true) : alert('Please enter a valid email first.')}>
-                      <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>Verify</Text>
+                      <Text style={{ color: Colors.primary, fontWeight: 'bold' }}>Verify</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -143,12 +208,12 @@ export default function RegisterScreen() {
               <AppInput
                 label="Password"
                 placeholder="Create password"
-                leftIcon={<Lock size={20} />}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 error={errors.password?.message}
+                containerStyle={{ marginBottom: Spacing['4'] }}
               />
             )}
             name="password"
@@ -164,62 +229,142 @@ export default function RegisterScreen() {
               <AppInput
                 label="Confirm Password"
                 placeholder="Confirm password"
-                leftIcon={<Lock size={20} />}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 error={errors.confirmPassword?.message}
+                containerStyle={{ marginBottom: Spacing['4'] }}
               />
             )}
             name="confirmPassword"
           />
 
-          <TouchableOpacity 
-            style={styles.termsContainer} 
-            activeOpacity={0.7}
-            onPress={() => setAcceptedTerms(!acceptedTerms)}
-          >
-            {acceptedTerms ? (
-              <CheckSquare color={theme.colors.primary} size={20} />
-            ) : (
-              <Square color={theme.colors.textSecondary} size={20} />
-            )}
-            <Text style={[theme.typography.body2, styles.termsText]}>
-              I accept the <Text style={styles.termsLink}>Terms and Conditions</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.consentSection}>
+            <Pressable style={styles.checkboxContainer} onPress={() => setAcceptedTerms(!acceptedTerms)}>
+              {acceptedTerms ? <Check size={24} color={Colors.primary} /> : <Square size={24} color={Colors.textTertiary} />}
+              <AppText variant="bodySm" color={Colors.textSecondary} style={{ flex: 1, marginLeft: Spacing['2'] }}>
+                I accept the <AppText variant="bodySm" weight="bold" color={Colors.textLink}>Terms and Conditions</AppText> and <AppText variant="bodySm" weight="bold" color={Colors.textLink}>Privacy Policy</AppText>
+              </AppText>
+            </Pressable>
+          </View>
         </View>
+      </ScrollView>
 
+      <View style={[styles.footer, { paddingBottom: keyboardUp ? 10 : 30 }]}>
         <AppButton 
-          label="Next" 
+          label="Next Step" 
           onPress={handleSubmit(onSubmit)} 
           loading={loading}
+          rightIcon={<ChevronRight size={20} color={Colors.white} />}
           fullWidth 
-          style={styles.submitBtn}
         />
-
-        <View style={styles.footer}>
-          <Text style={theme.typography.body2}>Already have an account? </Text>
+        <View style={styles.loginContainer}>
+          <AppText variant="bodySm" color={Colors.textSecondary}>Already have an account? </AppText>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <Text style={[theme.typography.button, { color: theme.colors.primary }]}>Log In</Text>
+            <AppText variant="bodySm" weight="bold" color={Colors.primary}>Log In</AppText>
           </TouchableOpacity>
         </View>
       </View>
-    </Screen>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingVertical: theme.spacing.md },
-  backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
-  content: { flex: 1, paddingBottom: theme.spacing.xxxl },
-  title: { color: theme.colors.textPrimary, marginBottom: theme.spacing.xs },
-  subtitle: { color: theme.colors.textSecondary, marginBottom: theme.spacing.xl },
-  form: { marginBottom: theme.spacing.xl },
-  termsContainer: { flexDirection: 'row', alignItems: 'flex-start', marginTop: theme.spacing.sm },
-  termsText: { flex: 1, marginLeft: theme.spacing.sm, color: theme.colors.textSecondary },
-  termsLink: { color: theme.colors.primary, fontWeight: '600' },
-  submitBtn: { marginBottom: theme.spacing.xl },
-  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surfaceLight,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 60,
+    paddingHorizontal: Spacing['4'],
+    paddingBottom: Spacing['4'],
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  backButton: {
+    padding: Spacing['1'],
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing['4'],
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing['8'],
+  },
+  progressStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  progressDotActive: {
+    backgroundColor: Colors.primary,
+  },
+  progressLine: {
+    width: 64, // Slightly wider for 2 steps instead of 4
+    height: 3,
+    backgroundColor: Colors.border,
+    marginHorizontal: -4,
+    zIndex: 1,
+  },
+  progressLineActive: {
+    backgroundColor: Colors.primary,
+  },
+  stepLabelsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around', // Changed to space-around for 2 steps
+    paddingHorizontal: Spacing['8'],
+    paddingBottom: Spacing['3'],
+    backgroundColor: Colors.white,
+  },
+  scrollContent: {
+    paddingHorizontal: Spacing['4'],
+    paddingTop: Spacing['6'],
+    paddingBottom: Spacing['16'],
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+    marginBottom: Spacing['2'],
+  },
+  sectionTitleNoMargin: {
+    marginBottom: 0,
+  },
+  formSection: {
+    marginBottom: Spacing['4'],
+  },
+  consentSection: {
+    marginTop: Spacing['2'],
+    marginBottom: Spacing['4'],
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  footer: {
+    padding: Spacing['4'],
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: Spacing['4'],
+  },
 });
