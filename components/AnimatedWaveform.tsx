@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
 
 function seededRandom(seed: number): () => number {
@@ -33,15 +33,16 @@ export const AnimatedWaveform = React.memo(function AnimatedWaveform({
   seed,
   style,
 }: AnimatedWaveformProps) {
-  const barHeights = useRef(generateRandomHeights(barCount, maxHeight, seed)).current;
+  const barHeights = useMemo(
+    () => generateRandomHeights(barCount, maxHeight, seed),
+    [barCount, maxHeight, seed]
+  );
   const animsRef = useRef<Animated.Value[] | null>(null);
-  const [animatedReady, setAnimatedReady] = useState(false);
 
   useEffect(() => {
     if (active) {
       const values = Array.from({ length: barCount }, () => new Animated.Value(0));
       animsRef.current = values;
-      setAnimatedReady(true);
 
       const animations = values.map((anim, i) => {
         const peak = (barHeights[i] - 4) / (maxHeight - 4);
@@ -68,18 +69,16 @@ export const AnimatedWaveform = React.memo(function AnimatedWaveform({
       return () => {
         composite.stop();
         animsRef.current = null;
-        setAnimatedReady(false);
       };
     } else {
       animsRef.current = null;
-      setAnimatedReady(false);
     }
   }, [active, barCount, maxHeight, barHeights]);
 
   return (
-    <View style={[styles.container, style]}>
+    <View key={String(active)} style={[styles.container, style]}>
       {Array.from({ length: barCount }, (_, i) => {
-        if (animatedReady && animsRef.current) {
+        if (active && animsRef.current) {
           return (
             <Animated.View
               key={i}

@@ -86,6 +86,8 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   { id: '7', text: 'Got it, see you soon!', sender: 'worker', timestamp: '10:18 AM', type: 'text' },
   { id: '8', text: 'Here is the location of the job site.', sender: 'customer', timestamp: '10:20 AM', type: 'text' },
   { id: '9', type: 'location', sender: 'customer', timestamp: '10:21 AM', location: { address: '123 Main St, Quezon City', latitude: 14.6760, longitude: 121.0437 } },
+  { id: '10', type: 'location', sender: 'worker', timestamp: '10:23 AM', location: { address: '456 Oak Ave, Makati City', latitude: 14.5547, longitude: 121.0244 } },
+  { id: '11', type: 'image', sender: 'worker', timestamp: '10:25 AM', imageUrl: 'https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=400&auto=format&fit=crop' },
 ];
 
 export default function ChatScreen() {
@@ -768,9 +770,9 @@ const styles = StyleSheet.create({
   chatImage: { width: '100%', minWidth: 180, height: 150, borderRadius: Radius.md },
 
   // Location
-  locationPreview: { gap: Spacing['2'] },
+  locationPreview: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
   locationMapPlaceholder: {
-    width: '100%', height: 80, borderRadius: Radius.lg,
+    width: 64, height: 64, borderRadius: Radius.md,
     backgroundColor: Colors.surfaceLight,
     alignItems: 'center', justifyContent: 'center',
   },
