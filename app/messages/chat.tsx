@@ -33,7 +33,7 @@ import {
   Calendar,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Layout, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
@@ -289,7 +289,7 @@ export default function ChatScreen() {
             ) : (
               <Play size={16} color={isWorker ? Colors.white : Colors.cta} />
             )}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24, backgroundColor: 'rgba(255,0,0,0.2)' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24 }}>
               {Array.from({ length: getVoiceBarCount(msg.voiceDuration) }, (_, i) => {
                 const h = ((msg.voiceDuration || 0) * 13 + i * 7 + 5) % 12 + 4;
                 return (
@@ -386,11 +386,11 @@ export default function ChatScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + Spacing['2'] }]}>
-        <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={12}>
-          <ArrowLeft size={24} color={Colors.textPrimary} />
-        </Pressable>
-        <View style={styles.headerCenter}>
-          <Avatar uri="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" size={36} />
+        <View style={styles.headerLeft}>
+          <Pressable onPress={() => router.back()} style={styles.backButton} hitSlop={12}>
+            <ArrowLeft size={24} color={Colors.textPrimary} />
+          </Pressable>
+          <Avatar uri="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" size={40} />
           <View style={styles.headerInfo}>
             <AppText variant="body" weight="semiBold">Mario Rossi</AppText>
             <AppText variant="caption" color={Colors.verified}>Online</AppText>
@@ -615,15 +615,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing['4'],
+    justifyContent: 'space-between',
+    paddingHorizontal: Layout.screenPadding,
     paddingBottom: Spacing['3'],
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
   },
-  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerCenter: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
-  headerInfo: { gap: 1 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  backButton: { marginRight: Spacing['3'], width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headerInfo: { marginLeft: Spacing['1'], gap: 1 },
   headerAction: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   actionCircle: {
     width: 36, height: 36, borderRadius: 18,
