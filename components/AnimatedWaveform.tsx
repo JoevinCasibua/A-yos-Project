@@ -1,6 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
 
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return (s >>> 0) / 0x7fffffff;
+  };
+}
+
 interface AnimatedWaveformProps {
   barCount?: number;
   barWidth?: number;
@@ -8,11 +16,13 @@ interface AnimatedWaveformProps {
   color?: string;
   active?: boolean;
   maxHeight?: number;
+  seed?: number;
   style?: ViewStyle;
 }
 
-function generateRandomHeights(count: number, max: number): number[] {
-  return Array.from({ length: count }, () => 4 + Math.random() * (max - 4));
+function generateRandomHeights(count: number, max: number, seed?: number): number[] {
+  const rng = seed != null ? seededRandom(seed) : Math.random;
+  return Array.from({ length: count }, () => 4 + rng() * (max - 4));
 }
 
 export const AnimatedWaveform = React.memo(function AnimatedWaveform({
@@ -22,17 +32,18 @@ export const AnimatedWaveform = React.memo(function AnimatedWaveform({
   color = '#071022',
   active = false,
   maxHeight = 20,
+  seed,
   style,
 }: AnimatedWaveformProps) {
   const anims = useRef<Animated.Value[]>(
-    Array.from({ length: barCount }, () => new Animated.Value(0.3))
+    Array.from({ length: barCount }, () => new Animated.Value(0.5))
   ).current;
 
-  const targetHeights = useRef(generateRandomHeights(barCount, maxHeight)).current;
+  const targetHeights = useRef(generateRandomHeights(barCount, maxHeight, seed)).current;
 
   useEffect(() => {
     if (!active) {
-      anims.forEach((a) => a.setValue(0.3));
+      anims.forEach((a) => a.setValue(0.5));
       return;
     }
 

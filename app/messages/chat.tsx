@@ -289,6 +289,7 @@ export default function ChatScreen() {
               color={isWorker ? 'rgba(255,255,255,0.6)' : `${Colors.cta}60`}
               active={playingVoiceId === msg.id}
               maxHeight={16}
+              seed={msg.voiceDuration || 0}
               style={{ flex: 1 }}
             />
             <AppText variant="caption" color={isWorker ? Colors.white : Colors.textSecondary}>
@@ -426,6 +427,7 @@ export default function ChatScreen() {
             color={Colors.error}
             active={!isPaused}
             maxHeight={18}
+            seed={0}
             style={{ flex: 1 }}
           />
           <AppText variant="bodySm" weight="semiBold" color={Colors.error}>
@@ -462,6 +464,7 @@ export default function ChatScreen() {
             color={Colors.cta}
             active={playingVoiceId === 'preview'}
             maxHeight={18}
+            seed={0}
             style={{ flex: 1 }}
           />
           <AppText variant="caption" color={Colors.textSecondary}>
@@ -753,7 +756,8 @@ const styles = StyleSheet.create({
 
   // Image
   imageBubble: {
-    padding: Spacing['1'],
+    paddingHorizontal: Spacing['2'],
+    paddingVertical: Spacing['1'],
     gap: Spacing['2'],
   },
   imageTimestamp: {
