@@ -38,7 +38,6 @@ import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Avatar } from '@/components/Avatar';
 import { Image } from 'expo-image';
-import { AnimatedWaveform } from '@/components/AnimatedWaveform';
 
 interface ChatMessage {
   id: string;
@@ -290,14 +289,22 @@ export default function ChatScreen() {
             ) : (
               <Play size={16} color={isWorker ? Colors.white : Colors.cta} />
             )}
-            <AnimatedWaveform
-              barCount={getVoiceBarCount(msg.voiceDuration)}
-              color={isWorker ? 'rgba(255,255,255,0.6)' : Colors.textSecondary}
-              active={playingVoiceId === msg.id}
-              maxHeight={16}
-              seed={msg.voiceDuration || 0}
-              style={{ flex: 1 }}
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24, flex: 1 }}>
+              {Array.from({ length: getVoiceBarCount(msg.voiceDuration) }, (_, i) => {
+                const h = ((msg.voiceDuration || 0) * 13 + i * 7 + 5) % 12 + 4;
+                return (
+                  <View
+                    key={i}
+                    style={{
+                      width: 3,
+                      height: h,
+                      backgroundColor: isWorker ? 'rgba(255,255,255,0.6)' : Colors.textSecondary,
+                      borderRadius: 1.5,
+                    }}
+                  />
+                );
+              })}
+            </View>
             <AppText variant="caption" color={isWorker ? Colors.white : Colors.textSecondary}>
               {formatDuration(msg.voiceDuration || 0)}
             </AppText>
@@ -428,14 +435,11 @@ export default function ChatScreen() {
       {/* Recording Bar */}
       {isRecording && (
         <View style={styles.recordingBar}>
-          <AnimatedWaveform
-            barCount={16}
-            color={Colors.error}
-            active={!isPaused}
-            maxHeight={18}
-            seed={0}
-            style={{ flex: 1 }}
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24, flex: 1 }}>
+            {Array.from({ length: 16 }, (_, i) => (
+              <View key={i} style={{ width: 3, height: ((i * 7 + 5) % 12) + 4, backgroundColor: Colors.error, borderRadius: 1.5 }} />
+            ))}
+          </View>
           <AppText variant="bodySm" weight="semiBold" color={Colors.error}>
             {formatDuration(recordingSeconds)}
           </AppText>
@@ -465,14 +469,11 @@ export default function ChatScreen() {
               <Play size={16} color={Colors.cta} />
             )}
           </Pressable>
-          <AnimatedWaveform
-            barCount={16}
-            color={Colors.cta}
-            active={playingVoiceId === 'preview'}
-            maxHeight={18}
-            seed={0}
-            style={{ flex: 1 }}
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, height: 24, flex: 1 }}>
+            {Array.from({ length: 16 }, (_, i) => (
+              <View key={i} style={{ width: 3, height: ((i * 7 + 5) % 12) + 4, backgroundColor: Colors.cta, borderRadius: 1.5 }} />
+            ))}
+          </View>
           <AppText variant="caption" color={Colors.textSecondary}>
             {formatDuration(voicePreviewDuration)}
           </AppText>
@@ -770,9 +771,9 @@ const styles = StyleSheet.create({
   chatImage: { width: '100%', minWidth: 180, height: 150, borderRadius: Radius.md },
 
   // Location
-  locationPreview: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
+  locationPreview: { gap: Spacing['2'] },
   locationMapPlaceholder: {
-    width: 64, height: 64, borderRadius: Radius.md,
+    width: '100%', height: 80, borderRadius: Radius.lg,
     backgroundColor: Colors.surfaceLight,
     alignItems: 'center', justifyContent: 'center',
   },
