@@ -27,6 +27,10 @@ import {
   Camera,
   Square,
   Languages,
+  MoreVertical,
+  Flag,
+  FileText,
+  Calendar,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
@@ -42,13 +46,37 @@ interface ChatMessage {
   translation?: string;
   sender: 'worker' | 'customer';
   timestamp: string;
-  type: 'text' | 'voice' | 'image' | 'location';
+  type: 'text' | 'voice' | 'image' | 'location' | 'booking_summary';
   voiceDuration?: number;
   imageUrl?: string;
   location?: { address: string; latitude: number; longitude: number };
+  bookingData?: {
+    service: string;
+    date: string;
+    time: string;
+    address: string;
+    price: string;
+    status: string;
+    imageUrl?: string;
+  };
 }
 
 const INITIAL_MESSAGES: ChatMessage[] = [
+  {
+    id: 'booking-summary',
+    sender: 'customer',
+    timestamp: '10:10 AM',
+    type: 'booking_summary',
+    bookingData: {
+      service: 'Plumbing Repair',
+      date: 'Aug 15, 2026',
+      time: '10:00 AM',
+      address: '123 Main St, Quezon City',
+      price: '₱1,200',
+      status: 'Accepted',
+      imageUrl: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&auto=format&fit=crop',
+    },
+  },
   { id: '1', text: 'Hi, I am available for the plumbing job!', translation: 'Kumusta, available ako para sa plumbing job!', sender: 'customer', timestamp: '10:12 AM', type: 'text' },
   { id: '2', text: 'Great, what is your estimated arrival time?', sender: 'worker', timestamp: '10:13 AM', type: 'text' },
   { id: '3', text: 'I can be there in 15 minutes.', translation: 'Andoon ako sa loob ng 15 minuto.', sender: 'customer', timestamp: '10:14 AM', type: 'text' },
@@ -58,7 +86,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -74,10 +102,19 @@ export default function ChatScreen() {
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const recordingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [showHeaderMenu, setShowHeaderMenu] = useState(false);
 
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
+
+  const handleReport = () => {
+    router.push({ pathname: '/(worker)/report-user/[id]', params: { id } });
+  };
+
+  const handleBookingDetails = () => {
+    router.push({ pathname: '/(worker)/booking-request/[id]', params: { id, from: 'chat' } });
+  };
 
   const addMessage = (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => {
     const now = new Date();
@@ -189,6 +226,45 @@ export default function ChatScreen() {
   const renderMessage = (msg: ChatMessage) => {
     const isWorker = msg.sender === 'worker';
 
+    if (msg.type === 'booking_summary') {
+      return (
+        <Pressable
+          key={msg.id}
+          style={[styles.bubble, styles.bubbleCustomer, styles.bookingSummaryCard]}
+          onPress={() => router.push({ pathname: '/(worker)/booking-request/[id]', params: { id, from: 'chat' } })}
+        >
+          {msg.bookingData?.imageUrl && (
+            <Image source={msg.bookingData.imageUrl} style={styles.bookingSummaryImage} contentFit="cover" />
+          )}
+          <View style={styles.bookingSummaryBody}>
+            <AppText variant="body" weight="semiBold" color={Colors.textPrimary}>
+              {msg.bookingData?.service}
+            </AppText>
+            <View style={styles.bookingSummaryRow}>
+              <Calendar size={14} color={Colors.textSecondary} />
+              <AppText variant="bodySm" color={Colors.textSecondary}>
+                {msg.bookingData?.date} at {msg.bookingData?.time}
+              </AppText>
+            </View>
+            <View style={styles.bookingSummaryRow}>
+              <MapPin size={14} color={Colors.textSecondary} />
+              <AppText variant="bodySm" color={Colors.textSecondary}>
+                {msg.bookingData?.address}
+              </AppText>
+            </View>
+            <AppText variant="body" weight="bold" color={Colors.cta}>
+              {msg.bookingData?.price}
+            </AppText>
+            <View style={styles.bookingSummaryBtn}>
+              <AppText variant="bodySm" weight="semiBold" color={Colors.white}>
+                View Booking Details
+              </AppText>
+            </View>
+          </View>
+        </Pressable>
+      );
+    }
+
     if (msg.type === 'voice') {
       return (
         <View key={msg.id} style={[styles.bubble, isWorker ? styles.bubbleWorker : styles.bubbleCustomer]}>
@@ -299,10 +375,23 @@ export default function ChatScreen() {
             <AppText variant="caption" color={Colors.verified}>Online</AppText>
           </View>
         </View>
-        <Pressable style={styles.headerAction} onPress={() => Alert.alert('Call', 'Calling customer...')}>
-          <View style={styles.actionCircle}>
-            <Phone size={18} color={Colors.cta} />
-          </View>
+        <View style={styles.headerActions}>
+          <Pressable style={styles.headerAction} onPress={() => setShowHeaderMenu(true)} hitSlop={8}>
+            <MoreVertical size={20} color={Colors.textPrimary} />
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Contact Banner */}
+      <View style={styles.contactBanner}>
+        <View style={styles.contactBannerContent}>
+          <Phone size={16} color={Colors.white} />
+          <AppText variant="body" color={Colors.white}>
+            +63 912 345 6789
+          </AppText>
+        </View>
+        <Pressable style={styles.contactBannerCallBtn} onPress={() => Alert.alert('Call', 'Calling +63 912 345 6789...')}>
+          <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>Call</AppText>
         </Pressable>
       </View>
 
@@ -447,6 +536,30 @@ export default function ChatScreen() {
 
       </KeyboardAvoidingView>
 
+      {/* Header Menu Overlay */}
+      {showHeaderMenu && (
+        <>
+          <Pressable style={styles.menuBackdropOverlay} onPress={() => setShowHeaderMenu(false)} />
+          <View style={styles.menuDropdown}>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => { setShowHeaderMenu(false); handleReport(); }}
+            >
+              <Flag size={18} color={Colors.textSecondary} />
+              <AppText variant="body" color={Colors.textPrimary}>Report User</AppText>
+            </Pressable>
+            <View style={styles.menuDivider} />
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => { setShowHeaderMenu(false); handleBookingDetails(); }}
+            >
+              <FileText size={18} color={Colors.textTertiary} />
+              <AppText variant="body" color={Colors.textPrimary}>Booking Details</AppText>
+            </Pressable>
+          </View>
+        </>
+      )}
+
       {/* Location Confirm Dialog */}
       <Modal visible={showLocationConfirm} transparent animationType="fade">
         <Pressable style={styles.overlay} onPress={() => setShowLocationConfirm(false)}>
@@ -500,9 +613,97 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primarySurface,
     alignItems: 'center', justifyContent: 'center',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['1'],
+  },
+  menuBackdropOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9,
+  },
+  menuDropdown: {
+    position: 'absolute',
+    top: 100,
+    right: Spacing['4'],
+    backgroundColor: Colors.white,
+    borderRadius: Radius.xl,
+    padding: Spacing['2'],
+    minWidth: 200,
+    zIndex: 10,
+    ...Elevation.lg,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['3'],
+    paddingVertical: Spacing['3'],
+    paddingHorizontal: Spacing['4'],
+    borderRadius: Radius.lg,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: Colors.borderLight,
+    marginHorizontal: Spacing['4'],
+  },
+  contactBanner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing['6'],
+    paddingVertical: Spacing['3'],
+    backgroundColor: Colors.cta,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  contactBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['3'],
+  },
+  contactBannerCallBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['1'],
+    paddingVertical: Spacing['2'],
+    paddingHorizontal: Spacing['4'],
+    backgroundColor: Colors.white,
+    borderRadius: Radius.full,
+  },
+
+  // Booking summary
+  bookingSummaryCard: {
+    padding: 0,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  bookingSummaryImage: {
+    width: '100%',
+    height: 160,
+    backgroundColor: Colors.surfaceLight,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+  },
+  bookingSummaryBody: {
+    padding: Spacing['4'],
+    gap: Spacing['2'],
+  },
+  bookingSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+  },
+  bookingSummaryBtn: {
+    backgroundColor: Colors.cta,
+    borderRadius: Radius.lg,
+    paddingVertical: Spacing['2'],
+    paddingHorizontal: Spacing['4'],
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
 
   chatArea: { flex: 1 },
-  chatContent: { padding: Spacing['4'], gap: Spacing['3'] },
+  chatContent: { padding: Spacing['4'], paddingTop: Spacing['5'], gap: Spacing['3'] },
 
   bubble: {
     maxWidth: '80%',

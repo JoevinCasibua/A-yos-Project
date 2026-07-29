@@ -14,17 +14,56 @@ interface RescheduleDialogProps {
 
 const QUICK_TIMES = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
 
-function formatDate(text: string): string {
-  const digits = text.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+function parseMMDDYYYY(s: string): Date | null {
+  const match = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, mm, dd, yyyy] = match;
+  const date = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
+  if (date.getMonth() !== parseInt(mm) - 1 || date.getDate() !== parseInt(dd)) return null;
+  return date;
 }
 
-function formatTime(text: string): string {
+function formatDateInput(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) {
+    const m = parseInt(digits);
+    if (digits.length === 2 && m === 0) return '01';
+    if (digits.length === 2 && m > 12) return '12';
+    return digits;
+  }
+  if (digits.length <= 4) {
+    const m = parseInt(digits.slice(0, 2));
+    const day = parseInt(digits.slice(2));
+    if (m === 0) return `01/${digits.slice(2)}`;
+    if (m > 12) return `12/${digits.slice(2)}`;
+    if (digits.length === 4 && day === 0) return `${digits.slice(0, 2)}/01`;
+    if (digits.length === 4 && day > 31) return `${digits.slice(0, 2)}/31`;
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+  const m = parseInt(digits.slice(0, 2));
+  const d = parseInt(digits.slice(2, 4));
+  const mm = m === 0 ? '01' : m > 12 ? '12' : digits.slice(0, 2);
+  const dd = d === 0 ? '01' : d > 31 ? '31' : digits.slice(2, 4);
+  const yy = digits[4] && parseInt(digits[4]) < 2 ? '2' + digits.slice(5) : digits.slice(4);
+  return `${mm}/${dd}/${yy}`;
+}
+
+function formatTimeInput(text: string): string {
   const digits = text.replace(/\D/g, '').slice(0, 4);
-  if (digits.length <= 2) return digits;
-  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+  if (digits.length <= 2) {
+    if (digits.length === 2) {
+      const h = parseInt(digits);
+      if (h === 0) return '01';
+      if (h > 24) return '24';
+    }
+    return digits;
+  }
+  const h = parseInt(digits.slice(0, 2));
+  const hh = h === 0 ? '01' : h > 24 ? '24' : digits.slice(0, 2);
+  if (digits.length === 3) return `${hh}:${digits.slice(2)}`;
+  const m = parseInt(digits.slice(2));
+  const mm = m > 59 ? '59' : digits.slice(2);
+  return `${hh}:${mm}`;
 }
 
 export function RescheduleDialog({
@@ -46,10 +85,42 @@ export function RescheduleDialog({
       Alert.alert('Required', 'Please select a time.');
       return;
     }
-    onConfirm(date.trim(), time.trim(), message.trim());
-    setDate('');
-    setTime('');
-    setMessage('');
+    const parsed = parseMMDDYYYY(date.trim());
+    if (!parsed) {
+      Alert.alert('Invalid Date', 'The date you entered is not valid.');
+      return;
+    }
+    const timeParts = time.trim().match(/^(\d{2}):(\d{2})$/);
+    if (!timeParts) {
+      Alert.alert('Invalid Time', 'Please enter a valid time in HH:MM format.');
+      return;
+    }
+    const hour = parseInt(timeParts[1]);
+    const minute = parseInt(timeParts[2]);
+    if (hour < 1 || hour > 24) {
+      Alert.alert('Invalid Time', 'Hour must be between 01 and 24.');
+      return;
+    }
+    if (minute > 59) {
+      Alert.alert('Invalid Time', 'Minutes must be between 00 and 59.');
+      return;
+    }
+    Alert.alert(
+      'Confirm Reschedule',
+      `Propose ${date.trim()} at ${time.trim()} to the customer?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send Proposal',
+          onPress: () => {
+            onConfirm(date.trim(), time.trim(), message.trim());
+            setDate('');
+            setTime('');
+            setMessage('');
+          },
+        },
+      ]
+    );
   };
 
   const handleClose = () => {
@@ -86,7 +157,7 @@ export function RescheduleDialog({
                 placeholder="MM/DD/YYYY"
                 placeholderTextColor={Colors.textTertiary}
                 value={date}
-                onChangeText={(t) => setDate(formatDate(t))}
+                onChangeText={(t) => setDate(formatDateInput(t))}
                 keyboardType="numeric"
                 maxLength={10}
               />
@@ -121,7 +192,7 @@ export function RescheduleDialog({
                 placeholder="HH:MM (24h)"
                 placeholderTextColor={Colors.textTertiary}
                 value={time}
-                onChangeText={(t) => setTime(formatTime(t))}
+                onChangeText={(t) => setTime(formatTimeInput(t))}
                 keyboardType="numeric"
                 maxLength={5}
               />

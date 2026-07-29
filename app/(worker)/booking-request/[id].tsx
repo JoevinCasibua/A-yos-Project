@@ -26,7 +26,6 @@ import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
 import { ThreeDotMenu } from '@/components/ThreeDotMenu';
 import { BookingStepIndicator } from '@/components/booking/BookingStepIndicator';
-import { BookingChat } from '@/components/booking/BookingChat';
 import { BookingMap } from '@/components/booking/BookingMap';
 import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
@@ -106,14 +105,27 @@ export default function BookingRequestScreen() {
   const [showSOS, setShowSOS] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'cash' | 'online' | null>(null);
+  const [rescheduleData, setRescheduleData] = useState<{
+    status: 'pending' | 'accepted' | 'rejected';
+    date: string;
+    time: string;
+  } | null>(null);
 
   const handleRescheduleConfirm = (date: string, time: string, message: string) => {
+    setRescheduleData({ status: 'pending', date: date.trim(), time: time.trim() });
     setShowRescheduleDialog(false);
     Alert.alert(
       'Reschedule Proposed',
-      `New date: ${date}\nNew time: ${time}${message ? `\nMessage: ${message}` : ''}\n\nThe customer will be notified.`,
-      [{ text: 'OK', onPress: () => router.back() }]
+      `New date: ${date}\nNew time: ${time}${message ? `\nMessage: ${message}` : ''}\n\nThe customer will be notified.`
     );
+  };
+
+  const cycleReschedule = () => {
+    setRescheduleData((prev) => {
+      if (prev?.status === 'pending') return { ...prev, status: 'accepted' as const };
+      if (prev?.status === 'accepted') return { ...prev, status: 'rejected' as const };
+      return null;
+    });
   };
 
   const handleConfirmDetails = () => {
@@ -173,6 +185,10 @@ export default function BookingRequestScreen() {
   };
 
   const handleBack = () => {
+    if (from === 'chat') {
+      router.push(`/messages/chat?id=${id}`);
+      return;
+    }
     const route = getBackRoute(from);
     route ? router.push(route) : router.back();
   };
@@ -388,6 +404,29 @@ export default function BookingRequestScreen() {
           )}
         </View>
 
+        {rescheduleData && (
+          <Pressable style={styles.rescheduleCard} onPress={cycleReschedule}>
+            <View style={[styles.rescheduleIcon, {
+              backgroundColor: rescheduleData.status === 'pending' ? Colors.warningBg : rescheduleData.status === 'accepted' ? Colors.successBg : Colors.errorBg,
+            }]}>
+              {rescheduleData.status === 'pending' && <Clock size={20} color={Colors.warning} />}
+              {rescheduleData.status === 'accepted' && <CheckCircle2 size={20} color={Colors.success} />}
+              {rescheduleData.status === 'rejected' && <XCircle size={20} color={Colors.error} />}
+            </View>
+            <View style={styles.rescheduleBody}>
+              <AppText variant="bodySm" weight="semiBold">
+                {rescheduleData.status === 'pending' ? 'Reschedule Pending' : rescheduleData.status === 'accepted' ? 'Reschedule Accepted' : 'Reschedule Rejected'}
+              </AppText>
+              <AppText variant="caption" color={Colors.textSecondary}>
+                Proposed: {rescheduleData.date} at {rescheduleData.time}
+              </AppText>
+              <AppText variant="caption" color={rescheduleData.status === 'pending' ? Colors.textTertiary : rescheduleData.status === 'accepted' ? Colors.success : Colors.error}>
+                {rescheduleData.status === 'pending' ? 'Awaiting customer response...' : rescheduleData.status === 'accepted' ? 'The customer agreed to the new schedule.' : 'The customer declined the reschedule.'}
+              </AppText>
+            </View>
+          </Pressable>
+        )}
+
         {/* ─── Client Card ─── */}
         <View style={styles.clientCard}>
           <View style={styles.clientHeader}>
@@ -443,14 +482,13 @@ export default function BookingRequestScreen() {
 
         {booking.status === 'accepted' && (
           <>
-            <BookingChat
-              customerName={job.customerName}
-              customerAvatar={job.customerAvatar}
-            />
-            <Pressable style={styles.contactNowBtn} onPress={() => router.push(`/messages/chat?id=${booking.id}`)}>
-              <MessageSquare size={16} color={Colors.cta} />
-              <AppText variant="bodySm" weight="semiBold" color={Colors.cta}>
-                Open Full Chat
+            <Pressable
+              style={styles.chatCustomerBtn}
+              onPress={() => router.push(`/messages/chat?id=${booking.id}`)}
+            >
+              <MessageSquare size={20} color={Colors.cta} />
+              <AppText variant="body" weight="semiBold" color={Colors.cta}>
+                Chat with customer
               </AppText>
             </Pressable>
             <Pressable
@@ -685,6 +723,16 @@ const styles = StyleSheet.create({
   },
   jobImage: { width: '100%', height: 180, borderRadius: Radius.lg },
   description: { fontStyle: 'italic' },
+  rescheduleCard: {
+    backgroundColor: Colors.white, borderRadius: Radius.xl,
+    padding: Layout.cardPadding, flexDirection: 'row', alignItems: 'center',
+    gap: Spacing['3'], ...Elevation.sm,
+  },
+  rescheduleIcon: {
+    width: 40, height: 40, borderRadius: 20,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  rescheduleBody: { flex: 1, gap: Spacing['1'] },
   analysisCard: {
     backgroundColor: Colors.surfaceLight, borderRadius: Radius.lg,
     padding: Spacing['3'], gap: Spacing['2'],
@@ -729,16 +777,23 @@ const styles = StyleSheet.create({
   },
 
   // Accepted chat
+  chatCustomerBtn: {
+    paddingVertical: Spacing['4'],
+    borderRadius: Radius.xl,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: Spacing['2'],
+    borderWidth: 1.5,
+    borderColor: Colors.cta,
+    ...Elevation.sm,
+  },
   confirmDetailsBtn: {
-    marginHorizontal: Spacing['3'],
     paddingVertical: Spacing['4'],
     borderRadius: Radius.lg,
     backgroundColor: Colors.cta,
     alignItems: 'center',
-  },
-  contactNowBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: Spacing['2'], paddingVertical: Spacing['2'],
   },
 
   // Pending review
