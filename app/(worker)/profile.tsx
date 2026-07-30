@@ -307,9 +307,6 @@ function ProfileMatchingCard({ matchingOnline, setMatchingOnline }: { matchingOn
     <View style={styles.matchingCard}>
       <View style={styles.matchingRow}>
         <View style={styles.matchingCopy}>
-          <AppText variant="body" weight="bold">
-            Available for matching
-          </AppText>
           <AppText variant="caption" color={theme.colors.textSecondary}>
             Turn this on when you are ready to receive requests.
           </AppText>
