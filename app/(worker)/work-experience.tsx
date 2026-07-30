@@ -4,7 +4,7 @@ import { Plus, Pencil, Trash2, Building2, Calendar, Briefcase, Check } from 'luc
 import { router, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { theme } from '@/constants/theme';
+import { Colors, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppInput } from '@/components/AppInput';
 import { AppButton } from '@/components/AppButton';
@@ -96,9 +96,9 @@ export default function WorkExperienceScreen() {
         {!isEditing && (
           <AppButton
             label="Add Experience"
-            variant="outline"
+            variant="primary"
             fullWidth
-            leftIcon={<Plus size={18} color={theme.colors.primary} />}
+            leftIcon={<Plus size={18} color={Colors.white} />}
             onPress={startAdd}
           />
         )}
