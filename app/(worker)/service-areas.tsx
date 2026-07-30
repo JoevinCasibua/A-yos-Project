@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Alert, TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { MapPin, X, Plus, CheckCircle2, Navigation } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Typography, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { AppSelect } from '@/components/AppSelect';
@@ -358,11 +358,14 @@ const styles = StyleSheet.create({
     gap: Spacing['2'],
   },
   textInput: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: Colors.white,
     borderRadius: Radius.lg,
-    paddingHorizontal: Spacing['3'],
-    paddingVertical: Spacing['2'],
-    fontSize: 14,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['3'],
+    fontSize: Typography.lg,
+    minHeight: 52,
     color: Colors.textPrimary,
   },
 });

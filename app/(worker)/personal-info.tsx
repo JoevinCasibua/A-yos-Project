@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Typography, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Screen } from '@/components/layout/Screen';
@@ -117,22 +117,29 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   textInput: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: Colors.white,
     borderRadius: Radius.lg,
-    paddingHorizontal: Spacing['3'],
-    paddingVertical: Spacing['2'],
-    fontSize: 14,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['3'],
+    fontSize: Typography.lg,
+    minHeight: 52,
     color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 100,
-    paddingTop: Spacing['2'],
+    paddingTop: Spacing['3'],
   },
   emailDisplay: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: Colors.white,
     borderRadius: Radius.lg,
-    paddingHorizontal: Spacing['3'],
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing['4'],
     paddingVertical: Spacing['3'],
+    minHeight: 52,
+    justifyContent: 'center',
   },
 
   actions: {
