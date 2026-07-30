@@ -106,5 +106,6 @@ const styles = StyleSheet.create({
   },
   detailsBtn: {
     flex: 1,
+    borderColor: Colors.warning,
   },
 });
