@@ -23,9 +23,9 @@ const MENU_SECTIONS = [
     items: [
       { id: 'personal', title: 'Personal Information', icon: User },
       { id: 'industry', title: 'Industry & Skills', icon: Wrench },
+      { id: 'areas', title: 'Service Areas', icon: MapPin },
       { id: 'rate-setting', title: 'Rate Setting', icon: DollarSign },
       { id: 'experience', title: 'Work Experience', icon: FileText },
-      { id: 'areas', title: 'Service Areas', icon: MapPin },
     ],
   },
   {
@@ -192,6 +192,15 @@ export default function WorkerProfileScreen() {
           </View>
         </View>
 
+        {/* Availability Summary */}
+        <View style={styles.infoSection}>
+          <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
+          <ProfileMatchingCard
+            matchingOnline={matchingOnline}
+            setMatchingOnline={setMatchingOnline}
+          />
+        </View>
+
         {/* Skills */}
         <View style={styles.infoSection}>
           <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Skills</Text>
@@ -203,15 +212,6 @@ export default function WorkerProfileScreen() {
               <Chip label={`+${workerProfile.skills.length - 4}`} size="sm" selected />
             )}
           </View>
-        </View>
-
-        {/* Availability Summary */}
-        <View style={styles.infoSection}>
-          <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
-          <ProfileMatchingCard
-            matchingOnline={matchingOnline}
-            setMatchingOnline={setMatchingOnline}
-          />
         </View>
 
         {/* Pricing & Service */}
