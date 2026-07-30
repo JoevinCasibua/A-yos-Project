@@ -116,7 +116,7 @@ export default function TransactionsHistoryScreen() {
     result.sort((a, b) => parseTxDate(b.date).getTime() - parseTxDate(a.date).getTime());
 
     return result;
-  }, [searchQuery, txFilter, fromDate, toDate]);
+  }, [searchQuery, txFilter, fromDate, toDate, walletTransactions]);
 
   const groupedTransactions = useMemo(() => {
     const groups: Record<string, WalletTransaction[]> = {};

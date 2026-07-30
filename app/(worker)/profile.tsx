@@ -311,7 +311,7 @@ function ProfileMatchingCard({ matchingOnline, setMatchingOnline }: { matchingOn
           value={matchingOnline}
           onValueChange={setMatchingOnline}
           trackColor={{ false: theme.colors.border, true: theme.colors.primaryLight }}
-          thumbColor={matchingOnline ? theme.colors.primary : theme.colors.textTertiary}
+          thumbColor={matchingOnline ? theme.colors.surface : theme.colors.textTertiary}
         />
       </View>
       {matchingOnline && (
