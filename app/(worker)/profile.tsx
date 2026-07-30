@@ -205,6 +205,15 @@ export default function WorkerProfileScreen() {
           </View>
         </View>
 
+        {/* Availability Summary */}
+        <View style={styles.infoSection}>
+          <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
+          <ProfileMatchingCard
+            matchingOnline={matchingOnline}
+            setMatchingOnline={setMatchingOnline}
+          />
+        </View>
+
         {/* Pricing & Service */}
         <View style={styles.infoCard}>
           <View style={styles.infoCardRow}>
@@ -230,15 +239,6 @@ export default function WorkerProfileScreen() {
             </View>
             <Text style={theme.typography.body1}>{workerProfile.serviceAreas.slice(0, 2).join(', ')}{workerProfile.serviceAreas.length > 2 ? ` +${workerProfile.serviceAreas.length - 2}` : ''}</Text>
           </View>
-        </View>
-
-        {/* Availability Summary */}
-        <View style={styles.infoSection}>
-          <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
-          <ProfileMatchingCard
-            matchingOnline={matchingOnline}
-            setMatchingOnline={setMatchingOnline}
-          />
         </View>
 
         {/* Experience Summary */}
@@ -307,7 +307,7 @@ function ProfileMatchingCard({ matchingOnline, setMatchingOnline }: { matchingOn
     <View style={styles.matchingCard}>
       <View style={styles.matchingRow}>
         <View style={styles.matchingCopy}>
-          <AppText variant="caption" color={theme.colors.textSecondary}>
+          <AppText variant="bodySm" color={theme.colors.textSecondary}>
             Turn this on when you are ready to receive requests.
           </AppText>
         </View>
@@ -319,7 +319,7 @@ function ProfileMatchingCard({ matchingOnline, setMatchingOnline }: { matchingOn
         />
       </View>
       {matchingOnline && (
-        <AppText variant="caption" color={theme.colors.secondary}>
+        <AppText variant="bodySm" color={theme.colors.secondary}>
           Your profile is eligible for matching.
         </AppText>
       )}
