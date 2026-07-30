@@ -85,7 +85,6 @@ export default function WorkerTabLayout() {
         <Tabs.Screen name="transactions-history" options={{ href: null }} />
         <Tabs.Screen name="reviews" options={{ href: null }} />
         <Tabs.Screen name="settings" options={{ href: null }} />
-        <Tabs.Screen name="booking-request/[id]" options={{ href: null }} />
         <Tabs.Screen name="industry-skills" options={{ href: null }} />
         <Tabs.Screen name="cancel-service/[id]" options={{ href: null }} />
         <Tabs.Screen name="work-experience" options={{ href: null }} />
@@ -111,7 +110,7 @@ export default function WorkerTabLayout() {
       {isCurrentlyWorking && currentBookingId && (
         <Pressable
           style={styles.workingBanner}
-          onPress={() => router.push(`/(worker)/booking-request/${currentBookingId}?from=dashboard`)}
+          onPress={() => router.push(`/(detail)/booking-request/${currentBookingId}?from=dashboard`)}
         >
           <View style={styles.bannerDotContainer}>
             <View style={styles.bannerDot} />

@@ -28,7 +28,7 @@ export default function CashConfirmScreen() {
   useEffect(() => {
     if (!confirmed || !booking) return;
     const timer = setTimeout(() => {
-      router.replace(`/(worker)/booking-request/${booking.id}?from=cash-confirm/${booking.id}`);
+      router.replace(`/(detail)/booking-request/${booking.id}?from=cash-confirm/${booking.id}`);
     }, 1500);
     return () => clearTimeout(timer);
   }, [confirmed, booking]);
@@ -109,7 +109,7 @@ export default function CashConfirmScreen() {
               <MapPin size={14} color={Colors.textSecondary} />
               <AppText variant="body" color={Colors.textSecondary}>Address</AppText>
             </View>
-            <AppText variant="body" weight="semiBold" style={{ textAlign: 'right', flex: 1 }}>
+            <AppText variant="body" weight="semiBold" numberOfLines={1} ellipsizeMode="tail" style={{ textAlign: 'right', flex: 1 }}>
               {booking.address}
             </AppText>
           </View>

@@ -10,7 +10,7 @@ import {
   Wallet, Clock, Bell, Settings, HelpCircle, Shield,
   Star, CheckCircle, LogOut, ArrowLeftRight,
   BadgeCheck, ArrowUpFromLine, PlusCircle, FileText,
-  DollarSign, CalendarDays,
+  DollarSign, CalendarDays, Pencil,
 } from 'lucide-react-native';
 import { DAY_LABELS, DAYS } from '@/constants/workerData';
 import { useWorkerProfile } from '@/hooks';
@@ -154,11 +154,19 @@ export default function WorkerProfileScreen() {
 
       <View style={styles.content}>
         <View style={styles.userInfo}>
-          <Image
-            source={workerProfile.avatarUri}
-            style={styles.avatar}
-            contentFit="cover"
-          />
+          <View style={styles.avatarWrapper}>
+            <Image
+              source={workerProfile.avatarUri}
+              style={styles.avatar}
+              contentFit="cover"
+            />
+            <TouchableOpacity
+              style={styles.editBadge}
+              onPress={() => Alert.alert('Edit Photo', 'Coming soon.')}
+            >
+              <Pencil size={14} color={theme.colors.surface} />
+            </TouchableOpacity>
+          </View>
           <Text style={theme.typography.h3}>{workerProfile.name}</Text>
           <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>{workerProfile.email}</Text>
           <View style={styles.verifiedBadge}>
@@ -312,7 +320,9 @@ const styles = StyleSheet.create({
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxxl },
   userInfo: { alignItems: 'center', marginVertical: theme.spacing.xl },
+  avatarWrapper: { position: 'relative', alignSelf: 'center' },
   avatar: { width: 88, height: 88, borderRadius: 44, backgroundColor: theme.colors.border, marginBottom: theme.spacing.sm },
+  editBadge: { position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: theme.colors.primary, alignItems: 'center', justifyContent: 'center' },
   verifiedBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: `${theme.colors.success}15`, paddingHorizontal: 8, paddingVertical: 4, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs },
   statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.lg, ...theme.shadows.sm, marginBottom: theme.spacing.xl },
   statItem: { alignItems: 'center' },

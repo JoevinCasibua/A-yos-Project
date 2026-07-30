@@ -9,7 +9,7 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookings } from '@/hooks';
-import { JobTimer } from '@/components/booking/JobTimer';
+// import { JobTimer } from '@/components/booking/JobTimer';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
@@ -41,12 +41,12 @@ export default function WorkerBookingsScreen() {
     return () => clearInterval(interval);
   }, [timerStart, tick]);
 
-  function formatTimer(seconds: number): string {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }
+  // function formatTimer(seconds: number): string {
+  //   const h = Math.floor(seconds / 3600);
+  //   const m = Math.floor((seconds % 3600) / 60);
+  //   const s = seconds % 60;
+  //   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  // }
 
   const filteredBookings = useMemo(() => {
     if (activeTab === 'Reported') {
@@ -90,7 +90,7 @@ export default function WorkerBookingsScreen() {
             <Pressable
               key={booking.id}
               style={({ pressed }) => [{ opacity: pressed ? 0.96 : 1 }]}
-              onPress={() => router.push(activeTab === 'Reported' ? `/(worker)/reported-booking/${booking.id}?from=bookings-reported` : `/(worker)/booking-request/${booking.id}?from=bookings`)}
+              onPress={() => router.push(activeTab === 'Reported' ? `/(worker)/reported-booking/${booking.id}?from=bookings-reported` : `/(detail)/booking-request/${booking.id}?from=bookings`)}
             >
               {/* ─── UPCOMING CARD ─── */}
               {activeTab === 'Upcoming' && (
@@ -121,7 +121,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -169,11 +169,11 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
-                  {booking.status === 'in_progress' && (
+                  {/* {booking.status === 'in_progress' && (
                     <View style={[styles.timerRow, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
                       {booking.pricingType === 'hourly' ? (
                         <JobTimer hourlyRate={booking.hourlyRate} />
@@ -181,7 +181,7 @@ export default function WorkerBookingsScreen() {
                         <JobTimer />
                       )}
                     </View>
-                  )}
+                  )} */}
 
                   <View style={styles.cardFooter}>
                     <Text style={[theme.typography.h4, { color: theme.colors.primary }]}>{booking.price}</Text>
@@ -221,7 +221,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -337,7 +337,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText, { color: theme.colors.textTertiary }]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText, { color: theme.colors.textTertiary }]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -385,7 +385,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -438,8 +438,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between',
     borderTopWidth: 1, borderTopColor: theme.colors.borderLight, paddingTop: theme.spacing.sm,
   },
-  detailRow: { flexDirection: 'row', alignItems: 'center' },
-  detailText: { color: theme.colors.textSecondary, marginLeft: 4 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  detailText: { color: theme.colors.textSecondary, marginLeft: 4, flexShrink: 1 },
   partsRow: { paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm },
   cardFooter: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { View, StyleSheet, Pressable, Dimensions, Alert } from 'react-native';
 import { Calendar, DollarSign, Star, Shield } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, IconSize , Layout } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
@@ -28,7 +28,7 @@ export const QuickActionsGrid = React.memo(function QuickActionsGrid() {
           onPress={() => {
             if (action.id === 'schedule') router.push('/(worker)/availability');
             else if (action.id === 'earnings') router.push('/(worker)/wallet');
-            else if (action.id === 'premium') router.push('/(worker)/settings');
+            else if (action.id === 'premium') Alert.alert('Coming Soon', 'Premium features are on their way!');
             else if (action.id === 'verification') router.push('/(worker)/verification?from=dashboard');
           }}
         >

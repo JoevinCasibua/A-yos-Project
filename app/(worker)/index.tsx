@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Alert } from 'react-native';
-import { Bell, Search, ChevronRight, Briefcase } from 'lucide-react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Alert, Animated } from 'react-native';
+import { Bell, Search, ChevronRight, Briefcase, RefreshCw, Circle, MapPin, Clock } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { IncomingJobAlert } from '@/components/IncomingJobAlert';
+import { DispatchOffer } from '@/components/DispatchOffer';
 import { QuickActionsGrid } from '@/components/QuickActionsGrid';
 import { AppText } from '@/components/AppText';
 import { Badge } from '@/components/Badge';
@@ -31,6 +31,28 @@ export default function WorkerDashboardScreen() {
 
   const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review').slice(0, 3);
   const incomingJob = workerJobs[0];
+  const [presenceStatus, setPresenceStatus] = useState<'active' | 'inactive'>('active');
+  const [refreshingLocation, setRefreshingLocation] = useState(false);
+  const pingAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (presenceStatus === 'active') {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pingAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
+          Animated.timing(pingAnim, { toValue: 0, duration: 1500, useNativeDriver: true }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      pingAnim.setValue(0);
+    }
+  }, [presenceStatus, pingAnim]);
+  const refreshLocation = useCallback(async () => {
+    setRefreshingLocation(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setRefreshingLocation(false);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -76,25 +98,115 @@ export default function WorkerDashboardScreen() {
           </View>
         </View>
 
-        {/* Incoming Job Alert */}
+        {/* Live Status */}
+        <View style={styles.section}>
+          <Pressable
+            onPress={() => setPresenceStatus(prev => prev === 'active' ? 'inactive' : 'active')}
+            style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}
+          >
+            <View style={[styles.liveCard, presenceStatus === 'active' && styles.liveCardActive]}>
+              <View style={styles.liveHeader}>
+                <View style={styles.liveDotRow}>
+                  <View style={styles.liveDotWrapper}>
+                    {presenceStatus === 'active' && (
+                      <Animated.View
+                        style={[
+                          styles.liveDotPing,
+                          {
+                            opacity: pingAnim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0] }),
+                            transform: [{ scale: pingAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 2.5] }) }],
+                          },
+                        ]}
+                      />
+                    )}
+                    <View style={[styles.liveDot, presenceStatus === 'active' ? styles.liveDotActive : styles.liveDotInactive]} />
+                  </View>
+                  <Text style={styles.liveLabel}>
+                    {presenceStatus === 'active' ? 'Live and receiving nearby requests' : 'Live matching is not active'}
+                  </Text>
+                </View>
+                <View style={[styles.liveBadge, presenceStatus === 'active' ? styles.liveBadgeActive : styles.liveBadgeInactive]}>
+                  <Text style={[styles.liveBadgeText, presenceStatus === 'active' ? styles.liveBadgeTextActive : styles.liveBadgeTextInactive]}>
+                    {presenceStatus === 'active' ? 'Live' : 'Offline'}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.liveSubtitle}>
+                {presenceStatus === 'active'
+                  ? 'Your foreground location updates every 10–15 seconds.'
+                  : 'Location permission is required to receive nearby requests.'}
+              </Text>
+              <View style={styles.liveDivider} />
+              <View style={styles.liveDetailList}>
+                <View style={styles.liveDetailRow}>
+                  <View style={{ width: 14, height: 14, alignItems: 'center', justifyContent: 'center' }}>
+                    <Circle size={14} color={theme.colors.textTertiary} />
+                    <View style={{ position: 'absolute', width: 5, height: 5, borderRadius: 2.5, backgroundColor: theme.colors.textTertiary }} />
+                  </View>
+                  <Text style={styles.liveDetailText}>
+                    <Text style={styles.liveDetailLabel}>Service area:</Text> Silang · 10 km radius
+                  </Text>
+                </View>
+                <View style={styles.liveDetailRow}>
+                  <MapPin size={14} color={theme.colors.textTertiary} />
+                  <Text style={styles.liveDetailText}>
+                    <Text style={styles.liveDetailLabel}>Current location:</Text> 14.2420, 120.9687
+                  </Text>
+                </View>
+                <View style={styles.liveDetailRow}>
+                  <Clock size={14} color={theme.colors.textTertiary} />
+                  <Text style={styles.liveDetailText}>
+                    <Text style={styles.liveDetailLabel}>Last update:</Text> {new Date().toLocaleTimeString()}
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                disabled={refreshingLocation}
+                style={[
+                  styles.liveRefreshBtn,
+                  { borderColor: presenceStatus === 'active' ? theme.colors.success : theme.colors.warning },
+                  refreshingLocation && { opacity: 0.6 },
+                ]}
+                onPress={refreshLocation}
+              >
+                <RefreshCw size={14} color={presenceStatus === 'active' ? theme.colors.success : theme.colors.warning} />
+                <Text style={[styles.liveRefreshText, { color: presenceStatus === 'active' ? theme.colors.success : theme.colors.warning }]}>{refreshingLocation ? 'Refreshing…' : 'Refresh location and matching setup'}</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </View>
+
+        {/* Dispatch Offers */}
         {incomingJob && (
         <View style={styles.section}>
-          <IncomingJobAlert
-            service={incomingJob.service}
-            location={incomingJob.location}
+          <DispatchOffer
+            category={incomingJob.category}
+            area={incomingJob.location}
             distance={incomingJob.distance}
+            budget={incomingJob.offeredPrice}
             postedTime={incomingJob.postedTime}
+            description={incomingJob.description}
             onAccept={() => {
               Alert.alert(
                 'Accept Booking',
                 'Are you sure you want to accept this booking request?',
                 [
                   { text: 'Cancel', style: 'cancel' },
-                  { text: 'Accept', onPress: () => router.push(`/(worker)/booking-request/${incomingJob.id}?autoAccept=true&from=dashboard`) },
+                  { text: 'Accept', onPress: () => router.push(`/(detail)/booking-request/${incomingJob.id}?autoAccept=true&from=dashboard`) },
                 ]
               );
             }}
-            onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}?from=dashboard`)}
+            onDecline={() => {
+              Alert.alert(
+                'Decline Request',
+                'Are you sure you want to decline this request?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Decline', style: 'destructive', onPress: () => {} },
+                ]
+              );
+            }}
+            onPress={() => router.push(`/(detail)/booking-request/${incomingJob.id}?from=dashboard`)}
           />
         </View>
         )}
@@ -119,7 +231,7 @@ export default function WorkerDashboardScreen() {
               <Pressable
                 key={booking.id}
                 style={({ pressed }) => [styles.bookingCard, { opacity: pressed ? 0.95 : 1 }]}
-                onPress={() => router.push(`/(worker)/booking-request/${booking.id}?from=dashboard`)}
+                onPress={() => router.push(`/(detail)/booking-request/${booking.id}?from=dashboard`)}
               >
                 <View style={styles.bookingHeader}>
                   <Avatar uri={booking.customerAvatar} size={40} />
@@ -132,7 +244,7 @@ export default function WorkerDashboardScreen() {
                 <View style={styles.bookingMeta}>
                   <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.time}</Text>
                   <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>·</Text>
-                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.address}</Text>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, flexShrink: 1 }]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                 </View>
               </Pressable>
             ))}
@@ -207,4 +319,133 @@ const styles = StyleSheet.create({
   perfRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   perfTrack: { height: 6, backgroundColor: theme.colors.borderLight, borderRadius: theme.radius.full, overflow: 'hidden' },
   perfFill: { height: '100%', borderRadius: theme.radius.full },
+
+  // Live Status Card
+  liveCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1.5,
+    borderColor: theme.colors.warning,
+    overflow: 'hidden',
+    ...theme.shadows.sm,
+  },
+  liveCardActive: {
+    borderColor: theme.colors.success,
+  },
+  liveHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xs,
+  },
+  liveDotRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    flex: 1,
+  },
+  liveDotWrapper: {
+    width: 10,
+    height: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  liveDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  liveDotActive: {
+    backgroundColor: theme.colors.success,
+  },
+  liveDotInactive: {
+    backgroundColor: theme.colors.warning,
+  },
+  liveDotPing: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: theme.colors.success,
+    opacity: 0.3,
+  },
+  liveLabel: {
+    ...theme.typography.body2,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+    flexShrink: 1,
+  },
+  liveBadge: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.radius.full,
+    marginLeft: theme.spacing.sm,
+  },
+  liveBadgeActive: {
+    backgroundColor: theme.colors.successBackground,
+  },
+  liveBadgeInactive: {
+    backgroundColor: theme.colors.warningBackground,
+  },
+  liveBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  liveBadgeTextActive: {
+    color: '#065f46',
+  },
+  liveBadgeTextInactive: {
+    color: '#92400e',
+  },
+  liveSubtitle: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
+  },
+  liveDivider: {
+    height: 1,
+    backgroundColor: theme.colors.borderLight,
+    marginHorizontal: theme.spacing.md,
+  },
+  liveDetailList: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+  liveDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.sm,
+  },
+  liveDetailText: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    flexShrink: 1,
+  },
+  liveDetailLabel: {
+    fontWeight: '500',
+    color: theme.colors.textPrimary,
+  },
+  liveRefreshBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    marginHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.xs,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
+  },
+  liveRefreshText: {
+    ...theme.typography.button,
+    fontSize: 13,
+  },
 });

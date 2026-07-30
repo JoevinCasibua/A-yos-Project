@@ -1,85 +1,115 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
 
 interface AnimatedWaveformProps {
   barCount?: number;
   barWidth?: number;
-  barGap?: number;
   color?: string;
   active?: boolean;
   maxHeight?: number;
+  seed?: number;
   style?: ViewStyle;
 }
 
-function generateRandomHeights(count: number, max: number): number[] {
-  return Array.from({ length: count }, () => 4 + Math.random() * (max - 4));
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return (s >>> 0) / 0x7fffffff;
+  };
+}
+
+function generateHeights(count: number, max: number, seed?: number): number[] {
+  const rng = seed != null ? seededRandom(seed) : Math.random;
+  return Array.from({ length: count }, () => 4 + rng() * (max - 4));
 }
 
 export const AnimatedWaveform = React.memo(function AnimatedWaveform({
   barCount = 12,
   barWidth = 3,
-  barGap = 2,
   color = '#071022',
   active = false,
   maxHeight = 20,
+  seed,
   style,
 }: AnimatedWaveformProps) {
-  const anims = useRef<Animated.Value[]>(
-    Array.from({ length: barCount }, () => new Animated.Value(0.3))
-  ).current;
-
-  const targetHeights = useRef(generateRandomHeights(barCount, maxHeight)).current;
+  const barHeights = useMemo(
+    () => generateHeights(barCount, maxHeight, seed),
+    [barCount, maxHeight, seed]
+  );
+  const [animValues, setAnimValues] = useState<Animated.Value[] | null>(null);
 
   useEffect(() => {
-    if (!active) {
-      anims.forEach((a) => a.setValue(0.3));
-      return;
+    if (active) {
+      const values = Array.from({ length: barCount }, () => new Animated.Value(0));
+      setAnimValues(values);
+
+      const animations = values.map((anim, i) => {
+        const peak = (barHeights[i] - 4) / (maxHeight - 4);
+        const trough = peak * (0.2 + Math.random() * 0.2);
+        return Animated.loop(
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: peak,
+              duration: 300 + Math.random() * 200,
+              useNativeDriver: false,
+            }),
+            Animated.timing(anim, {
+              toValue: trough,
+              duration: 300 + Math.random() * 200,
+              useNativeDriver: false,
+            }),
+          ])
+        );
+      });
+
+      const composite = Animated.parallel(animations);
+      composite.start();
+
+      return () => {
+        composite.stop();
+        setAnimValues(null);
+      };
+    } else {
+      setAnimValues(null);
     }
-
-    const animations = anims.map((anim, i) => {
-      const loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(anim, {
-            toValue: targetHeights[i] / maxHeight,
-            duration: 300 + Math.random() * 200,
-            useNativeDriver: false,
-          }),
-          Animated.timing(anim, {
-            toValue: 0.2 + Math.random() * 0.2,
-            duration: 300 + Math.random() * 200,
-            useNativeDriver: false,
-          }),
-        ])
-      );
-      return loop;
-    });
-
-    const composite = Animated.parallel(animations);
-    composite.start();
-
-    return () => {
-      composite.stop();
-    };
-  }, [active, barCount, maxHeight]);
+  }, [active, barCount, maxHeight, barHeights]);
 
   return (
     <View style={[styles.container, style]}>
-      {anims.map((anim, i) => (
-        <Animated.View
-          key={i}
-          style={[
-            styles.bar,
-            {
-              width: barWidth,
-              backgroundColor: color,
-              height: anim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [4, maxHeight],
-              }),
-            },
-          ]}
-        />
-      ))}
+      {Array.from({ length: barCount }, (_, i) => {
+        if (active && animValues) {
+          return (
+            <Animated.View
+              key={i}
+              style={[
+                styles.bar,
+                {
+                  width: barWidth,
+                  backgroundColor: color,
+                  height: animValues[i].interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [4, maxHeight],
+                  }),
+                },
+              ]}
+            />
+          );
+        }
+        return (
+          <View
+            key={i}
+            style={[
+              styles.bar,
+              {
+                width: barWidth,
+                backgroundColor: color,
+                height: barHeights[i],
+              },
+            ]}
+          />
+        );
+      })}
     </View>
   );
 });

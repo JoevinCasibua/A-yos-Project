@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Modal } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { MoreVertical, Flag, XCircle } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, IconSize, Layout } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, IconSize } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 
 interface ThreeDotMenuProps {
@@ -28,7 +28,7 @@ export const ThreeDotMenu = React.memo(function ThreeDotMenu({
   };
 
   return (
-    <>
+    <View style={styles.wrapper}>
       <Pressable
         style={styles.trigger}
         onPress={() => setIsVisible(true)}
@@ -37,20 +37,10 @@ export const ThreeDotMenu = React.memo(function ThreeDotMenu({
         <MoreVertical size={IconSize.lg} color={Colors.textPrimary} />
       </Pressable>
 
-      <Modal
-        visible={isVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsVisible(false)}
-      >
-        <Pressable
-          style={styles.overlay}
-          onPress={() => setIsVisible(false)}
-        >
-          <Pressable
-            style={styles.menu}
-            onPress={(e) => e.stopPropagation()}
-          >
+      {isVisible && (
+        <>
+          <Pressable style={styles.backdrop} onPress={() => setIsVisible(false)} />
+          <View style={styles.menu}>
             <Pressable
               style={styles.menuItem}
               onPress={handleReportUser}
@@ -74,14 +64,18 @@ export const ThreeDotMenu = React.memo(function ThreeDotMenu({
                 </Pressable>
               </>
             )}
-          </Pressable>
-        </Pressable>
-      </Modal>
-    </>
+          </View>
+        </>
+      )}
+    </View>
   );
 });
 
 const styles = StyleSheet.create({
+  wrapper: {
+    position: 'relative',
+    zIndex: 1,
+  },
   trigger: {
     width: 44,
     height: 44,
@@ -90,19 +84,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: Radius.full,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: Colors.overlay,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    paddingTop: Spacing['16'],
-    paddingRight: Spacing['5'],
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 99,
   },
   menu: {
+    position: 'absolute',
+    top: 48,
+    right: 0,
     backgroundColor: Colors.white,
     borderRadius: Radius.xl,
     padding: Spacing['2'],
     minWidth: 180,
+    zIndex: 100,
     ...Elevation.lg,
   },
   menuItem: {
@@ -111,6 +105,7 @@ const styles = StyleSheet.create({
     gap: Spacing['3'],
     paddingVertical: Spacing['3'],
     paddingHorizontal: Spacing['4'],
+    borderRadius: Radius.lg,
   },
   divider: {
     height: 1,

@@ -96,7 +96,7 @@ export default function ReportedBookingScreen() {
 
           <View style={styles.infoRow}>
             <MapPin size={14} color={Colors.textTertiary} />
-            <AppText variant="body" color={Colors.textSecondary}>{booking.address}</AppText>
+            <AppText variant="body" color={Colors.textSecondary} numberOfLines={1} ellipsizeMode="tail" style={{ flexShrink: 1 }}>{booking.address}</AppText>
           </View>
 
           <View style={styles.divider} />

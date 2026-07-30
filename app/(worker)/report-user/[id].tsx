@@ -53,7 +53,7 @@ export default function ReportUserScreen() {
 
   const handleDone = () => {
     setShowConfirmation(false);
-    router.push(`/(worker)/booking-request/${id}?from=${from || 'dashboard'}`);
+    router.push(`/(detail)/booking-request/${id}?from=${from || 'dashboard'}`);
   };
 
   const canConfirm = selectedReason !== null;
@@ -64,7 +64,7 @@ export default function ReportUserScreen() {
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
-          onPress={() => router.push(`/(worker)/booking-request/${id}?from=${from || 'dashboard'}`)}
+          onPress={() => router.push(`/(detail)/booking-request/${id}?from=${from || 'dashboard'}`)}
           hitSlop={12}
         >
           <ArrowLeft size={24} color={Colors.textPrimary} />
