@@ -186,7 +186,7 @@ export default function BookingRequestScreen() {
 
   const handleBack = () => {
     if (from === 'chat') {
-      router.push(`/messages/chat?id=${id}`);
+      router.back();
       return;
     }
     const route = getBackRoute(from);
