@@ -57,7 +57,7 @@ export function WorkerSOSModal({ visible, onClose, bookingId, customerName }: Wo
             <AppButton
               label="Alert A-yos Safety Team"
               variant="danger"
-              leftIcon={<ShieldAlert size={20} />}
+              leftIcon={<ShieldAlert size={20} color={Colors.error} />}
               fullWidth
               style={{ marginBottom: Spacing['3'] }}
               onPress={() => {
@@ -69,8 +69,9 @@ export function WorkerSOSModal({ visible, onClose, bookingId, customerName }: Wo
             <AppButton
               label="Share Location with Support"
               variant="outline"
-              leftIcon={<MapPin size={20} />}
+              leftIcon={<MapPin size={20} color={Colors.cta} />}
               fullWidth
+              style={{ marginBottom: Spacing['3'], borderColor: Colors.cta }}
               onPress={() => {
                 Alert.alert('Location Shared', 'Your live location has been sent to A-yos support.');
                 onClose();
@@ -81,8 +82,8 @@ export function WorkerSOSModal({ visible, onClose, bookingId, customerName }: Wo
 
             <AppButton
               label="End Job & Report Issue"
-              variant="outline"
-              leftIcon={<Flag size={20} />}
+              variant="primary"
+              leftIcon={<Flag size={20} color={Colors.white} />}
               fullWidth
               onPress={() => {
                 Alert.alert(

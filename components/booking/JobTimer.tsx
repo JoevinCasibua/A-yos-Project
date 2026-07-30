@@ -1,3 +1,4 @@
+/* JobTimer — commented out per request
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Clock } from 'lucide-react-native';
@@ -97,3 +98,4 @@ const styles = StyleSheet.create({
     marginTop: -Spacing['2'],
   },
 });
+*/

@@ -27,7 +27,7 @@ import { Avatar } from '@/components/Avatar';
 import { ThreeDotMenu } from '@/components/ThreeDotMenu';
 import { BookingStepIndicator } from '@/components/booking/BookingStepIndicator';
 import { BookingMap } from '@/components/booking/BookingMap';
-import { JobTimer } from '@/components/booking/JobTimer';
+// import { JobTimer } from '@/components/booking/JobTimer';
 import { CompletedSummary } from '@/components/booking/CompletedSummary';
 import { RescheduleDialog } from '@/components/booking/RescheduleDialog';
 import { WorkerSOSModal } from '@/components/booking/WorkerSOSModal';
@@ -575,7 +575,7 @@ export default function BookingRequestScreen() {
 
         {booking.status === 'in_progress' && (
           <>
-            <JobTimer hourlyRate={booking.pricingType === 'hourly' ? booking.hourlyRate : undefined} />
+            {/* <JobTimer hourlyRate={booking.pricingType === 'hourly' ? booking.hourlyRate : undefined} /> */}
             <View style={styles.contactRow}>
               <Pressable style={styles.contactBtn} onPress={() => Alert.alert('Call', 'Calling customer...')}>
                 <Phone size={18} color={Colors.cta} />

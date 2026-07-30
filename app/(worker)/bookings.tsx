@@ -9,7 +9,7 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { statusConfig } from '@/constants/workerMockData';
 import { useWorkerBookings } from '@/hooks';
-import { JobTimer } from '@/components/booking/JobTimer';
+// import { JobTimer } from '@/components/booking/JobTimer';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import type { WorkerBooking } from '@/constants/workerMockData';
 
@@ -41,12 +41,12 @@ export default function WorkerBookingsScreen() {
     return () => clearInterval(interval);
   }, [timerStart, tick]);
 
-  function formatTimer(seconds: number): string {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }
+  // function formatTimer(seconds: number): string {
+  //   const h = Math.floor(seconds / 3600);
+  //   const m = Math.floor((seconds % 3600) / 60);
+  //   const s = seconds % 60;
+  //   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  // }
 
   const filteredBookings = useMemo(() => {
     if (activeTab === 'Reported') {
@@ -173,7 +173,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                   </View>
 
-                  {booking.status === 'in_progress' && (
+                  {/* {booking.status === 'in_progress' && (
                     <View style={[styles.timerRow, { borderTopWidth: 1, borderTopColor: theme.colors.borderLight }]}>
                       {booking.pricingType === 'hourly' ? (
                         <JobTimer hourlyRate={booking.hourlyRate} />
@@ -181,7 +181,7 @@ export default function WorkerBookingsScreen() {
                         <JobTimer />
                       )}
                     </View>
-                  )}
+                  )} */}
 
                   <View style={styles.cardFooter}>
                     <Text style={[theme.typography.h4, { color: theme.colors.primary }]}>{booking.price}</Text>
