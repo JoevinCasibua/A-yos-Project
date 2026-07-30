@@ -95,7 +95,6 @@ export default function WorkerTabLayout() {
         <Tabs.Screen name="payout-methods" options={{ href: null }} />
         <Tabs.Screen name="payout-history" options={{ href: null }} />
         <Tabs.Screen name="service-areas" options={{ href: null }} />
-        <Tabs.Screen name="privacy" options={{ href: null }} />
         <Tabs.Screen name="earnings-receipt" options={{ href: null }} />
         <Tabs.Screen name="universal-search" options={{ href: null }} />
         <Tabs.Screen name="rate-setting" options={{ href: null }} />

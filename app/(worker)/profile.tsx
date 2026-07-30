@@ -127,10 +127,6 @@ export default function WorkerProfileScreen() {
       router.push('/(worker)/service-areas?from=profile');
       return;
     }
-    if (id === 'privacy') {
-      router.push('/(worker)/privacy?from=profile');
-      return;
-    }
     Alert.alert('Coming Soon', 'This feature is under development.');
   };
 
