@@ -109,7 +109,7 @@ export default function CashConfirmScreen() {
               <MapPin size={14} color={Colors.textSecondary} />
               <AppText variant="body" color={Colors.textSecondary}>Address</AppText>
             </View>
-            <AppText variant="body" weight="semiBold" style={{ textAlign: 'right', flex: 1 }}>
+            <AppText variant="body" weight="semiBold" numberOfLines={1} ellipsizeMode="tail" style={{ textAlign: 'right', flex: 1 }}>
               {booking.address}
             </AppText>
           </View>

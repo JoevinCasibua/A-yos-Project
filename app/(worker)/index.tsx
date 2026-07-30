@@ -244,7 +244,7 @@ export default function WorkerDashboardScreen() {
                 <View style={styles.bookingMeta}>
                   <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.time}</Text>
                   <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>·</Text>
-                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary }]}>{booking.address}</Text>
+                  <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, flexShrink: 1 }]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                 </View>
               </Pressable>
             ))}

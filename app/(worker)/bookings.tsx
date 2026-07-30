@@ -121,7 +121,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -169,7 +169,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -221,7 +221,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -337,7 +337,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText, { color: theme.colors.textTertiary }]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText, { color: theme.colors.textTertiary }]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -385,7 +385,7 @@ export default function WorkerBookingsScreen() {
                     </View>
                     <View style={styles.detailRow}>
                       <MapPin color={theme.colors.textTertiary} size={16} />
-                      <Text style={[theme.typography.caption, styles.detailText]}>{booking.address}</Text>
+                      <Text style={[theme.typography.caption, styles.detailText]} numberOfLines={1} ellipsizeMode="tail">{booking.address}</Text>
                     </View>
                   </View>
 
@@ -438,8 +438,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between',
     borderTopWidth: 1, borderTopColor: theme.colors.borderLight, paddingTop: theme.spacing.sm,
   },
-  detailRow: { flexDirection: 'row', alignItems: 'center' },
-  detailText: { color: theme.colors.textSecondary, marginLeft: 4 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  detailText: { color: theme.colors.textSecondary, marginLeft: 4, flexShrink: 1 },
   partsRow: { paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm },
   cardFooter: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
