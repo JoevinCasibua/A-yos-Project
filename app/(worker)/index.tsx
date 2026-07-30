@@ -95,23 +95,24 @@ export default function WorkerDashboardScreen() {
         {/* Live Status */}
         <View style={styles.section}>
           <View style={[styles.presenceCard, presenceState === 'online' && styles.presenceOnline]}>
-            <Text style={[theme.typography.body2, { fontWeight: '700' }]}>
-              {presenceState === 'online' ? 'Live and receiving nearby requests' : 'Live matching is not active'}
-            </Text>
-            <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>
-              {{
-                online: 'Your location updates every 10–15 seconds.',
-                offline: 'Return to this tab to go online.',
-              }[presenceState]}
-            </Text>
+            <View style={styles.statusHeader}>
+              <View style={[styles.statusDot, presenceState === 'online' ? styles.statusDotOnline : styles.statusDotOffline]} />
+              <View style={styles.statusTextContainer}>
+                <Text style={[theme.typography.body2, { fontWeight: '700' }]}>
+                  {presenceState === 'online' ? 'Live and receiving nearby requests' : 'Live matching is not active'}
+                </Text>
+                <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>
+                  {presenceState === 'online' ? 'Your location updates every 10–15 seconds.' : 'Return to this tab to go online.'}
+                </Text>
+              </View>
+            </View>
             <View style={styles.liveDetails}>
-              <Text style={styles.liveDetail}>Subdivision: {liveStatus.subdivisionName}</Text>
               <Text style={styles.liveDetail}>
                 Service area: {liveStatus.serviceArea}
                 {liveStatus.radiusMeters ? ` · ${(liveStatus.radiusMeters / 1000).toFixed(0)} km radius` : ''}
               </Text>
               <Text style={styles.liveDetail}>
-                Current location: {liveStatus.latitude.toFixed(4)}, {liveStatus.longitude.toFixed(4)}
+                Location: {liveStatus.latitude.toFixed(4)}, {liveStatus.longitude.toFixed(4)}
               </Text>
               <Text style={styles.liveDetail}>Last update: {new Date(liveStatus.lastSeenAt).toLocaleTimeString()}</Text>
             </View>
@@ -120,7 +121,7 @@ export default function WorkerDashboardScreen() {
               style={[styles.refreshLocationButton, refreshingLocation && { opacity: 0.6 }]}
               onPress={refreshLocation}
             >
-              <RefreshCw size={14} color={theme.colors.surface} style={{ marginRight: 6 }} />
+              <RefreshCw size={14} color={theme.colors.surface} />
               <Text style={styles.refreshLocationText}>{refreshingLocation ? 'Refreshing…' : 'Refresh location and matching setup'}</Text>
             </Pressable>
           </View>
@@ -261,19 +262,43 @@ const styles = StyleSheet.create({
   // Live Status Card
   presenceCard: {
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.xl,
     padding: theme.spacing.md,
     borderWidth: 1,
     borderColor: theme.colors.warning,
-    gap: 4,
+    ...theme.shadows.sm,
   },
-  presenceOnline: { borderColor: theme.colors.success },
+  presenceOnline: {
+    backgroundColor: theme.colors.successBackground,
+    borderColor: theme.colors.success,
+  },
+  statusHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: theme.colors.warning,
+  },
+  statusDotOnline: {
+    backgroundColor: theme.colors.success,
+  },
+  statusDotOffline: {
+    backgroundColor: theme.colors.warning,
+  },
+  statusTextContainer: {
+    flex: 1,
+    gap: 2,
+  },
   liveDetails: {
     marginTop: theme.spacing.sm,
     paddingTop: theme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: theme.colors.borderLight,
-    gap: 3,
+    gap: theme.spacing.xs,
   },
   liveDetail: {
     ...theme.typography.caption,
@@ -284,8 +309,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: theme.spacing.sm,
     paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.primary,
   },
   refreshLocationText: {
