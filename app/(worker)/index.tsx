@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Alert } from 'react-native';
-import { Bell, Search, ChevronRight, Briefcase } from 'lucide-react-native';
+import { Bell, Search, ChevronRight, Briefcase, RefreshCw } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,6 +31,22 @@ export default function WorkerDashboardScreen() {
 
   const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review').slice(0, 3);
   const incomingJob = workerJobs[0];
+  const [presenceState, setPresenceState] = useState<'online' | 'offline'>('online');
+  const [refreshingLocation, setRefreshingLocation] = useState(false);
+  const [liveStatus, setLiveStatus] = useState({
+    subdivisionName: workerProfile?.serviceAreas?.[0] ?? '',
+    serviceArea: workerProfile?.serviceAreas?.join(', ') || 'Not configured',
+    radiusMeters: 3000,
+    latitude: 14.5995,
+    longitude: 120.9842,
+    lastSeenAt: new Date().toISOString(),
+  });
+  const refreshLocation = useCallback(async () => {
+    setRefreshingLocation(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setLiveStatus(prev => ({ ...prev, lastSeenAt: new Date().toISOString() }));
+    setRefreshingLocation(false);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -73,6 +89,40 @@ export default function WorkerDashboardScreen() {
                 {index < todayStats.length - 1 && <View style={styles.statDivider} />}
               </React.Fragment>
             ))}
+          </View>
+        </View>
+
+        {/* Live Status */}
+        <View style={styles.section}>
+          <View style={[styles.presenceCard, presenceState === 'online' && styles.presenceOnline]}>
+            <Text style={[theme.typography.body2, { fontWeight: '700' }]}>
+              {presenceState === 'online' ? 'Live and receiving nearby requests' : 'Live matching is not active'}
+            </Text>
+            <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>
+              {{
+                online: 'Your location updates every 10–15 seconds.',
+                offline: 'Return to this tab to go online.',
+              }[presenceState]}
+            </Text>
+            <View style={styles.liveDetails}>
+              <Text style={styles.liveDetail}>Subdivision: {liveStatus.subdivisionName}</Text>
+              <Text style={styles.liveDetail}>
+                Service area: {liveStatus.serviceArea}
+                {liveStatus.radiusMeters ? ` · ${(liveStatus.radiusMeters / 1000).toFixed(0)} km radius` : ''}
+              </Text>
+              <Text style={styles.liveDetail}>
+                Current location: {liveStatus.latitude.toFixed(4)}, {liveStatus.longitude.toFixed(4)}
+              </Text>
+              <Text style={styles.liveDetail}>Last update: {new Date(liveStatus.lastSeenAt).toLocaleTimeString()}</Text>
+            </View>
+            <Pressable
+              disabled={refreshingLocation}
+              style={[styles.refreshLocationButton, refreshingLocation && { opacity: 0.6 }]}
+              onPress={refreshLocation}
+            >
+              <RefreshCw size={14} color={theme.colors.surface} style={{ marginRight: 6 }} />
+              <Text style={styles.refreshLocationText}>{refreshingLocation ? 'Refreshing…' : 'Refresh location and matching setup'}</Text>
+            </Pressable>
           </View>
         </View>
 
@@ -207,4 +257,40 @@ const styles = StyleSheet.create({
   perfRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   perfTrack: { height: 6, backgroundColor: theme.colors.borderLight, borderRadius: theme.radius.full, overflow: 'hidden' },
   perfFill: { height: '100%', borderRadius: theme.radius.full },
+
+  // Live Status Card
+  presenceCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.warning,
+    gap: 4,
+  },
+  presenceOnline: { borderColor: theme.colors.success },
+  liveDetails: {
+    marginTop: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.borderLight,
+    gap: 3,
+  },
+  liveDetail: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+  },
+  refreshLocationButton: {
+    marginTop: theme.spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.primary,
+  },
+  refreshLocationText: {
+    ...theme.typography.button,
+    color: theme.colors.surface,
+    fontSize: 13,
+  },
 });
