@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Alert, TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MapPin, X, Plus, CheckCircle2 } from 'lucide-react-native';
+import { MapPin, X, Plus, CheckCircle2, Navigation } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -42,7 +42,7 @@ export default function ServiceAreasScreen() {
     { label: 'Industry & skills', ready: (workerProfile?.skills?.length ?? 0) > 0 },
     { label: 'Service rate set', ready: !!workerProfile?.hourlyRate },
     { label: 'Service origin and radius', ready: false },
-    { label: 'Working schedule', ready: false },
+
     { label: 'Available for matching', ready: matchingOnline },
   ];
 
@@ -90,6 +90,51 @@ export default function ServiceAreasScreen() {
               </AppText>
             </View>
           ))}
+        </View>
+      </View>
+
+      {/* Service Origin */}
+      <View style={styles.section}>
+        <View style={styles.card}>
+          <View style={styles.originTitle}>
+            <MapPin size={18} color={Colors.primary} />
+            <AppText variant="body" weight="bold">Service origin</AppText>
+          </View>
+          <AppText variant="caption" color={Colors.textSecondary}>
+            Customers only see your approximate distance. Your confirmed point is used to check the coverage radius.
+          </AppText>
+          <Pressable
+            style={styles.locationBtn}
+            onPress={() => Alert.alert('Coming Soon', 'Location detection will be available soon.')}
+          >
+            <Navigation size={16} color={Colors.primary} />
+            <AppText variant="bodySm" weight="semiBold" color={Colors.primary}>Use Current Location</AppText>
+          </Pressable>
+          <Pressable
+            style={styles.mapPlaceholder}
+            onPress={() => Alert.alert('Coming Soon', 'Map selection will be available soon.')}
+          >
+            <MapPin size={32} color={Colors.textTertiary} />
+            <AppText variant="bodySm" color={Colors.textTertiary}>
+              Tap to set your service location
+            </AppText>
+          </Pressable>
+          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={{ textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: Spacing['1'] }}>
+            Service area label
+          </AppText>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Trece Martires City, Cavite"
+            placeholderTextColor={Colors.textTertiary}
+            value={originLabel}
+            onChangeText={setOriginLabel}
+          />
+          <AppSelect
+            label="Coverage radius"
+            options={RADIUS_OPTIONS}
+            value={coverageRadius}
+            onSelect={setCoverageRadius}
+          />
         </View>
       </View>
 
@@ -168,44 +213,6 @@ export default function ServiceAreasScreen() {
         </View>
       </View>
 
-      {/* Service Origin */}
-      <View style={styles.section}>
-        <View style={styles.card}>
-          <View style={styles.originTitle}>
-            <MapPin size={18} color={Colors.primary} />
-            <AppText variant="body" weight="bold">Service origin</AppText>
-          </View>
-          <AppText variant="caption" color={Colors.textSecondary}>
-            Customers only see your approximate distance. Your confirmed point is used to check the coverage radius.
-          </AppText>
-          <Pressable
-            style={styles.mapPlaceholder}
-            onPress={() => Alert.alert('Coming Soon', 'Map selection will be available soon.')}
-          >
-            <MapPin size={32} color={Colors.textTertiary} />
-            <AppText variant="bodySm" color={Colors.textTertiary}>
-              Tap to set your service location
-            </AppText>
-          </Pressable>
-          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={{ textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: Spacing['1'] }}>
-            Service area label
-          </AppText>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Trece Martires City, Cavite"
-            placeholderTextColor={Colors.textTertiary}
-            value={originLabel}
-            onChangeText={setOriginLabel}
-          />
-          <AppSelect
-            label="Coverage radius"
-            options={RADIUS_OPTIONS}
-            value={coverageRadius}
-            onSelect={setCoverageRadius}
-          />
-        </View>
-      </View>
-
       <View style={styles.actions}>
         <AppButton
           label={`Save ${areas.length} Area(s)`}
@@ -221,7 +228,7 @@ export default function ServiceAreasScreen() {
 const styles = StyleSheet.create({
   section: {
     paddingHorizontal: theme.layout.screenPadding,
-    marginBottom: theme.spacing.xl,
+    marginBottom: Spacing['4'],
   },
   sectionLabel: {
     textTransform: 'uppercase',
@@ -299,6 +306,7 @@ const styles = StyleSheet.create({
 
   actions: {
     paddingHorizontal: theme.layout.screenPadding,
+    marginTop: Spacing['4'],
   },
   card: {
     backgroundColor: Colors.white,
@@ -330,13 +338,13 @@ const styles = StyleSheet.create({
   locationBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: Spacing['2'],
     paddingVertical: Spacing['3'],
     paddingHorizontal: Spacing['4'],
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.primary,
-    alignSelf: 'flex-start',
   },
   mapPlaceholder: {
     height: 160,

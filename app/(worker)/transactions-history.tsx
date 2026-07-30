@@ -128,7 +128,8 @@ export default function TransactionsHistoryScreen() {
   }, [filteredTransactions]);
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Transaction History" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Transaction History" from={from} />}
+  keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       {/* Search */}
       <View style={styles.searchSection}>

@@ -121,7 +121,8 @@ export default function TopUpHistoryScreen() {
   }, [filter, searchQuery, fromDate, toDate]);
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Top-Up History" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Top-Up History" from={from} />}
+  keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       {/* Search */}
       <View style={styles.searchSection}>
