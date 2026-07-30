@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Image } from 'expo-image';
 import {
@@ -12,9 +12,10 @@ import {
   BadgeCheck, ArrowUpFromLine, PlusCircle, FileText,
   DollarSign, CalendarDays, Pencil,
 } from 'lucide-react-native';
-import { DAY_LABELS, DAYS } from '@/constants/workerData';
 import { useWorkerProfile } from '@/hooks';
 import { Chip } from '@/components/Chip';
+import { useWorkerStore } from '@/store/useWorkerStore';
+import { AppText } from '@/components/AppText';
 
 const MENU_SECTIONS = [
   {
@@ -63,8 +64,8 @@ const MENU_SECTIONS = [
 ];
 
 export default function WorkerProfileScreen() {
-  const router = useRouter();
   const { logout } = useAuthStore();
+  const matchingOnline = useWorkerStore((s) => s.matchingOnline);
   const { data: workerProfile } = useWorkerProfile();
 
   if (!workerProfile) return null;
@@ -164,7 +165,7 @@ export default function WorkerProfileScreen() {
               style={styles.editBadge}
               onPress={() => Alert.alert('Edit Photo', 'Coming soon.')}
             >
-              <Pencil size={14} color={theme.colors.surface} />
+              <Pencil size={10} color={theme.colors.surface} />
             </TouchableOpacity>
           </View>
           <Text style={theme.typography.h3}>{workerProfile.name}</Text>
@@ -238,21 +239,10 @@ export default function WorkerProfileScreen() {
         {/* Availability Summary */}
         <View style={styles.infoSection}>
           <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
-          <View style={styles.availabilityRow}>
-            {DAYS.map((day) => {
-              const dayData = workerProfile.availability[day];
-              return (
-                <View key={day} style={[styles.dayDot, dayData.available && styles.dayDotActive]}>
-                  <Text style={[styles.dayLabel, dayData.available && styles.dayLabelActive]}>
-                    {DAY_LABELS[day].charAt(0)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-          <Text style={[theme.typography.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]}>
-            {DAYS.filter((d) => workerProfile.availability[d].available).length} days available
-          </Text>
+          <ProfileMatchingCard
+            matchingOnline={matchingOnline}
+            onManage={() => router.push('/(worker)/availability?from=profile')}
+          />
         </View>
 
         {/* Experience Summary */}
@@ -316,13 +306,34 @@ export default function WorkerProfileScreen() {
   );
 }
 
+function ProfileMatchingCard({ matchingOnline, onManage }: { matchingOnline: boolean; onManage: () => void }) {
+  return (
+    <View style={styles.matchingCard}>
+      <View style={styles.matchingStatusRow}>
+        <View style={[styles.matchingDot, { backgroundColor: matchingOnline ? theme.colors.success : theme.colors.textTertiary }]} />
+        <AppText variant="body" weight="bold" style={{ flex: 1 }}>
+          {matchingOnline ? 'Available for matching' : 'Not available for matching'}
+        </AppText>
+      </View>
+      {matchingOnline && (
+        <AppText variant="caption" color={theme.colors.textSecondary} style={{ marginTop: theme.spacing.xs }}>
+          Your profile is eligible for receiving requests.
+        </AppText>
+      )}
+      <TouchableOpacity style={styles.manageBtn} onPress={onManage}>
+        <Text style={[theme.typography.button, { color: theme.colors.primary }]}>Manage Availability</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   header: { paddingVertical: theme.spacing.md, paddingHorizontal: theme.layout.screenPadding },
   content: { flex: 1, paddingHorizontal: theme.layout.screenPadding, paddingBottom: theme.spacing.xxxl },
   userInfo: { alignItems: 'center', marginVertical: theme.spacing.xl },
   avatarWrapper: { position: 'relative', alignSelf: 'center' },
   avatar: { width: 88, height: 88, borderRadius: 44, backgroundColor: theme.colors.border, marginBottom: theme.spacing.sm },
-  editBadge: { position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: theme.colors.primary, alignItems: 'center', justifyContent: 'center' },
+  editBadge: { position: 'absolute', bottom: 0, right: 0, width: 20, height: 20, borderRadius: 10, backgroundColor: theme.colors.primary, alignItems: 'center', justifyContent: 'center' },
   verifiedBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: `${theme.colors.success}15`, paddingHorizontal: 8, paddingVertical: 4, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs },
   statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', backgroundColor: theme.colors.surface, borderRadius: theme.radius.xl, padding: theme.spacing.lg, ...theme.shadows.sm, marginBottom: theme.spacing.xl },
   statItem: { alignItems: 'center' },
@@ -336,6 +347,27 @@ const styles = StyleSheet.create({
   infoCardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   infoCardItem: { flexDirection: 'row', alignItems: 'center' },
   infoCardDivider: { height: 1, backgroundColor: theme.colors.borderLight, marginVertical: theme.spacing.sm },
+  matchingCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.md,
+    ...theme.shadows.sm,
+  },
+  matchingStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  matchingDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  manageBtn: {
+    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    alignItems: 'center',
+  },
   availabilityRow: { flexDirection: 'row', gap: theme.spacing.xs },
   dayDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: theme.colors.borderLight, alignItems: 'center', justifyContent: 'center' },
   dayDotActive: { backgroundColor: `${theme.colors.primary}15` },

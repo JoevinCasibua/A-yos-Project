@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, Switch } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
+import { useWorkerStore } from '@/store/useWorkerStore';
 
 export default function AvailabilityScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
 
-  const [matchingOnline, setMatchingOnline] = useState(false);
+  const matchingOnline = useWorkerStore((s) => s.matchingOnline);
+  const setMatchingOnline = useWorkerStore((s) => s.setMatchingOnline);
 
   return (
     <Screen safeArea scrollable>
