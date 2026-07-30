@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Alert } from 'react-native';
-import { Bell, Search, ChevronRight, Briefcase, RefreshCw } from 'lucide-react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Alert, Animated } from 'react-native';
+import { Bell, Search, ChevronRight, Briefcase, RefreshCw, Circle, MapPin, Clock } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { IncomingJobAlert } from '@/components/IncomingJobAlert';
+import { DispatchOffer } from '@/components/DispatchOffer';
 import { QuickActionsGrid } from '@/components/QuickActionsGrid';
 import { AppText } from '@/components/AppText';
 import { Badge } from '@/components/Badge';
@@ -31,20 +31,26 @@ export default function WorkerDashboardScreen() {
 
   const activeBookings = workerBookings.filter((b) => b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending_review').slice(0, 3);
   const incomingJob = workerJobs[0];
-  const [presenceState, setPresenceState] = useState<'online' | 'offline'>('online');
+  const [presenceStatus, setPresenceStatus] = useState<'active' | 'inactive'>('active');
   const [refreshingLocation, setRefreshingLocation] = useState(false);
-  const [liveStatus, setLiveStatus] = useState({
-    subdivisionName: workerProfile?.serviceAreas?.[0] ?? '',
-    serviceArea: workerProfile?.serviceAreas?.join(', ') || 'Not configured',
-    radiusMeters: 3000,
-    latitude: 14.5995,
-    longitude: 120.9842,
-    lastSeenAt: new Date().toISOString(),
-  });
+  const pingAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (presenceStatus === 'active') {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pingAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
+          Animated.timing(pingAnim, { toValue: 0, duration: 1500, useNativeDriver: true }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      pingAnim.setValue(0);
+    }
+  }, [presenceStatus, pingAnim]);
   const refreshLocation = useCallback(async () => {
     setRefreshingLocation(true);
     await new Promise(r => setTimeout(r, 1000));
-    setLiveStatus(prev => ({ ...prev, lastSeenAt: new Date().toISOString() }));
     setRefreshingLocation(false);
   }, []);
 
@@ -94,47 +100,92 @@ export default function WorkerDashboardScreen() {
 
         {/* Live Status */}
         <View style={styles.section}>
-          <View style={[styles.presenceCard, presenceState === 'online' && styles.presenceOnline]}>
-            <View style={styles.statusHeader}>
-              <View style={[styles.statusDot, presenceState === 'online' ? styles.statusDotOnline : styles.statusDotOffline]} />
-              <View style={styles.statusTextContainer}>
-                <Text style={[theme.typography.body2, { fontWeight: '700' }]}>
-                  {presenceState === 'online' ? 'Live and receiving nearby requests' : 'Live matching is not active'}
-                </Text>
-                <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>
-                  {presenceState === 'online' ? 'Your location updates every 10–15 seconds.' : 'Return to this tab to go online.'}
-                </Text>
+          <Pressable
+            onPress={() => setPresenceStatus(prev => prev === 'active' ? 'inactive' : 'active')}
+            style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}
+          >
+            <View style={[styles.liveCard, presenceStatus === 'active' && styles.liveCardActive]}>
+              <View style={styles.liveHeader}>
+                <View style={styles.liveDotRow}>
+                  <View style={styles.liveDotWrapper}>
+                    {presenceStatus === 'active' && (
+                      <Animated.View
+                        style={[
+                          styles.liveDotPing,
+                          {
+                            opacity: pingAnim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0] }),
+                            transform: [{ scale: pingAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 2.5] }) }],
+                          },
+                        ]}
+                      />
+                    )}
+                    <View style={[styles.liveDot, presenceStatus === 'active' ? styles.liveDotActive : styles.liveDotInactive]} />
+                  </View>
+                  <Text style={styles.liveLabel}>
+                    {presenceStatus === 'active' ? 'Live and receiving nearby requests' : 'Live matching is not active'}
+                  </Text>
+                </View>
+                <View style={[styles.liveBadge, presenceStatus === 'active' ? styles.liveBadgeActive : styles.liveBadgeInactive]}>
+                  <Text style={[styles.liveBadgeText, presenceStatus === 'active' ? styles.liveBadgeTextActive : styles.liveBadgeTextInactive]}>
+                    {presenceStatus === 'active' ? 'Live' : 'Offline'}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.liveDetails}>
-              <Text style={styles.liveDetail}>
-                Service area: {liveStatus.serviceArea}
-                {liveStatus.radiusMeters ? ` · ${(liveStatus.radiusMeters / 1000).toFixed(0)} km radius` : ''}
+              <Text style={styles.liveSubtitle}>
+                {presenceStatus === 'active'
+                  ? 'Your foreground location updates every 10–15 seconds.'
+                  : 'Location permission is required to receive nearby requests.'}
               </Text>
-              <Text style={styles.liveDetail}>
-                Location: {liveStatus.latitude.toFixed(4)}, {liveStatus.longitude.toFixed(4)}
-              </Text>
-              <Text style={styles.liveDetail}>Last update: {new Date(liveStatus.lastSeenAt).toLocaleTimeString()}</Text>
+              <View style={styles.liveDivider} />
+              <View style={styles.liveDetailList}>
+                <View style={styles.liveDetailRow}>
+                  <View style={{ width: 14, height: 14, alignItems: 'center', justifyContent: 'center' }}>
+                    <Circle size={14} color={theme.colors.textTertiary} />
+                    <View style={{ position: 'absolute', width: 5, height: 5, borderRadius: 2.5, backgroundColor: theme.colors.textTertiary }} />
+                  </View>
+                  <Text style={styles.liveDetailText}>
+                    <Text style={styles.liveDetailLabel}>Service area:</Text> Silang · 10 km radius
+                  </Text>
+                </View>
+                <View style={styles.liveDetailRow}>
+                  <MapPin size={14} color={theme.colors.textTertiary} />
+                  <Text style={styles.liveDetailText}>
+                    <Text style={styles.liveDetailLabel}>Current location:</Text> 14.2420, 120.9687
+                  </Text>
+                </View>
+                <View style={styles.liveDetailRow}>
+                  <Clock size={14} color={theme.colors.textTertiary} />
+                  <Text style={styles.liveDetailText}>
+                    <Text style={styles.liveDetailLabel}>Last update:</Text> {new Date().toLocaleTimeString()}
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                disabled={refreshingLocation}
+                style={[
+                  styles.liveRefreshBtn,
+                  { borderColor: presenceStatus === 'active' ? theme.colors.success : theme.colors.warning },
+                  refreshingLocation && { opacity: 0.6 },
+                ]}
+                onPress={refreshLocation}
+              >
+                <RefreshCw size={14} color={presenceStatus === 'active' ? theme.colors.success : theme.colors.warning} />
+                <Text style={[styles.liveRefreshText, { color: presenceStatus === 'active' ? theme.colors.success : theme.colors.warning }]}>{refreshingLocation ? 'Refreshing…' : 'Refresh location and matching setup'}</Text>
+              </Pressable>
             </View>
-            <Pressable
-              disabled={refreshingLocation}
-              style={[styles.refreshLocationButton, refreshingLocation && { opacity: 0.6 }]}
-              onPress={refreshLocation}
-            >
-              <RefreshCw size={14} color={theme.colors.surface} />
-              <Text style={styles.refreshLocationText}>{refreshingLocation ? 'Refreshing…' : 'Refresh location and matching setup'}</Text>
-            </Pressable>
-          </View>
+          </Pressable>
         </View>
 
-        {/* Incoming Job Alert */}
+        {/* Dispatch Offers */}
         {incomingJob && (
         <View style={styles.section}>
-          <IncomingJobAlert
-            service={incomingJob.service}
-            location={incomingJob.location}
+          <DispatchOffer
+            category={incomingJob.category}
+            area={incomingJob.location}
             distance={incomingJob.distance}
+            budget={incomingJob.offeredPrice}
             postedTime={incomingJob.postedTime}
+            description={incomingJob.description}
             onAccept={() => {
               Alert.alert(
                 'Accept Booking',
@@ -145,7 +196,17 @@ export default function WorkerDashboardScreen() {
                 ]
               );
             }}
-            onMoreDetails={() => router.push(`/(detail)/booking-request/${incomingJob.id}?from=dashboard`)}
+            onDecline={() => {
+              Alert.alert(
+                'Decline Request',
+                'Are you sure you want to decline this request?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Decline', style: 'destructive', onPress: () => {} },
+                ]
+              );
+            }}
+            onPress={() => router.push(`/(detail)/booking-request/${incomingJob.id}?from=dashboard`)}
           />
         </View>
         )}
@@ -260,63 +321,131 @@ const styles = StyleSheet.create({
   perfFill: { height: '100%', borderRadius: theme.radius.full },
 
   // Live Status Card
-  presenceCard: {
+  liveCard: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.xl,
-    padding: theme.spacing.md,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: theme.colors.warning,
+    overflow: 'hidden',
     ...theme.shadows.sm,
   },
-  presenceOnline: {
-    backgroundColor: theme.colors.successBackground,
+  liveCardActive: {
     borderColor: theme.colors.success,
   },
-  statusHeader: {
+  liveHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xs,
+  },
+  liveDotRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
+    flex: 1,
   },
-  statusDot: {
+  liveDotWrapper: {
+    width: 10,
+    height: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  liveDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: theme.colors.warning,
   },
-  statusDotOnline: {
+  liveDotActive: {
     backgroundColor: theme.colors.success,
   },
-  statusDotOffline: {
+  liveDotInactive: {
     backgroundColor: theme.colors.warning,
   },
-  statusTextContainer: {
-    flex: 1,
-    gap: 2,
+  liveDotPing: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: theme.colors.success,
+    opacity: 0.3,
   },
-  liveDetails: {
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.borderLight,
-    gap: theme.spacing.xs,
+  liveLabel: {
+    ...theme.typography.body2,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+    flexShrink: 1,
   },
-  liveDetail: {
+  liveBadge: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.radius.full,
+    marginLeft: theme.spacing.sm,
+  },
+  liveBadgeActive: {
+    backgroundColor: theme.colors.successBackground,
+  },
+  liveBadgeInactive: {
+    backgroundColor: theme.colors.warningBackground,
+  },
+  liveBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  liveBadgeTextActive: {
+    color: '#065f46',
+  },
+  liveBadgeTextInactive: {
+    color: '#92400e',
+  },
+  liveSubtitle: {
     ...theme.typography.caption,
     color: theme.colors.textSecondary,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
   },
-  refreshLocationButton: {
-    marginTop: theme.spacing.sm,
+  liveDivider: {
+    height: 1,
+    backgroundColor: theme.colors.borderLight,
+    marginHorizontal: theme.spacing.md,
+  },
+  liveDetailList: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+  liveDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.sm,
+  },
+  liveDetailText: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    flexShrink: 1,
+  },
+  liveDetailLabel: {
+    fontWeight: '500',
+    color: theme.colors.textPrimary,
+  },
+  liveRefreshBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.spacing.sm,
+    marginHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.xs,
     paddingVertical: theme.spacing.sm,
     borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.primary,
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
   },
-  refreshLocationText: {
+  liveRefreshText: {
     ...theme.typography.button,
-    color: theme.colors.surface,
     fontSize: 13,
   },
 });
