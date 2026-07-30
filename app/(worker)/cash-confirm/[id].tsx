@@ -28,7 +28,7 @@ export default function CashConfirmScreen() {
   useEffect(() => {
     if (!confirmed || !booking) return;
     const timer = setTimeout(() => {
-      router.replace(`/(worker)/booking-request/${booking.id}?from=cash-confirm/${booking.id}`);
+      router.replace(`/(detail)/booking-request/${booking.id}?from=cash-confirm/${booking.id}`);
     }, 1500);
     return () => clearTimeout(timer);
   }, [confirmed, booking]);

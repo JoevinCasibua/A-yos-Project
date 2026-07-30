@@ -71,7 +71,7 @@ export default function UniversalSearchScreen() {
           subtitle: `${b.customerName} · ${b.date}`,
           category: 'Bookings',
           icon: <CalendarDays size={18} color={Colors.info} />,
-          route: `/(worker)/booking-request/${b.id}?from=universal-search`,
+          route: `/(detail)/booking-request/${b.id}?from=universal-search`,
           badge: b.status,
         });
       }
@@ -85,7 +85,7 @@ export default function UniversalSearchScreen() {
           subtitle: `${j.customerName} · ${j.location} · ${j.offeredPrice}`,
           category: 'Job Opportunities',
           icon: <Briefcase size={18} color={Colors.cta} />,
-          route: `/(worker)/booking-request/${j.id}?from=universal-search`,
+          route: `/(detail)/booking-request/${j.id}?from=universal-search`,
           badge: j.urgency === 'urgent' ? 'Urgent' : undefined,
           badgeVariant: j.urgency === 'urgent' ? 'error' : undefined,
         });
@@ -231,7 +231,7 @@ export default function UniversalSearchScreen() {
                 <Pressable
                   key={b.id}
                   style={styles.recentItem}
-                  onPress={() => router.push(`/(worker)/booking-request/${b.id}?from=universal-search`)}
+                  onPress={() => router.push(`/(detail)/booking-request/${b.id}?from=universal-search`)}
                 >
                   <CalendarDays size={16} color={Colors.info} />
                   <View style={styles.recentInfo}>

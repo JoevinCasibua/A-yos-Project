@@ -90,11 +90,11 @@ export default function WorkerDashboardScreen() {
                 'Are you sure you want to accept this booking request?',
                 [
                   { text: 'Cancel', style: 'cancel' },
-                  { text: 'Accept', onPress: () => router.push(`/(worker)/booking-request/${incomingJob.id}?autoAccept=true&from=dashboard`) },
+                  { text: 'Accept', onPress: () => router.push(`/(detail)/booking-request/${incomingJob.id}?autoAccept=true&from=dashboard`) },
                 ]
               );
             }}
-            onMoreDetails={() => router.push(`/(worker)/booking-request/${incomingJob.id}?from=dashboard`)}
+            onMoreDetails={() => router.push(`/(detail)/booking-request/${incomingJob.id}?from=dashboard`)}
           />
         </View>
         )}
@@ -119,7 +119,7 @@ export default function WorkerDashboardScreen() {
               <Pressable
                 key={booking.id}
                 style={({ pressed }) => [styles.bookingCard, { opacity: pressed ? 0.95 : 1 }]}
-                onPress={() => router.push(`/(worker)/booking-request/${booking.id}?from=dashboard`)}
+                onPress={() => router.push(`/(detail)/booking-request/${booking.id}?from=dashboard`)}
               >
                 <View style={styles.bookingHeader}>
                   <Avatar uri={booking.customerAvatar} size={40} />

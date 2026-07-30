@@ -177,7 +177,7 @@ export default function BookingRequestScreen() {
   }, [booking.status, completionTimestamp]);
 
   const handleReport = () => {
-    router.push(`/(worker)/report-user/${booking.id}?from=booking-request/${booking.id}`);
+    router.push(`/(worker)/report-user/${booking.id}?from=/(detail)/booking-request/${booking.id}`);
   };
 
   const handleCancelService = () => {
@@ -655,7 +655,7 @@ export default function BookingRequestScreen() {
             completionVideo={completionData?.completionVideo ?? booking.completionVideo}
             workerRating={completionData?.workerRating ?? booking.workerRating}
             workerReview={completionData?.workerReview ?? booking.workerReview}
-            onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=booking-request/${booking.id}`)}
+            onViewReceipt={() => router.push(`/(worker)/earnings-receipt?bookingId=${booking.id}&duration=1h 15m&earnings=${encodeURIComponent(booking.price)}&from=/(detail)/booking-request/${booking.id}`)}
           />
         )}
 

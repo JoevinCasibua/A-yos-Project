@@ -18,6 +18,6 @@ const BACK_ROUTES: Record<string, Href> = {
 export function getBackRoute(from?: string): Href | '' {
   if (!from) return '';
   if (from in BACK_ROUTES) return BACK_ROUTES[from];
-  if (from.startsWith('booking-request/')) return from as Href;
+  if (from.startsWith('/(detail)/booking-request/')) return from as Href;
   return '';
 }

@@ -90,7 +90,7 @@ export default function WorkerBookingsScreen() {
             <Pressable
               key={booking.id}
               style={({ pressed }) => [{ opacity: pressed ? 0.96 : 1 }]}
-              onPress={() => router.push(activeTab === 'Reported' ? `/(worker)/reported-booking/${booking.id}?from=bookings-reported` : `/(worker)/booking-request/${booking.id}?from=bookings`)}
+              onPress={() => router.push(activeTab === 'Reported' ? `/(worker)/reported-booking/${booking.id}?from=bookings-reported` : `/(detail)/booking-request/${booking.id}?from=bookings`)}
             >
               {/* ─── UPCOMING CARD ─── */}
               {activeTab === 'Upcoming' && (

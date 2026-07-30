@@ -119,7 +119,7 @@ export default function ChatScreen() {
   };
 
   const handleBookingDetails = () => {
-    router.push({ pathname: '/(worker)/booking-request/[id]', params: { id, from: 'chat' } });
+    router.push({ pathname: '/(detail)/booking-request/[id]', params: { id, from: 'chat' } });
   };
 
   const addMessage = (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => {
@@ -244,7 +244,7 @@ export default function ChatScreen() {
         <Pressable
           key={msg.id}
           style={[styles.bubble, styles.bubbleCustomer, styles.bookingSummaryCard]}
-          onPress={() => router.push({ pathname: '/(worker)/booking-request/[id]', params: { id, from: 'chat' } })}
+          onPress={() => router.push({ pathname: '/(detail)/booking-request/[id]', params: { id, from: 'chat' } })}
         >
           {msg.bookingData?.imageUrl && (
             <Image source={msg.bookingData.imageUrl} style={styles.bookingSummaryImage} contentFit="cover" />
