@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -25,7 +25,6 @@ const MENU_SECTIONS = [
       { id: 'industry', title: 'Industry & Skills', icon: Wrench },
       { id: 'rate-setting', title: 'Rate Setting', icon: DollarSign },
       { id: 'experience', title: 'Work Experience', icon: FileText },
-      { id: 'availability', title: 'Availability', icon: Clock },
       { id: 'areas', title: 'Service Areas', icon: MapPin },
     ],
   },
@@ -66,6 +65,7 @@ const MENU_SECTIONS = [
 export default function WorkerProfileScreen() {
   const { logout } = useAuthStore();
   const matchingOnline = useWorkerStore((s) => s.matchingOnline);
+  const setMatchingOnline = useWorkerStore((s) => s.setMatchingOnline);
   const { data: workerProfile } = useWorkerProfile();
 
   if (!workerProfile) return null;
@@ -85,10 +85,6 @@ export default function WorkerProfileScreen() {
     }
     if (id === 'experience') {
       router.push('/(worker)/work-experience?from=profile');
-      return;
-    }
-    if (id === 'availability') {
-      router.push('/(worker)/availability?from=profile');
       return;
     }
     if (id === 'portfolio') {
@@ -241,7 +237,7 @@ export default function WorkerProfileScreen() {
           <Text style={[theme.typography.h4, styles.infoSectionTitle]}>Availability</Text>
           <ProfileMatchingCard
             matchingOnline={matchingOnline}
-            onManage={() => router.push('/(worker)/availability?from=profile')}
+            setMatchingOnline={setMatchingOnline}
           />
         </View>
 
@@ -306,23 +302,30 @@ export default function WorkerProfileScreen() {
   );
 }
 
-function ProfileMatchingCard({ matchingOnline, onManage }: { matchingOnline: boolean; onManage: () => void }) {
+function ProfileMatchingCard({ matchingOnline, setMatchingOnline }: { matchingOnline: boolean; setMatchingOnline: (v: boolean) => void }) {
   return (
     <View style={styles.matchingCard}>
-      <View style={styles.matchingStatusRow}>
-        <View style={[styles.matchingDot, { backgroundColor: matchingOnline ? theme.colors.success : theme.colors.textTertiary }]} />
-        <AppText variant="body" weight="bold" style={{ flex: 1 }}>
-          {matchingOnline ? 'Available for matching' : 'Not available for matching'}
-        </AppText>
+      <View style={styles.matchingRow}>
+        <View style={styles.matchingCopy}>
+          <AppText variant="body" weight="bold">
+            Available for matching
+          </AppText>
+          <AppText variant="caption" color={theme.colors.textSecondary}>
+            Turn this on when you are ready to receive requests.
+          </AppText>
+        </View>
+        <Switch
+          value={matchingOnline}
+          onValueChange={setMatchingOnline}
+          trackColor={{ false: theme.colors.border, true: theme.colors.primaryLight }}
+          thumbColor={matchingOnline ? theme.colors.primary : theme.colors.textTertiary}
+        />
       </View>
       {matchingOnline && (
-        <AppText variant="caption" color={theme.colors.textSecondary} style={{ marginTop: theme.spacing.xs }}>
-          Your profile is eligible for receiving requests.
+        <AppText variant="caption" color={theme.colors.secondary}>
+          Your profile is eligible for matching.
         </AppText>
       )}
-      <TouchableOpacity style={styles.manageBtn} onPress={onManage}>
-        <Text style={[theme.typography.button, { color: theme.colors.primary }]}>Manage Availability</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -353,26 +356,15 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     ...theme.shadows.sm,
   },
-  matchingStatusRow: {
+  matchingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
   },
-  matchingDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  matchingCopy: {
+    flex: 1,
+    gap: theme.spacing.xs,
   },
-  manageBtn: {
-    marginTop: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    alignItems: 'center',
-  },
-  availabilityRow: { flexDirection: 'row', gap: theme.spacing.xs },
-  dayDot: { width: 32, height: 32, borderRadius: 16, backgroundColor: theme.colors.borderLight, alignItems: 'center', justifyContent: 'center' },
-  dayDotActive: { backgroundColor: `${theme.colors.primary}15` },
-  dayLabel: { fontSize: 12, fontWeight: '600', color: theme.colors.textTertiary },
-  dayLabelActive: { color: theme.colors.primary },
   card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, ...theme.shadows.sm, overflow: 'hidden' },
   settingItem: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
   borderBottom: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
