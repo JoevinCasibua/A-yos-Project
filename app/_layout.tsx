@@ -32,6 +32,7 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(worker)" options={{ animation: 'slide_from_left' }} />
           </Stack>
         </SafeAreaProvider>
       </RequestProvider>

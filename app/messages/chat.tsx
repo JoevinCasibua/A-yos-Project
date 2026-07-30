@@ -434,7 +434,7 @@ export default function ChatScreen() {
             maxHeight={18}
             seed={0}
           />
-          <AppText variant="bodySm" weight="semiBold" color={Colors.error}>
+          <AppText variant="bodySm" weight="semiBold" color={Colors.error} style={{ flex: 1 }}>
             {formatDuration(recordingSeconds)}
           </AppText>
           <Pressable style={styles.recordingActionBtn} onPress={isPaused ? handleResumeRecording : handlePauseRecording}>
@@ -470,7 +470,7 @@ export default function ChatScreen() {
             maxHeight={18}
             seed={0}
           />
-          <AppText variant="caption" color={Colors.textSecondary}>
+          <AppText variant="caption" color={Colors.textSecondary} style={{ flex: 1 }}>
             {formatDuration(voicePreviewDuration)}
           </AppText>
           <Pressable style={styles.voicePreviewCancel} onPress={handleCancelVoicePreview}>
