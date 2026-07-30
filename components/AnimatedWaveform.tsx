@@ -1,13 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
-
-function seededRandom(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
-    return (s >>> 0) / 0x7fffffff;
-  };
-}
 
 interface AnimatedWaveformProps {
   barCount?: number;
@@ -19,7 +11,15 @@ interface AnimatedWaveformProps {
   style?: ViewStyle;
 }
 
-function generateRandomHeights(count: number, max: number, seed?: number): number[] {
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return (s >>> 0) / 0x7fffffff;
+  };
+}
+
+function generateHeights(count: number, max: number, seed?: number): number[] {
   const rng = seed != null ? seededRandom(seed) : Math.random;
   return Array.from({ length: count }, () => 4 + rng() * (max - 4));
 }
@@ -34,15 +34,15 @@ export const AnimatedWaveform = React.memo(function AnimatedWaveform({
   style,
 }: AnimatedWaveformProps) {
   const barHeights = useMemo(
-    () => generateRandomHeights(barCount, maxHeight, seed),
+    () => generateHeights(barCount, maxHeight, seed),
     [barCount, maxHeight, seed]
   );
-  const animsRef = useRef<Animated.Value[] | null>(null);
+  const [animValues, setAnimValues] = useState<Animated.Value[] | null>(null);
 
   useEffect(() => {
     if (active) {
       const values = Array.from({ length: barCount }, () => new Animated.Value(0));
-      animsRef.current = values;
+      setAnimValues(values);
 
       const animations = values.map((anim, i) => {
         const peak = (barHeights[i] - 4) / (maxHeight - 4);
@@ -68,17 +68,17 @@ export const AnimatedWaveform = React.memo(function AnimatedWaveform({
 
       return () => {
         composite.stop();
-        animsRef.current = null;
+        setAnimValues(null);
       };
     } else {
-      animsRef.current = null;
+      setAnimValues(null);
     }
   }, [active, barCount, maxHeight, barHeights]);
 
   return (
-    <View key={String(active)} style={[styles.container, style]}>
+    <View style={[styles.container, style]}>
       {Array.from({ length: barCount }, (_, i) => {
-        if (active && animsRef.current) {
+        if (active && animValues) {
           return (
             <Animated.View
               key={i}
@@ -87,7 +87,7 @@ export const AnimatedWaveform = React.memo(function AnimatedWaveform({
                 {
                   width: barWidth,
                   backgroundColor: color,
-                  height: animsRef.current[i].interpolate({
+                  height: animValues[i].interpolate({
                     inputRange: [0, 1],
                     outputRange: [4, maxHeight],
                   }),
