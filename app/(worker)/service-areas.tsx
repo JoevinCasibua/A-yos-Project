@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Alert, TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MapPin, X, Plus, CheckCircle2, Navigation } from 'lucide-react-native';
+import { MapPin, X, Plus, CheckCircle2 } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
@@ -179,11 +179,13 @@ export default function ServiceAreasScreen() {
             Customers only see your approximate distance. Your confirmed point is used to check the coverage radius.
           </AppText>
           <Pressable
-            style={styles.locationBtn}
-            onPress={() => Alert.alert('Coming Soon', 'Location detection will be available soon.')}
+            style={styles.mapPlaceholder}
+            onPress={() => Alert.alert('Coming Soon', 'Map selection will be available soon.')}
           >
-            <Navigation size={16} color={Colors.primary} />
-            <AppText variant="bodySm" weight="semiBold" color={Colors.primary}>Use Current Location</AppText>
+            <MapPin size={32} color={Colors.textTertiary} />
+            <AppText variant="bodySm" color={Colors.textTertiary}>
+              Tap to set your service location
+            </AppText>
           </Pressable>
           <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={{ textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: Spacing['1'] }}>
             Service area label
@@ -335,6 +337,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primary,
     alignSelf: 'flex-start',
+  },
+  mapPlaceholder: {
+    height: 160,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    borderStyle: 'dashed',
+    backgroundColor: Colors.surfaceLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing['2'],
   },
   textInput: {
     backgroundColor: Colors.surfaceLight,
