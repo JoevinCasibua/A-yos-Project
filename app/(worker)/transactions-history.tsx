@@ -200,53 +200,54 @@ export default function TransactionsHistoryScreen() {
                   style={styles.txRow}
                   onPress={() => router.push(`/(worker)/earnings-receipt?transactionId=${tx.id}&type=${tx.type}&from=transactions`)}
                 >
-                  <View
-                    style={[
-                      styles.txIcon,
-                      {
-                        backgroundColor: tx.credit
-                          ? tx.type === 'topup' ? Colors.infoBg : Colors.successBg
-                          : tx.label.includes('Commission')
-                            ? Colors.errorBg
-                            : Colors.infoBg,
-                      },
-                    ]}
-                  >
-                    {tx.credit ? (
-                      tx.type === 'topup' ? (
-                        <ArrowUpFromLine size={14} color={Colors.info} />
+                  <View style={styles.txTop}>
+                    <View
+                      style={[
+                        styles.txIcon,
+                        {
+                          backgroundColor: tx.credit
+                            ? tx.type === 'topup' ? Colors.infoBg : Colors.successBg
+                            : tx.label.includes('Commission')
+                              ? Colors.errorBg
+                              : Colors.infoBg,
+                        },
+                      ]}
+                    >
+                      {tx.credit ? (
+                        tx.type === 'topup' ? (
+                          <ArrowUpFromLine size={14} color={Colors.info} />
+                        ) : (
+                          <TrendingUp size={14} color={Colors.verified} />
+                        )
+                      ) : tx.label.includes('Commission') ? (
+                        <TrendingDown size={14} color={Colors.error} />
                       ) : (
-                        <TrendingUp size={14} color={Colors.verified} />
-                      )
-                    ) : tx.label.includes('Commission') ? (
-                      <TrendingDown size={14} color={Colors.error} />
-                    ) : (
-                      <ArrowDownToLine size={14} color={Colors.info} />
-                    )}
+                        <ArrowDownToLine size={14} color={Colors.info} />
+                      )}
+                    </View>
+                    <View style={styles.txInfo}>
+                      <AppText variant="body" weight="semiBold" numberOfLines={1}>{tx.label}</AppText>
+                      <AppText variant="caption" color={Colors.textTertiary}>{tx.sub}</AppText>
+                    </View>
+                    <AppText
+                      variant="body"
+                      weight="bold"
+                      color={tx.credit ? Colors.verified : tx.label.includes('Payout') ? Colors.info : Colors.error}
+                    >
+                      {tx.amount}
+                    </AppText>
                   </View>
-                  <View style={styles.txBody}>
-                    <View style={styles.txTop}>
-                      <AppText variant="bodySm" weight="bold" numberOfLines={1}>{tx.label}</AppText>
-                      <AppText
-                        variant="bodySm"
-                        weight="bold"
-                        color={tx.credit ? Colors.verified : tx.label.includes('Payout') ? Colors.info : Colors.error}
-                      >
-                        {tx.amount}
+                  <View style={styles.txBottom}>
+                    <AppText variant="caption" color={Colors.textTertiary}>
+                      {tx.reference ? `Ref: ${tx.reference}` : ''}
+                    </AppText>
+                    <View style={styles.txStatus}>
+                      {statusIcon(tx.status)}
+                      <AppText variant="caption" weight="semiBold" color={statusColor(tx.status)}>
+                        {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
                       </AppText>
                     </View>
-                    <View style={styles.txBottom}>
-                      <AppText variant="caption" color={Colors.textTertiary}>
-                        {tx.reference ? `${tx.reference} — ` : ''}{tx.sub}
-                      </AppText>
-                      <View style={styles.txStatus}>
-                        {statusIcon(tx.status)}
-                        <AppText variant="caption" weight="bold" color={statusColor(tx.status)}>
-                          {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
-                        </AppText>
-                      </View>
-                    </View>
-                   </View>
+                  </View>
                 </Pressable>
               ))}
             </View>
@@ -295,9 +296,6 @@ const styles = StyleSheet.create({
   dateHeader: { marginTop: Spacing['1'] },
   txList: { gap: Spacing['3'] },
   txRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing['3'],
     backgroundColor: Colors.white,
     borderRadius: Radius.xl,
     padding: Spacing['4'],
@@ -311,14 +309,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  txBody: { flex: 1, gap: 2 },
-  txTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  txInfo: { flex: 1, gap: 2 },
+  txTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing['3'] },
   txBottom: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     marginTop: Spacing['3'], paddingTop: Spacing['3'],
     borderTopWidth: 1, borderTopColor: Colors.borderLight,
   },
-  txStatus: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  txStatus: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 
   emptyState: { paddingVertical: Spacing['10'], alignItems: 'center' },
 });
