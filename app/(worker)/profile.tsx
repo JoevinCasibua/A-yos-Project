@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
 import { Screen } from '@/components/layout/Screen';
-import { theme } from '@/constants/theme';
+import { Colors, theme } from '@/constants/theme';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Image } from 'expo-image';
@@ -310,8 +310,8 @@ function ProfileMatchingCard({ matchingOnline, setMatchingOnline }: { matchingOn
         <Switch
           value={matchingOnline}
           onValueChange={setMatchingOnline}
-          trackColor={{ false: theme.colors.border, true: theme.colors.primaryLight }}
-          thumbColor={matchingOnline ? theme.colors.surface : theme.colors.textTertiary}
+          trackColor={{ false: Colors.borderLight, true: `${Colors.cta}40` }}
+          thumbColor={matchingOnline ? Colors.cta : Colors.border}
         />
       </View>
       {matchingOnline && (
