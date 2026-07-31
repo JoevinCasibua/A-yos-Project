@@ -46,7 +46,8 @@ export default function PayoutMethodsScreen() {
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Payout Methods" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Payout Methods" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       <View style={styles.methodsList}>
         {methods.map((method) => (

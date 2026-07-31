@@ -59,7 +59,8 @@ export default function EarningsReceiptScreen() {
   const Icon = config.icon;
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Receipt" from={params.from} />}>
+    <Screen scrollable header={<PageHeader title="Receipt" from={params.from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       {/* Success Header */}
       <View style={styles.successHeader}>

@@ -48,7 +48,7 @@ export default function IndustrySkillsScreen() {
     );
 
   return (
-    <Screen safeArea scrollable>
+    <Screen scrollable keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
       <PageHeader title="Industry & Skills" from={from} />
 
       <View style={styles.content}>

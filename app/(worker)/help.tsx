@@ -67,7 +67,8 @@ export default function HelpCenterScreen() {
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Help Center" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Help Center" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       {/* Quick Contact */}
       <View style={styles.contactRow}>

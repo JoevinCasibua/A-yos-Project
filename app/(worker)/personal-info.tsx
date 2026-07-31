@@ -27,7 +27,8 @@ export default function PersonalInfoScreen() {
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Personal Information" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Personal Information" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       <View style={styles.formCard}>
         <View style={styles.inputGroup}>

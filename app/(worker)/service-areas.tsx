@@ -76,7 +76,8 @@ export default function ServiceAreasScreen() {
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Service Areas" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Service Areas" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       {/* Matching Readiness */}
       <View style={styles.section}>
