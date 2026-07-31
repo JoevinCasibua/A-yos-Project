@@ -87,6 +87,7 @@ export const DispatchOffer = React.memo(function DispatchOffer({
             label="Decline"
             variant="outline"
             size="sm"
+            pressedColor={Colors.errorBg}
             onPress={(e: any) => { e.stopPropagation?.(); onDecline(); }}
             labelStyle={{ color: Colors.error }}
             style={styles.btnDecline}
