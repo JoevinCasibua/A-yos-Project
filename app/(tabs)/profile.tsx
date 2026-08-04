@@ -5,7 +5,7 @@ import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 import { ChevronRight, Shield, Bell, CreditCard, Settings, HelpCircle, LogOut, MapPin, Heart, BookOpen, Fingerprint, Wallet, ArrowLeftRight, FileEdit } from 'lucide-react-native';
 import { Image } from 'expo-image';
@@ -47,7 +47,7 @@ const SETTINGS_SECTIONS = [
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
 
   const handleLogout = () => {
     logout();

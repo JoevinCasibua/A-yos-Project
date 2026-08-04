@@ -29,6 +29,8 @@ export const ServiceCategoryCard = React.memo(function ServiceCategoryCard({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${label} category`}
       onPress={handlePress}
       style={({ pressed }) => [
         styles.card,
@@ -36,8 +38,6 @@ export const ServiceCategoryCard = React.memo(function ServiceCategoryCard({
         { opacity: pressed ? 0.85 : 1 },
         style,
       ]}
-      accessibilityRole="button"
-      accessibilityLabel={label}
     >
       <View style={[styles.iconContainer, { backgroundColor }]}>
         {icon}

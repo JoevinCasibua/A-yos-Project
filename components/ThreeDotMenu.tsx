@@ -30,6 +30,8 @@ export const ThreeDotMenu = React.memo(function ThreeDotMenu({
   return (
     <View style={styles.wrapper}>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="More options"
         style={styles.trigger}
         onPress={() => setIsVisible(true)}
         hitSlop={12}
@@ -39,9 +41,16 @@ export const ThreeDotMenu = React.memo(function ThreeDotMenu({
 
       {isVisible && (
         <>
-          <Pressable style={styles.backdrop} onPress={() => setIsVisible(false)} />
+          <Pressable 
+            accessibilityRole="button"
+            accessibilityLabel="Close menu"
+            style={styles.backdrop} 
+            onPress={() => setIsVisible(false)} 
+          />
           <View style={styles.menu}>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Report User"
               style={styles.menuItem}
               onPress={handleReportUser}
             >

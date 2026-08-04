@@ -8,7 +8,7 @@ import { AppInput } from '@/components/AppInput';
 import { theme } from '@/constants/theme';
 import { useDraftStore } from '@/store/useDraftStore';
 import { ArrowLeft, X, Wrench, Droplets, Zap, Paintbrush, MapPin, Navigation, Camera, Mic, Settings, Info, Sparkles, Monitor, Fan, Shovel, Calendar, Clock, ChevronDown, Circle, CheckCircle2 } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Image } from 'expo-image';
 
 const CATEGORIES = [
@@ -24,7 +24,7 @@ const CATEGORIES = [
 
 export default function CreateRequestScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
   
   const currentDraft = useDraftStore(state => state.currentDraft);
   const updateCurrentDraft = useDraftStore(state => state.updateCurrentDraft);

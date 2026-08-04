@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Bell } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { EmptyState } from '@/components/layout/EmptyState';
 
 const MOCK_NOTIFICATIONS = [
@@ -15,7 +15,7 @@ const MOCK_NOTIFICATIONS = [
 
 export default function NotificationsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
 
   return (
     <Screen safeArea>

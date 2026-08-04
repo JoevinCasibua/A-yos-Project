@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { MapPin, Calendar as CalendarIcon, Clock } from 'lucide-react-native';
 
 import { EmptyState } from '@/components/layout/EmptyState';
@@ -18,7 +18,7 @@ const MOCK_BOOKINGS = [
 
 export default function BookingsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
   const [activeTab, setActiveTab] = useState('Ongoing');
 
   const filteredBookings = MOCK_BOOKINGS.filter(b => b.status === activeTab);
