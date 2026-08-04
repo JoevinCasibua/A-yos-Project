@@ -27,6 +27,7 @@ interface AppButtonProps extends Omit<PressableProps, 'children'> {
   rightIcon?: React.ReactNode;
   labelStyle?: TextStyle;
   style?: StyleProp<ViewStyle>;
+  pressedColor?: string;
 }
 
 const sizeStyles: Record<ButtonSize, { height: number; paddingHorizontal: number; fontSize: number }> = {
@@ -47,6 +48,7 @@ export const AppButton = React.memo(function AppButton({
   rightIcon,
   labelStyle,
   style,
+  pressedColor,
   onPress,
   ...props
 }: AppButtonProps) {
@@ -61,7 +63,7 @@ export const AppButton = React.memo(function AppButton({
       case 'secondary':
         return pressed ? Colors.primarySurface : Colors.primarySurface;
       case 'outline':
-        return pressed ? Colors.primarySurface : Colors.white;
+        return pressed ? pressedColor ?? Colors.primarySurface : Colors.white;
       case 'ghost':
         return 'transparent';
       case 'danger':

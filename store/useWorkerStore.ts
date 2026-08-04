@@ -1249,6 +1249,8 @@ const MOCK_WORKERS: WorkerSearchProfile[] = [
 interface WorkerStore {
   workers: WorkerSearchProfile[];
   compareList: string[];
+  matchingOnline: boolean;
+  setMatchingOnline: (value: boolean) => void;
   addToCompare: (id: string) => void;
   removeFromCompare: (id: string) => void;
   clearCompare: () => void;
@@ -1258,6 +1260,8 @@ interface WorkerStore {
 export const useWorkerStore = create<WorkerStore>((set, get) => ({
   workers: MOCK_WORKERS,
   compareList: [],
+  matchingOnline: false,
+  setMatchingOnline: (value) => set({ matchingOnline: value }),
 
   addToCompare: (id) => set((state) => {
     if (state.compareList.includes(id)) return state;

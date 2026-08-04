@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { Wrench, X, Briefcase, Check } from 'lucide-react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, Alert } from 'react-native';
+import { Wrench, Briefcase, Check, Plus } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
-import { AppAutocomplete } from '@/components/AppAutocomplete';
-import { Chip } from '@/components/Chip';
+import { AppInput } from '@/components/AppInput';
 import { useWorkerProfile } from '@/hooks';
 import { INDUSTRIES, SKILLS_BY_INDUSTRY } from '@/constants/workerMockData';
 
@@ -18,7 +17,9 @@ export default function IndustrySkillsScreen() {
   const [industry, setIndustry] = useState(workerProfile?.category ?? '');
   const [isEditingIndustry, setIsEditingIndustry] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<string[]>(workerProfile?.skills ?? []);
-  const [skillInput, setSkillInput] = useState('');
+  const [rateBySkill, setRateBySkill] = useState<Record<string, number | null>>({});
+  const [showAddSkill, setShowAddSkill] = useState(false);
+  const [customSkillInput, setCustomSkillInput] = useState('');
 
   const currentIndustryOption = INDUSTRIES.find(
     (i) => i.label.toLowerCase() === industry.toLowerCase(),
@@ -31,15 +32,6 @@ export default function IndustrySkillsScreen() {
     setSelectedSkills((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
-  };
-
-  const addCustomSkill = (text: string) => {
-    const exists = selectedSkills.find(
-      (s) => s.toLowerCase() === text.toLowerCase(),
-    );
-    if (!exists) {
-      setSelectedSkills((prev) => [...prev, text]);
-    }
   };
 
   const handleSave = () => {
@@ -56,7 +48,7 @@ export default function IndustrySkillsScreen() {
     );
 
   return (
-    <Screen safeArea scrollable>
+    <Screen scrollable keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
       <PageHeader title="Industry & Skills" from={from} />
 
       <View style={styles.content}>
@@ -80,21 +72,35 @@ export default function IndustrySkillsScreen() {
                   {industry}
                 </Text>
               </View>
-              <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>Tap to edit</Text>
+              <Text style={[theme.typography.caption, { color: 'rgba(255,255,255,0.7)' }]}>Tap to change</Text>
             </Pressable>
           ) : (
             <View style={styles.editSection}>
-              <AppAutocomplete
-                value={industry}
-                onChangeText={setIndustry}
-                onSelect={(option) => {
-                  setIndustry(option.label);
-                  setIsEditingIndustry(false);
-                  setSelectedSkills([]);
-                }}
-                options={INDUSTRIES}
-                placeholder="Type or select your industry"
-              />
+              <Text style={{ color: theme.colors.textSecondary, fontSize: 12, marginBottom: theme.spacing.sm }}>
+                Select your primary trade:
+              </Text>
+              <View style={styles.industryGrid}>
+                {INDUSTRIES.map((ind) => {
+                  const isSelected = industry === ind.label;
+                  return (
+                    <Pressable
+                      key={ind.value}
+                      style={[styles.industryChip, isSelected && styles.industryChipActive]}
+                      onPress={() => {
+                        setIndustry(ind.label);
+                        setSelectedSkills([]);
+                        setRateBySkill({});
+                        setIsEditingIndustry(false);
+                      }}
+                    >
+                      <Text style={[styles.industryChipText, isSelected && styles.industryChipTextActive]}>
+                        {ind.label}
+                      </Text>
+                      {isSelected && <Check size={16} color={theme.colors.surface} style={{ marginLeft: 4 }} />}
+                    </Pressable>
+                  );
+                })}
+              </View>
               <AppButton
                 label="Cancel"
                 variant="ghost"
@@ -109,59 +115,146 @@ export default function IndustrySkillsScreen() {
         </View>
 
         {/* Skills Section */}
-        <View style={styles.section}>
+        <View style={styles.skillCard}>
           <View style={styles.sectionTitleRow}>
-            <Check size={20} color={theme.colors.primary} />
+            <Wrench size={20} color={theme.colors.primary} />
             <Text style={[theme.typography.h4, { marginLeft: theme.spacing.sm }]}>
-              Skills
+              {industry} Skills & Services
             </Text>
           </View>
+          <Text style={{ color: theme.colors.textSecondary, fontSize: 12, marginBottom: theme.spacing.md }}>
+            Check all specific services you are qualified to perform:
+          </Text>
 
-          <View style={styles.chipGrid}>
-            {selectedSkills.map((skill) => {
-              const match = availableSkills.find((s) => s.label === skill);
+          <View style={styles.skillsList}>
+            {availableSkills.map((skill) => {
+              const isChecked = selectedSkills.includes(skill.label);
               return (
-                <Chip
-                  key={skill}
-                  label={match?.label || skill}
-                  selected
-                  color={theme.colors.primary}
-                  onPress={() => toggleSkill(match?.value || skill)}
-                  rightIcon={<X size={14} color={theme.colors.surface} />}
-                  size="sm"
-                />
+                <View key={skill.value} style={styles.skillBlock}>
+                  <Pressable
+                    style={[styles.skillRow, isChecked && styles.skillRowChecked]}
+                    onPress={() => toggleSkill(skill.label)}
+                  >
+                    <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+                      {isChecked && <Check size={14} color={theme.colors.surface} />}
+                    </View>
+                    <Text style={[theme.typography.body2, { fontWeight: isChecked ? '700' : '400' }]}>
+                      {skill.label}
+                    </Text>
+                  </Pressable>
+                  {isChecked && (
+                    <AppInput
+                      label="Your service rate (PHP/₱)"
+                      placeholder="Set rate to match this service"
+                      keyboardType="decimal-pad"
+                      leftIcon={<Text style={styles.currencyPrefix}>₱</Text>}
+                      value={
+                        rateBySkill[skill.label] == null
+                          ? ''
+                          : String(rateBySkill[skill.label]! / 100)
+                      }
+                      onChangeText={(value) => {
+                        const normalized = value.replace(/[^0-9.]/g, '');
+                        const amount = Number(normalized);
+                        setRateBySkill((current) => ({
+                          ...current,
+                          [skill.label]:
+                            normalized && Number.isFinite(amount)
+                              ? Math.round(amount * 100)
+                              : null,
+                        }));
+                      }}
+                    />
+                  )}
+                </View>
               );
             })}
+            {selectedSkills
+              .filter((s) => !availableSkills.some((a) => a.label === s))
+              .map((customLabel) => (
+                <View key={customLabel} style={styles.skillBlock}>
+                  <Pressable
+                    style={[styles.skillRow, styles.skillRowChecked]}
+                    onPress={() => toggleSkill(customLabel)}
+                  >
+                    <View style={[styles.checkbox, styles.checkboxChecked]}>
+                      <Check size={14} color={theme.colors.surface} />
+                    </View>
+                    <Text style={[theme.typography.body2, { fontWeight: '700' }]}>
+                      {customLabel}
+                    </Text>
+                  </Pressable>
+                  <AppInput
+                    label="Your service rate (PHP/₱)"
+                    placeholder="Set rate to match this service"
+                    keyboardType="decimal-pad"
+                    leftIcon={<Text style={styles.currencyPrefix}>₱</Text>}
+                    value={
+                      rateBySkill[customLabel] == null
+                        ? ''
+                        : String(rateBySkill[customLabel]! / 100)
+                    }
+                    onChangeText={(value) => {
+                      const normalized = value.replace(/[^0-9.]/g, '');
+                      const amount = Number(normalized);
+                      setRateBySkill((current) => ({
+                        ...current,
+                        [customLabel]:
+                          normalized && Number.isFinite(amount)
+                            ? Math.round(amount * 100)
+                            : null,
+                      }));
+                    }}
+                  />
+                </View>
+              ))}
           </View>
 
-          <AppAutocomplete
-            label="Add Skills"
-            value={skillInput}
-            onChangeText={setSkillInput}
-            options={availableSkills.filter(
-              (s) => !selectedSkills.includes(s.label),
-            )}
-            placeholder="Type or select skills"
-            multiSelect
-            selectedValues={selectedSkills.map((s) => {
-              const m = availableSkills.find((a) => a.label === s);
-              return m?.value || s;
-            })}
-            onToggle={(value) => {
-              const match = availableSkills.find((s) => s.value === value);
-              const label = match?.label || value;
-              setSelectedSkills((prev) =>
-                prev.includes(label) ? prev.filter((v) => v !== label) : [...prev, label],
-              );
-              setSkillInput('');
-            }}
-            onAddCustom={addCustomSkill}
-          />
-
-          {selectedSkills.length === 0 && (
-            <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.md }]}>
-              No skills selected. Start typing to add skills.
-            </Text>
+          {!showAddSkill ? (
+            <Pressable
+              style={styles.addSkillBtn}
+              onPress={() => setShowAddSkill(true)}
+            >
+              <Plus size={18} color={theme.colors.primary} />
+              <Text style={[theme.typography.body2, { color: theme.colors.primary, fontWeight: '600' }]}>
+                Add custom skill
+              </Text>
+            </Pressable>
+          ) : (
+            <View style={styles.addSkillForm}>
+              <TextInput
+                style={styles.addSkillInput}
+                placeholder="Type custom skill name..."
+                placeholderTextColor={theme.colors.textTertiary}
+                value={customSkillInput}
+                onChangeText={setCustomSkillInput}
+                autoFocus
+              />
+              <View style={styles.addSkillActions}>
+                <Pressable
+                  style={styles.addSkillCancel}
+                  onPress={() => { setShowAddSkill(false); setCustomSkillInput(''); }}
+                >
+                  <Text style={[theme.typography.body2, { color: theme.colors.textSecondary }]}>Cancel</Text>
+                </Pressable>
+                  <AppButton
+                    label="Add"
+                    variant="primary"
+                    size="sm"
+                    fullWidth
+                    style={{ flex: 1.5 }}
+                  disabled={!customSkillInput.trim()}
+                  onPress={() => {
+                    const trimmed = customSkillInput.trim();
+                    if (trimmed && !selectedSkills.includes(trimmed)) {
+                      setSelectedSkills((prev) => [...prev, trimmed]);
+                    }
+                    setCustomSkillInput('');
+                    setShowAddSkill(false);
+                  }}
+                />
+            </View>
+          </View>
           )}
         </View>
 
@@ -207,9 +300,113 @@ const styles = StyleSheet.create({
   editSection: {
     gap: theme.spacing.sm,
   },
-  chipGrid: {
+  industryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: theme.spacing.xs,
+  },
+  industryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.full,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+  },
+  industryChipActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  industryChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.textPrimary,
+  },
+  industryChipTextActive: {
+    color: theme.colors.surface,
+  },
+  skillCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
+    padding: theme.spacing.lg,
+    ...theme.shadows.sm,
+  },
+  skillsList: {
     gap: theme.spacing.sm,
+  },
+  skillBlock: {
+    gap: theme.spacing.sm,
+  },
+  skillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.borderLight,
+    backgroundColor: theme.colors.background,
+    gap: theme.spacing.md,
+  },
+  skillRowChecked: {
+    borderColor: theme.colors.primary,
+    backgroundColor: `${theme.colors.primary}0D`,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  currencyPrefix: {
+    ...theme.typography.body1,
+    color: theme.colors.textPrimary,
+  },
+  addSkillBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    marginTop: theme.spacing.md,
+  },
+  addSkillForm: {
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.md,
+  },
+  addSkillInput: {
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radius.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    fontSize: 14,
+    color: theme.colors.textPrimary,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  addSkillActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    alignItems: 'center',
+  },
+  addSkillCancel: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
   },
 });

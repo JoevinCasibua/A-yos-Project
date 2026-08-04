@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
+import { Colors, Radius, Spacing, Elevation, Typography, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
 import { Screen } from '@/components/layout/Screen';
@@ -12,13 +12,12 @@ export default function PersonalInfoScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
   const { data: workerProfile } = useWorkerProfile();
   const [name, setName] = useState(workerProfile?.name ?? '');
-  const [email, setEmail] = useState(workerProfile?.email ?? '');
   const [phone, setPhone] = useState('+63 917 123 4567');
   const [address, setAddress] = useState('123 Sampaguita St., Quezon City');
   const [bio, setBio] = useState('Licensed Master Plumber with 12 years of experience in residential and commercial plumbing services.');
 
   const handleSave = () => {
-    if (!name.trim() || !email.trim() || !phone.trim()) {
+    if (!name.trim() || !phone.trim()) {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
     }
@@ -28,7 +27,8 @@ export default function PersonalInfoScreen() {
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Personal Information" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Personal Information" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       <View style={styles.formCard}>
         <View style={styles.inputGroup}>
@@ -43,16 +43,10 @@ export default function PersonalInfoScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.inputLabel}>EMAIL ADDRESS *</AppText>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your email"
-            placeholderTextColor={Colors.textTertiary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={styles.inputLabel}>EMAIL ADDRESS</AppText>
+          <View style={styles.emailDisplay}>
+            <AppText variant="body" color={Colors.textSecondary}>{workerProfile?.email}</AppText>
+          </View>
         </View>
 
         <View style={styles.inputGroup}>
@@ -124,16 +118,29 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   textInput: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: Colors.white,
     borderRadius: Radius.lg,
-    paddingHorizontal: Spacing['3'],
-    paddingVertical: Spacing['2'],
-    fontSize: 14,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['3'],
+    fontSize: Typography.lg,
+    minHeight: 52,
     color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 100,
-    paddingTop: Spacing['2'],
+    paddingTop: Spacing['3'],
+  },
+  emailDisplay: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['3'],
+    minHeight: 52,
+    justifyContent: 'center',
   },
 
   actions: {

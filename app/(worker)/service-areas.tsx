@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Alert, TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MapPin, X, Plus } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Elevation, theme } from '@/constants/theme';
+import { MapPin, X, Plus, CheckCircle2, Navigation } from 'lucide-react-native';
+import { Colors, Radius, Spacing, Elevation, Typography, theme } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';
+import { AppSelect } from '@/components/AppSelect';
 import { SearchBar } from '@/components/SearchBar';
 import { Screen } from '@/components/layout/Screen';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useWorkerProfile } from '@/hooks';
+import { useWorkerStore } from '@/store/useWorkerStore';
 
 const SUGGESTED_AREAS = [
   'Makati City', 'Taguig City', 'Pasig City', 'Mandaluyong City',
@@ -17,12 +19,32 @@ const SUGGESTED_AREAS = [
   'Valenzuela City', 'Marikina City', 'Pateros',
 ];
 
+const RADIUS_OPTIONS = [
+  { label: '2 km', value: '2000' },
+  { label: '5 km', value: '5000' },
+  { label: '10 km', value: '10000' },
+  { label: '20 km', value: '20000' },
+  { label: '50 km', value: '50000' },
+];
+
 export default function ServiceAreasScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
   const { data: workerProfile } = useWorkerProfile();
+  const matchingOnline = useWorkerStore((s) => s.matchingOnline);
   const [areas, setAreas] = useState<string[]>(workerProfile?.serviceAreas ?? []);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [originLabel, setOriginLabel] = useState('');
+  const [coverageRadius, setCoverageRadius] = useState('10000');
+
+  const readinessItems = [
+    { label: 'Admin verification approved', ready: workerProfile?.verificationStatus === 'verified' },
+    { label: 'Industry & skills', ready: (workerProfile?.skills?.length ?? 0) > 0 },
+    { label: 'Service rate set', ready: !!workerProfile?.hourlyRate },
+    { label: 'Service origin and radius', ready: false },
+
+    { label: 'Available for matching', ready: matchingOnline },
+  ];
 
   const filteredSuggestions = SUGGESTED_AREAS.filter(
     (a) => !areas.includes(a) && a.toLowerCase().includes(searchQuery.toLowerCase())
@@ -50,11 +72,72 @@ export default function ServiceAreasScreen() {
   };
 
   const handleSave = () => {
-    Alert.alert('Saved', `${areas.length} service area(s) saved.`);
+    Alert.alert('Saved', `Areas: ${areas.length}, Origin: ${originLabel || 'not set'}, Radius: ${RADIUS_OPTIONS.find((o) => o.value === coverageRadius)?.label}`);
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Service Areas" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Service Areas" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
+
+      {/* Matching Readiness */}
+      <View style={styles.section}>
+        <View style={styles.card}>
+          <AppText variant="body" weight="bold">Matching readiness</AppText>
+          {readinessItems.map((item) => (
+            <View key={item.label} style={styles.readinessRow}>
+              <View style={[styles.readinessDot, item.ready && styles.readinessDotReady]} />
+              <AppText variant="bodySm" color={item.ready ? Colors.success : Colors.textSecondary}>
+                {item.label}
+              </AppText>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Service Origin */}
+      <View style={styles.section}>
+        <View style={styles.card}>
+          <View style={styles.originTitle}>
+            <MapPin size={18} color={Colors.primary} />
+            <AppText variant="body" weight="bold">Service origin</AppText>
+          </View>
+          <AppText variant="caption" color={Colors.textSecondary}>
+            Customers only see your approximate distance. Your confirmed point is used to check the coverage radius.
+          </AppText>
+          <Pressable
+            style={styles.locationBtn}
+            onPress={() => Alert.alert('Coming Soon', 'Location detection will be available soon.')}
+          >
+            <Navigation size={16} color={Colors.primary} />
+            <AppText variant="bodySm" weight="semiBold" color={Colors.primary}>Use Current Location</AppText>
+          </Pressable>
+          <Pressable
+            style={styles.mapPlaceholder}
+            onPress={() => Alert.alert('Coming Soon', 'Map selection will be available soon.')}
+          >
+            <MapPin size={32} color={Colors.textTertiary} />
+            <AppText variant="bodySm" color={Colors.textTertiary}>
+              Tap to set your service location
+            </AppText>
+          </Pressable>
+          <AppText variant="caption" weight="semiBold" color={Colors.textTertiary} style={{ textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: Spacing['1'] }}>
+            Service area label
+          </AppText>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Trece Martires City, Cavite"
+            placeholderTextColor={Colors.textTertiary}
+            value={originLabel}
+            onChangeText={setOriginLabel}
+          />
+          <AppSelect
+            label="Coverage radius"
+            options={RADIUS_OPTIONS}
+            value={coverageRadius}
+            onSelect={setCoverageRadius}
+          />
+        </View>
+      </View>
 
       {/* Current Areas */}
       <View style={styles.section}>
@@ -146,7 +229,7 @@ export default function ServiceAreasScreen() {
 const styles = StyleSheet.create({
   section: {
     paddingHorizontal: theme.layout.screenPadding,
-    marginBottom: theme.spacing.xl,
+    marginBottom: Spacing['4'],
   },
   sectionLabel: {
     textTransform: 'uppercase',
@@ -224,5 +307,66 @@ const styles = StyleSheet.create({
 
   actions: {
     paddingHorizontal: theme.layout.screenPadding,
+    marginTop: Spacing['4'],
+  },
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.xl,
+    padding: Spacing['4'],
+    gap: Spacing['3'],
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  readinessRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+  },
+  readinessDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: Colors.border,
+  },
+  readinessDotReady: {
+    backgroundColor: Colors.success,
+  },
+  originTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing['2'],
+  },
+  locationBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing['2'],
+    paddingVertical: Spacing['3'],
+    paddingHorizontal: Spacing['4'],
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  mapPlaceholder: {
+    height: 160,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    borderStyle: 'dashed',
+    backgroundColor: Colors.surfaceLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing['2'],
+  },
+  textInput: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['3'],
+    fontSize: Typography.lg,
+    minHeight: 52,
+    color: Colors.textPrimary,
   },
 });

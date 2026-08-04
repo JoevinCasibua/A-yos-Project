@@ -74,7 +74,7 @@ export const AppSelect: React.FC<AppSelectProps> = ({
 
       <Modal
         visible={modalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >

@@ -22,7 +22,7 @@ export default function WorkerReviewsScreen() {
         r.comment.toLowerCase().includes(q) ||
         r.serviceType.toLowerCase().includes(q),
     );
-  }, [searchQuery]);
+  }, [searchQuery, workerReviews]);
 
   return (
     <Screen safeArea style={{ paddingBottom: 0 }}>

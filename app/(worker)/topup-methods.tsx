@@ -45,7 +45,8 @@ export default function TopUpMethodsScreen() {
   };
 
   return (
-    <Screen safeArea scrollable header={<PageHeader title="Top-Up Methods" from={from} />}>
+    <Screen scrollable header={<PageHeader title="Top-Up Methods" from={from} />}
+      keyboardAvoiding={false} contentContainerStyle={{ paddingBottom: 80 }} style={{ paddingBottom: 0 }}>
 
       <View style={styles.methodsList}>
         {methods.map((method) => (

@@ -1,24 +1,120 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Platform, Pressable, StyleSheet, Text } from 'react-native';
-import { Tabs, useRouter } from 'expo-router';
-import { LayoutDashboard, CalendarDays, User, Wallet, MessageSquare, Briefcase } from 'lucide-react-native';
+import { Tabs, useRouter, usePathname } from 'expo-router';
+import {
+  LayoutDashboard,
+  CalendarDays,
+  User,
+  Wallet,
+  MessageSquare,
+  Briefcase,
+  AlertCircle,
+  Wifi,
+  MapPin,
+  Pause,
+  WifiOff,
+  MapPinOff,
+  TriangleAlert,
+} from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorkerBookingStore } from '@/store/useWorkerBookingStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
 const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 85 : 60;
 
+type PresenceState =
+  | 'starting'
+  | 'online'
+  | 'paused'
+  | 'offline'
+  | 'permission_denied'
+  | 'not_ready'
+  | 'error'
+  | 'working';
+
+type PresenceBannerConfig = {
+  bg: string;
+  icon: LucideIcon;
+  text: string;
+};
+
+const PRESENCE_BANNER: Record<PresenceState, PresenceBannerConfig> = {
+  working: {
+    bg: theme.colors.warning,
+    icon: Briefcase,
+    text: 'You are currently working on a job — Tap to view',
+  },
+  online: {
+    bg: theme.colors.success,
+    icon: Wifi,
+    text: 'Online and receiving requests',
+  },
+  starting: {
+    bg: theme.colors.info,
+    icon: MapPin,
+    text: 'Starting location sharing…',
+  },
+  paused: {
+    bg: theme.colors.warning,
+    icon: Pause,
+    text: 'Presence paused',
+  },
+  offline: {
+    bg: theme.colors.textSecondary,
+    icon: WifiOff,
+    text: 'Offline',
+  },
+  permission_denied: {
+    bg: theme.colors.error,
+    icon: MapPinOff,
+    text: 'Location permission required',
+  },
+  not_ready: {
+    bg: theme.colors.warning,
+    icon: AlertCircle,
+    text: 'Complete Service Availability and switch Available for matching on.',
+  },
+  error: {
+    bg: theme.colors.error,
+    icon: TriangleAlert,
+    text: 'Location heartbeat error',
+  },
+};
+
+const PRESENCE_CYCLE: PresenceState[] = [
+  'online',
+  'starting',
+  'paused',
+  'offline',
+  'permission_denied',
+  'not_ready',
+  'error',
+  'working',
+];
+
 export default function WorkerTabLayout() {
   const router = useRouter();
+  const pathname = usePathname();
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const isCurrentlyWorking = useWorkerBookingStore((s) => s.isCurrentlyWorking);
   const currentBookingId = useWorkerBookingStore((s) => s.currentBookingId);
+  const [presenceIndex, setPresenceIndex] = useState(0);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/(auth)/login');
     }
   }, [isAuthenticated]);
+
+  const showWorking = isCurrentlyWorking && currentBookingId;
+  const config =
+    pathname === '/bookings'
+      ? showWorking
+        ? PRESENCE_BANNER.working
+        : PRESENCE_BANNER[PRESENCE_CYCLE[presenceIndex % PRESENCE_CYCLE.length]]
+      : null;
+  const Icon = config?.icon;
 
   return (
     <View style={styles.container}>
@@ -95,7 +191,6 @@ export default function WorkerTabLayout() {
         <Tabs.Screen name="payout-methods" options={{ href: null }} />
         <Tabs.Screen name="payout-history" options={{ href: null }} />
         <Tabs.Screen name="service-areas" options={{ href: null }} />
-        <Tabs.Screen name="privacy" options={{ href: null }} />
         <Tabs.Screen name="earnings-receipt" options={{ href: null }} />
         <Tabs.Screen name="universal-search" options={{ href: null }} />
         <Tabs.Screen name="rate-setting" options={{ href: null }} />
@@ -107,32 +202,29 @@ export default function WorkerTabLayout() {
         <Tabs.Screen name="reported-booking/[id]" options={{ href: null }} />
       </Tabs>
 
-      {isCurrentlyWorking && currentBookingId && (
+      {config && Icon ? (
         <Pressable
-          style={styles.workingBanner}
-          onPress={() => router.push(`/(detail)/booking-request/${currentBookingId}?from=dashboard`)}
+          style={[styles.banner, { backgroundColor: config.bg }]}
+          onPress={() => setPresenceIndex((i) => (i + 1) % PRESENCE_CYCLE.length)}
         >
           <View style={styles.bannerDotContainer}>
             <View style={styles.bannerDot} />
           </View>
-          <Briefcase size={16} color={theme.colors.surface} />
-          <Text style={styles.bannerText}>
-            You are currently working on a job — Tap to view
-          </Text>
+          <Icon size={16} color={theme.colors.surface} />
+          <Text style={styles.bannerText}>{config.text}</Text>
         </Pressable>
-      )}
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  workingBanner: {
+  banner: {
     position: 'absolute',
     bottom: TAB_BAR_HEIGHT,
     left: 0,
     right: 0,
-    backgroundColor: theme.colors.warning,
     paddingHorizontal: theme.layout.screenPadding,
     paddingVertical: theme.spacing.sm,
     flexDirection: 'row',
