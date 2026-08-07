@@ -5,7 +5,7 @@ import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Clock, Droplets, Zap, Wrench, Trash2, Calendar, Paintbrush } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { useDraftStore } from '@/store/useDraftStore';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -17,7 +17,7 @@ const iconMap: Record<string, React.ElementType> = {
 
 export default function DraftsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
   
   const savedDrafts = useDraftStore(state => state.savedDrafts);
   const loadDraft = useDraftStore(state => state.loadDraft);

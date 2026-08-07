@@ -6,14 +6,14 @@ import { theme } from '@/constants/theme';
 import { ArrowLeft, Search, Filter, Star, MapPin, SlidersHorizontal, ChevronRight, X } from 'lucide-react-native';
 import { useWorkerStore, type WorkerSearchProfile } from '@/store/useWorkerStore';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 
 const CATEGORIES = ['All', 'Plumbing', 'Electrical', 'Cleaning', 'Carpentry', 'AC Repair'];
 
 export default function SearchScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
   const { workers, compareList, addToCompare, removeFromCompare } = useWorkerStore();
 
   const [searchQuery, setSearchQuery] = useState('');

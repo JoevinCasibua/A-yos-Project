@@ -14,7 +14,7 @@ import { useRequest } from '@/context/RequestContext';
 
 export default function RequestDetailsScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  useLocalSearchParams<{ id: string }>();
   const { request } = useRequest();
   const { data: providers = [] } = useProviders();
   
@@ -68,7 +68,7 @@ export default function RequestDetailsScreen() {
     }, 2000); // 2 second delay
 
     return () => clearTimeout(timer);
-  }, [request.status, request.urgency]);
+  }, [request.status, request.urgency, providers]);
 
   const handleBack = () => router.back();
 

@@ -5,12 +5,10 @@ import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, MapPin, Minus, Plus } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Slider from '@react-native-community/slider';
 
 export default function RadiusConfigScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [radius, setRadius] = useState(10); // Default 10km
 
   const handleDecrease = () => {

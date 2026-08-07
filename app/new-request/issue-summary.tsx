@@ -4,13 +4,11 @@ import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
-import { ArrowLeft, Sparkles, CheckCircle2, MapPin, Calendar, Clock, DollarSign, PenTool, AlertTriangle, ShieldAlert } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ArrowLeft, Sparkles, CheckCircle2, PenTool, AlertTriangle, ShieldAlert } from 'lucide-react-native';
 import { useDraftStore } from '@/store/useDraftStore';
 
 export default function IssueSummaryScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [analyzing, setAnalyzing] = useState(true);
   const saveDraft = useDraftStore(state => state.saveDraft);
   const currentDraft = useDraftStore(state => state.currentDraft);

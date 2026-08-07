@@ -5,7 +5,7 @@ import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
 import { ArrowLeft, Wallet } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const BUDGET_PRESETS = [
   { id: '1', label: '₱ 0 - 500', min: '0', max: '500' },
@@ -16,7 +16,7 @@ const BUDGET_PRESETS = [
 
 export default function BudgetConfigScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
   
   const [activePreset, setActivePreset] = useState<string | null>('2');
   const [minBudget, setMinBudget] = useState('500');

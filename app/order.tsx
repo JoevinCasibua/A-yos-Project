@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Calendar, MapPin, Navigation, Tag, Wrench } from 'lucide-react-native';
+import { ArrowLeft, Calendar, Tag, Wrench, Navigation } from 'lucide-react-native';
 import { Colors, Layout, Spacing, Radius } from '@/constants/theme';
 import { AppText } from '@/components/AppText';
 import { AppButton } from '@/components/AppButton';

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { theme } from '@/constants/theme';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 import { EmptyState } from '@/components/layout/EmptyState';
 import { MessageSquare } from 'lucide-react-native';
@@ -17,7 +17,7 @@ const MOCK_CHATS = [
 
 export default function MessagesListScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  
 
   return (
     <Screen safeArea>

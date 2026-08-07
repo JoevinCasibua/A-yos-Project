@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/layout/Screen';
 import { AppButton } from '@/components/AppButton';
 import { theme } from '@/constants/theme';
-import { ArrowLeft, MapPin, Star, MessageSquare, AlertCircle, ShieldCheck } from 'lucide-react-native';
+import { ArrowLeft, MapPin, Star, AlertCircle, ShieldCheck } from 'lucide-react-native';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 import { useDraftStore } from '@/store/useDraftStore';
 import { useWorkerStore, type WorkerSearchProfile } from '@/store/useWorkerStore';
@@ -25,10 +25,10 @@ const CATEGORY_MAP: Record<string, string> = {
 
 export default function MatchingScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+
   const [matchState, setMatchState] = useState<'searching' | 'results' | 'no_workers' | 'declined'>('searching');
   const [pulseAnim] = useState(new Animated.Value(1));
-  const [retryCount, setRetryCount] = useState(0);
+  const [, setRetryCount] = useState(0);
 
   // Animation values for the 5 worker cards
   const [cardAnims] = useState(() => [...Array(5)].map(() => new Animated.Value(0)));
@@ -190,7 +190,7 @@ export default function MatchingScreen() {
               <View style={styles.safetyList}>
                 <View style={styles.safetyItem}>
                   <View style={styles.bullet} />
-                  <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Verify the worker's identity before allowing entry.</Text>
+                  <Text style={[theme.typography.body2, { flex: 1, color: theme.colors.textSecondary }]}>Verify the worker&apos;s identity before allowing entry.</Text>
                 </View>
                 <View style={styles.safetyItem}>
                   <View style={styles.bullet} />
